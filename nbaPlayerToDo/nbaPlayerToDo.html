@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBA球员信息</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        #player {
+            /* TODO:整体框架宽度改为 width:250px ok*/
+            width: 250px;
+            height: 200px;
+            /*TODO:边框 red solid 1px，仅用于调试，调试后可删除 ok*/
+            /* border: red solid 1px; */
+            /* 居中显示 */
+            margin: 30px auto;
+        }
+        /* 集体声明 */
+        
+        #curry,
+        #abc {
+            /* 并排展示 */
+            float: left;
+            /* TODO：卡牌大小改为 height:178px width:112px ok*/
+            height: 178px;
+            width: 112px;
+            /* TODO:人物卡边框信息:rgba(0, 0, 0, .12) solid 1px ok*/
+            border: rgba(0, 0, 0, 0.12) solid 1px ;
+            /* TODO：人物卡片之间间隔:10px; 容易出处点用margin属性 ok*/
+            margin-right: 10px;
+            text-align: center;
+            /* TODO:人物卡，圆边角 10px; ok*/
+            border-radius: 10px;
+        }
+        
+        #curryImg,
+        #abcImg {
+            width: 112x;
+            height: 112px;
+            /* TODO:人物图像，圆边角 10px; ok*/
+            border-radius: 10px;
+        }
+        
+        .name {
+            /* 姓名字体大小14px */
+            font-size: 14px;
+        }
+        
+        .type,
+        .team {
+            /* 队名和球位信息字体信息 */
+            font-size: 12px;
+            color: #70757a;
+        }
+        
+        .teamImg {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+
+    <body>
+        <div id="player">
+            <!-- curry信息 -->
+            <div id="curry">
+                <img id="curryImg" src="" alt="">
+                <span class="name">名字</span>
+                <br>
+                <span class="type">位置</span>
+                <br>
+                <img class="teamImg" src="" alt="">
+                <span class="team">队名</span>
+            </div>
+            <!-- 字母哥信息 -->
+            <div id="abc">
+                <img id="abcImg" src="" alt="">
+                <span class="name">名字</span>
+                <br>
+                <span class="type">位置</span>
+                <br>
+                <img class="teamImg" src="" alt="">
+                <span class="team">队名</span>
+            </div>
+        </div>
+        <script>
+            // 创建球员信息
+            // 1、 球员的构造函数
+            function Star(name, type, team, personImg, teamImg) {
+                this.name = name;
+                this.type = type;
+                this.team = team;
+                this.personImg = personImg;
+                this.teamImg = teamImg;
+            }
+
+            // 2、 实例化球员对象 
+            // 图片路径 可以用相对文件路径
+            var currypersonImg = "img/curryImg.jpg";
+            var curryTeamImg = "img/curryTeamImg.png";
+            var curry = new Star("curry", "控球后卫", "金州勇士", currypersonImg, curryTeamImg);
+            // 3、对象属性展示到对应位置
+            //      3.1图片展示
+            //           获取图片对象
+            var curryImgItem = document.getElementById("curryImg");
+            //           属性值赋值到对应位置
+            curryImgItem.src = curry.personImg;
+            //     3.2队logo展示
+            //      获取队logo图片对象
+            var curryTeamImgItem = document.querySelector("#curry .teamImg");
+            //       属性值赋值到对应位置
+            curryTeamImgItem.src = curry.teamImg;
+            //     3.3个人信息文本赋值
+            //        获取姓名对象
+            var curryname = document.getElementsByClassName("name");
+            //        姓名赋值到页面
+            curryname[0].innerHTML = curry.name;
+
+            var curryType = document.getElementsByClassName("type");
+            //        数组的第一个位置
+            curryType[0].innerHTML = curry.type;
+
+            var curryTeam = document.getElementsByClassName("team");
+            //        数组的第一个位置
+            curryTeam[0].innerHTML = curry.team;
+
+            //TODO 字母哥信息，参考如上步骤2、实例化球员对象3、对象属性展示到对应位置 ok
+            var zmgpersonImg = "img/abcImg.jpg";
+            var zmgTeamImg = "img/abcTeamImg.png";
+            var zmg = new Star("字母哥", "前锋", "密尔沃基雄鹿", zmgpersonImg, zmgTeamImg);
+            // 3、对象属性展示到对应位置
+            //      3.1图片展示
+            //           获取图片对象
+            var zmgImgItem = document.getElementById("abcImg");
+            //           属性值赋值到对应位置
+            zmgImgItem.src = zmg.personImg;
+            //     3.2队logo展示
+            //      获取队logo图片对象
+            var zmgTeamImgItem = document.querySelector("#abc .teamImg");
+            //       属性值赋值到对应位置
+            zmgTeamImgItem.src = zmg.teamImg;
+            //     3.3个人信息文本赋值
+            //        获取姓名对象
+            var zmgname = document.getElementsByClassName("name");
+            //        姓名赋值到页面
+            zmgname[1].innerHTML = zmg.name;
+
+            var zmgType = document.getElementsByClassName("type");
+            //        数组的第er个位置
+            zmgType[1].innerHTML = zmg.type;
+
+            var zmgTeam = document.getElementsByClassName("team");
+            //        数组的第er个位置
+            zmgTeam[1].innerHTML = zmg.team;
+        </script>
+           <p align="center"> &copy; 版权由HLH归属，未经允许不得复制、镜像</p>
+    </body>
+
+</html>
