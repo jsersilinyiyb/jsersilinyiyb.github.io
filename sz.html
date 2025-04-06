@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script>
+    function mppx(arr) 
+    {
+        var cd = arr.length;
+        for (var i = 0; i < cd - 1; i++) {
+            for (var j = 0; j < cd - i - 1; j++) {
+                if (arr[j] > arr[j + 1]) {
+                    var dd = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = dd;
+                }
+            }
+        }
+        return arr;
+    }
+    var arr = [5, 4, 3, 2, 1];
+    arr=mppx(arr);
+    var da="数组从小到大排序：";
+    // console.log("数组从小到大排序：");
+    for (var i = 0; i < arr.length; i++) {
+    if(i < arr.length - 1) {
+        da=da+arr[i] + ",";
+    }
+    else {
+        da=da+arr[i];
+    } 
+}
+ console.log(da);
+    // console.log("数组从小到大排序：" + arr.join(','));
+    </script>
+</head>
+<body>
+    <p align="center"> &copy; 版权由HLH归属，未经允许不得复制、镜像</p>
+</body>
+</html>
