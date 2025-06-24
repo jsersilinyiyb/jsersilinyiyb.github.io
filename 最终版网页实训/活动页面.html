@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平行动平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 新增ico图标引用 -->
+    <link rel="icon" href="ico.png" type="image/png">
+    <link rel="apple-touch-icon" href="ico.png">
+    <link rel="shortcut icon" href="ico.png" type="image/png">
+    <style>
+            /* 原有样式保持不变 */
+            
+            /* 新增页脚优化样式 */
+            #footer {
+                background: linear-gradient(135deg, #050508 0%, #0a0a0f 100%);
+                padding: 50px 0 20px;
+                border-top: 1px solid rgba(100, 100, 120, 0.3);
+                margin-top: 50px;
+            }
+            
+            .footer-container {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 30px;
+            }
+            
+            .footer-section {
+                padding: 15px;
+            }
+            
+            .footer-section h3 {
+                font-size: 1.4rem;
+                color: var(--accent-gold);
+                margin-bottom: 25px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid var(--border-color);
+                position: relative;
+            }
+            
+            .footer-section h3::after {
+                content: '';
+                position: absolute;
+                bottom: -1px;
+                left: 0;
+                width: 60px;
+                height: 2px;
+                background: var(--accent-gold);
+            }
+            
+            .footer-about {
+                grid-column: span 2;
+            }
+            
+            .footer-about p {
+                margin-bottom: 20px;
+                line-height: 1.8;
+            }
+            
+            .social-links {
+                display: flex;
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .social-links a {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: rgba(252, 163, 17, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--accent-gold);
+                transition: all 0.3s ease;
+            }
+            
+            .social-links a:hover {
+                background: var(--accent-gold);
+                color: #000;
+                transform: translateY(-3px);
+            }
+            
+            .footer-links {
+                list-style: none;
+            }
+            
+            .footer-links li {
+                margin-bottom: 15px;
+            }
+            
+            .footer-links a {
+                color: var(--light-text);
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+            }
+            
+            .footer-links a:hover {
+                color: var(--accent-gold);
+                transform: translateX(5px);
+            }
+            
+            .footer-links a i {
+                color: var(--accent-gold);
+                font-size: 0.8rem;
+            }
+            
+            .contact-info {
+                list-style: none;
+            }
+            
+            .contact-info li {
+                margin-bottom: 20px;
+                display: flex;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .contact-info i {
+                color: var(--accent-gold);
+                font-size: 1.2rem;
+                min-width: 24px;
+                margin-top: 3px;
+            }
+            
+            .friend-links {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .friend-links a {
+                color: var(--light-text);
+                text-decoration: none;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+            }
+            
+            .friend-links a:hover {
+                color: var(--accent-gold);
+            }
+            
+            .friend-links a i {
+                color: var(--accent-gold);
+                font-size: 0.9rem;
+            }
+            
+            .copyright {
+                margin-top: 50px;
+                padding-top: 25px;
+                border-top: 1px solid var(--border-color);
+                text-align: center;
+                font-size: 0.85rem;
+                line-height: 1.8;
+                opacity: 0.7;
+            }
+            
+            .copyright strong {
+                color: var(--accent-gold);
+                font-weight: 600;
+            }
+            
+            /* 响应式调整 */
+            @media (max-width: 992px) {
+                .footer-about {
+                    grid-column: span 1;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .footer-container {
+                    grid-template-columns: 1fr;
+                }
+                
+                .footer-section h3 {
+                    margin-bottom: 20px;
+                }
+                
+                .copyright {
+                    text-align: left;
+                    padding: 20px;
+                }
+            }
+        </style>
+    <style>
+        /* 添加平滑滚动 */
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+         :root {
+            --primary: #165DFF;
+            --secondary: #36D399;
+            --accent: #FF9F43;
+            --danger: #F87272;
+            --neutral-100: #F5F7FA;
+            --neutral-200: #E4E7ED;
+            --neutral-300: #C0C6CF;
+            --neutral-400: #909399;
+            --neutral-500: #606266;
+            --neutral-600: #303133;
+            --neutral-700: #1E1E1E;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+        
+        body {
+            background-color: var(--neutral-100);
+            color: var(--neutral-600);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        /* 用户栏样式 */
+        
+        .user-bar {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            text-align: right;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .user-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .user-btn:hover {
+            background: #0e4fd8;
+        }
+        
+        #username-display {
+             color: black;
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        /* 导航栏样式 */
+        
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .header-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .nav-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--neutral-700);
+        }
+        
+        .logo-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            background-image: url('和平纽带.png');
+            /* 引用图片 */
+            background-size: cover;
+            /* 图片自适应容器 */
+            background-position: center;
+            /* 图片居中 */
+            display: block;
+            /* 确保布局正确 */
+        }
+        
+        .desktop-nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-link {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            color: var(--neutral-600);
+            transition: all 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(22, 93, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        .nav-link.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            color: var(--neutral-600);
+            cursor: pointer;
+        }
+        /* 英雄区域样式 */
+        
+        .hero {
+            padding: 5rem 1rem;
+            background: linear-gradient(135deg, rgba(22, 93, 255, 0.1) 0%, rgba(54, 211, 153, 0.1) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+        
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--neutral-500);
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* 活动卡片样式 */
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-title p {
+            font-size: 1.125rem;
+            color: var(--neutral-500);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-time-info {
+            padding: 1.5rem 1.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .time-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.75rem;
+            background-color: rgba(var(--theme-color-rgb), 0.1);
+            color: var(--theme-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .time-details {
+            flex: 1;
+        }
+        
+        .time-label {
+            font-size: 0.875rem;
+            color: var(--neutral-500);
+        }
+        
+        .time-value {
+            font-weight: 600;
+            color: var(--neutral-700);
+            font-size: 1.1rem;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .card-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--neutral-700);
+        }
+        
+        .card-desc {
+            color: var(--neutral-500);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+        
+        .progress-container {
+            margin-bottom: 1.5rem;
+        }
+        
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: var(--neutral-200);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: auto;
+        }
+        
+        .btn-primary {
+            background-color: var(--theme-color);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-secondary {
+            background-color: rgba(var(--theme-color-rgb), 0.1);
+            color: var(--theme-color);
+            flex: 1;
+        }
+        /* 资源区域样式 */
+        
+        .resources {
+            background-color: var(--neutral-100);
+            padding: 4rem 2rem;
+        }
+        
+        .resource-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .resource-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .resource-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .resource-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        
+        .resource-desc {
+            color: var(--neutral-500);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        /* 统计区域样式 */
+        
+        .stats {
+            padding: 4rem 2rem;
+            background: white;
+        }
+        
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 1rem;
+            background: var(--neutral-100);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.125rem;
+            color: var(--neutral-500);
+        }
+        /* 页脚样式 */
+        
+        footer {
+            background-color: var(--neutral-700);
+            color: white;
+            padding: 4rem 2rem 2rem;
+            margin-top: auto;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+        
+        .footer-column h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .footer-links a {
+            color: var(--neutral-200);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-contact {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--neutral-200);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: var(--neutral-600);
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+        
+        .social-links a:hover {
+            background-color: var(--primary);
+        }
+        
+        .subscribe-form {
+            display: flex;
+            margin-top: 1rem;
+        }
+        
+        .subscribe-form input {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem 0 0 0.5rem;
+            background-color: var(--neutral-600);
+            color: white;
+        }
+        
+        .subscribe-form button {
+            padding: 0 1.25rem;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0 0.5rem 0.5rem 0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .subscribe-form button:hover {
+            background-color: #0e4fd8;
+        }
+        
+        .copyright {
+            max-width: 1280px;
+            margin: 3rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--neutral-600);
+            text-align: center;
+            color: var(--neutral-400);
+            font-size: 0.875rem;
+        }
+        /* 主题颜色 */
+        
+        .online-theme {
+            --theme-color: var(--primary);
+        }
+        
+        .offline-theme {
+            --theme-color: var(--secondary);
+        }
+        
+        .education-theme {
+            --theme-color: var(--accent);
+        }
+        
+        .emergency-theme {
+            --theme-color: var(--danger);
+        }
+        
+        .hero.online-theme {
+            background: linear-gradient(135deg, rgba(22, 93, 255, 0.1) 0%, rgba(22, 93, 255, 0.2) 100%);
+        }
+        
+        .hero.offline-theme {
+            background: linear-gradient(135deg, rgba(54, 211, 153, 0.1) 0%, rgba(54, 211, 153, 0.2) 100%);
+        }
+        
+        .hero.education-theme {
+            background: linear-gradient(135deg, rgba(255, 159, 67, 0.1) 0%, rgba(255, 159, 67, 0.2) 100%);
+        }
+        
+        .hero.emergency-theme {
+            background: linear-gradient(135deg, rgba(248, 114, 114, 0.1) 0%, rgba(248, 114, 114, 0.2) 100%);
+        }
+        
+        .card-badge {
+            background-color: rgba(var(--theme-color-rgb), 0.1);
+            color: var(--theme-color);
+        }
+        
+        .progress-fill {
+            background-color: var(--theme-color);
+        }
+        
+        .resource-icon {
+            background-color: rgba(var(--theme-color-rgb), 0.1);
+            color: var(--theme-color);
+        }
+        
+        .stat-card {
+            border-left: 4px solid var(--theme-color);
+        }
+        /* 响应式设计 */
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            .hero h1 {
+                font-size: 2.25rem;
+            }
+            .hero p {
+                font-size: 1.125rem;
+            }
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+            .btn {
+                font-size: 0.9rem;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+        
+        .download-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .download-hint.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* 新增进度条颜色定义 */
+        
+        .progress-fill.low {
+            background-color: #F87272;
+            /* 低进度 - 红色 */
+        }
+        
+        .progress-fill.medium {
+            background-color: #FF9F43;
+            /* 中进度 - 橙色 */
+        }
+        
+        .progress-fill.high {
+            background-color: #165DFF;
+            /* 高进度 - 蓝色 */
+        }
+        
+        .progress-fill.complete {
+            background-color: #36D399;
+            /* 完成 - 绿色 */
+            box-shadow: 0 0 8px rgba(54, 211, 153, 0.5);
+        }
+        /* 增强进度条动画效果 */
+        
+        .progress-fill {
+            transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s ease;
+        }
+        /* 进度标签样式优化 */
+        
+        .progress-label {
+            font-weight: 600;
+            color: var(--neutral-600);
+        }
+        
+        .progress-percent {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        /* 进度指示器优化 */
+        
+        .progress-indicators {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .progress-goal {
+            font-weight: 700;
+            color: var(--neutral-700);
+        }
+        /* 添加进度条发光效果 */
+        
+        .progress-bar {
+            overflow: visible;
+            position: relative;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 4px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+        /* 新增样式 */
+        
+        .card-tag {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
+            font-size: 0.8rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-popular {
+            background: linear-gradient(45deg, #FF9F43, #F87272);
+            color: white;
+        }
+        
+        .card-new {
+            background: linear-gradient(45deg, #36D399, #165DFF);
+            color: white;
+        }
+        
+        .card-featured {
+            background: linear-gradient(45deg, #165DFF, #9C27B0);
+            color: white;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* 新增这行 */
+        }
+        /* 通知样式 */
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(30px);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        /* 添加返回顶部按钮样式 */
+        
+        #back-to-top {
+            position: fixed;
+            bottom: 80px;
+            /* 在下载提示上方 */
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(22, 93, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        #back-to-top:hover {
+            background: #0e4fd8;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(22, 93, 255, 0.6);
+        }
+        
+        #back-to-top i {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        /* 移动端适配 */
+        
+        @media (max-width: 768px) {
+            #back-to-top {
+                bottom: 70px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+    </div>
+    <!-- 用户栏 -->
+    <div class="user-bar">
+        <a href="个人中心页面.html" style="text-decoration: none;" id="username-display"></a>
+        <button id="login-btn" class="user-btn">登录</button>
+        <button id="logout-btn" class="user-btn" style="display:none">退出</button></a>
+    </div>
+
+    <!-- 下载提示 -->
+    <div class="download-hint" id="downloadHint">
+        <i class="fa fa-download"></i> 文件下载中...
+    </div>
+
+    <!-- 导航栏 -->
+    <header>
+        <div class="header-container">
+            <div class="nav-wrapper">
+                <a href="首页2.0.html" class="logo">
+                    <div class="logo-icon"></div>
+                    <span>和平纽带</span>
+                </a>
+
+                <nav class="desktop-nav">
+                    <a href="首页2.0.html" class="nav-link">首页</a>
+                    <a href="#" class="nav-link active">线上行动</a>
+                    <a href="#" class="nav-link">线下行动</a>
+                    <a href="#" class="nav-link">教育行动</a>
+                    <a href="#" class="nav-link">紧急响应</a>
+                    <!-- 修改后的"关于我们"链接 -->
+                    <a href="#footer" class="nav-link">关于我们</a>
+                </nav>
+
+                <button class="mobile-menu-btn">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 内容区域 -->
+    <main id="content">
+        <!-- 内容将由JavaScript动态生成 -->
+    </main>
+
+    <!-- 页脚 - 添加了id="footer" -->
+    <footer id="footer">
+            <div class="footer-container" id="footer">
+                    <div class="footer-section">
+                        <h3 id="footer-about-us">关于我们</h3>
+                        <p id="footer-about-text">
+                            和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+        
+                    </div>
+        
+                    <div class="footer-section">
+                        <h3 id="footer-links">快速链接</h3>
+                        <ul class="footer-links">
+                            <li><a href="首页2.0.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-home">首页</span></a></li>
+                            <li><a href="关于我们页面.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-about">关于我们</span></a>
+                            </li>
+                            <li><a href="标志页面.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-logo">标志</span></a></li>
+                            <li><a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate"><i class="fa fa-chevron-right"></i> <span data-key="footer-donate">捐款</span></a>
+                            </li>
+                            <li><a href="首页2.0.html#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                        data-key="footer-war-peace">战争与和平</span></a></li>
+                            <li><a href="活动页面.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-events">活动</span></a>
+                            </li>
+                        </ul>
+                    </div>
+        
+                    <div class="footer-section">
+                        <h3 id="footer-contact">联系我们</h3>
+                        <ul class="contact-info">
+                            <li>
+                              
+                                <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                            </li>
+                            <li>
+                                
+                                <div data-key="footer-phone">电话:12345678910 <br>举报热线:110</div>
+                            </li>
+                            <li>
+                               
+                                <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                            </li>
+                            <li>
+                                
+                                <div data-key="footer-wechat">微信:lllllll </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h3 id="footer-friend-links">友情链接</h3>
+                        <div class="friend-links">
+                            <a href="https://www.unesco.org/zh" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-unesco">联合国教科文组织</span></a>
+                            <a href="https://www.icrc.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-red-cross">国际红十字会</span></a>
+                            <a href="https://www.tufts.edu/wpf" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-peace-foundation">世界和平基金会</span></a>
+                            <a href="https://www.unocha.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-aid-network">人道主义援助网</span></a>
+                            <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                             target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+                            <a href="https://www.tc.edu/peace-ed" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-education">和平教育中心</span></a>
+                            <a href="https://www.warmuseum.nl" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-history">战争历史档案馆</span></a>
+                            <a href="https://www.unhcr.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-refugee">难民救助组织</span></a>
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="copyright">
+                    <p id="footer-disclaimer">
+                        <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+                    </p>
+                    <p id="footer-compliance">
+                        本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+                    </p>
+                    <p id="footer-copyright">
+                        © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+                    </p>
+                </div>
+    </footer>
+
+    <script>
+        // 活动数据
+        const actionData = {
+            online: {
+                title: "线上行动",
+                description: "参与全球性的线上和平活动，无论身在何处，都能为和平贡献力量",
+                color: "online-theme",
+                activities: [{
+                    title: "全球气候变化联署",
+                    description: "呼吁国际社会关注气候变化问题，签署联名信提交给联合国环境署",
+                    progress: 85,
+                    button: "立即签名",
+                    button2: "分享",
+                    time: "活动时间：即日起至2030年12月31日",
+                    tag: "popular",
+                    link: 'https://unfccc.int/zh'
+                }, {
+                    title: "线上和平论坛",
+                    description: "参与全球和平论坛，与来自世界各地的和平倡导者交流想法和经验",
+                    progress: null,
+                    button: "预约参加",
+                    button2: "提醒我",
+                    time: "活动时间：每周三 20:00-21:30",
+                    tag: "featured",
+                    link: 'https://cpctg.com/index.php/zh/forum.html'
+                }, {
+                    title: "和平故事分享会",
+                    description: "分享你的和平故事，聆听他人的经历，共同传递和平的力量",
+                    progress: null,
+                    button: "参与讨论",
+                    button2: "收藏",
+                    time: "活动时间：每日开放",
+                    tag: "new",
+                    link: 'https://www.un.org/zh/actnow/ten-actions-peaceful-world'
+                }, {
+                    title: "数字艺术展",
+                    description: "展示全球艺术家创作的和平主题数字艺术作品",
+                    progress: 65,
+                    button: "参观展览",
+                    button2: "分享",
+                    time: "活动时间：2025年11月1日-30日",
+                    tag: "featured",
+                    link: 'https://www.adae516.com/#/home'
+                }, {
+                    title: "社交媒体挑战",
+                    description: "参与#和平挑战，分享你的和平宣言，影响更多人",
+                    progress: 92,
+                    button: "参与挑战",
+                    button2: "查看规则",
+                    time: "活动时间：即日起至2025年12月31日",
+                    tag: "popular",
+                    link: 'https://www.peace-ed-campaign.org/zh-CN/new-peace-manifesto-2025-seeking-engagement-and-advice/'
+                }, {
+                    title: "在线和平课程",
+                    description: "免费学习冲突解决、跨文化沟通等和平建设技能",
+                    progress: 78,
+                    button: "开始学习",
+                    button2: "课程目录",
+                    time: "活动时间：全年开放",
+                    tag: "new",
+                    link: 'https://www.peace-ed-campaign.org/zh-CN/free-online-peace-and-conflict-resolution-sample-courses/'
+                }],
+                resources: [{
+                    title: "线上行动指南",
+                    description: "学习如何有效组织线上和平活动，最大化影响力",
+                    button: "下载指南"
+                }, {
+                    title: "线上会议技巧",
+                    description: "掌握线上会议的组织技巧和有效沟通策略",
+                    button: "下载手册"
+                }, {
+                    title: "社交媒体工具包",
+                    description: "获取社交媒体宣传素材，扩大活动影响力",
+                    button: "下载工具包"
+                }],
+                stats: [{
+                    number: "12,548",
+                    label: "参与人数"
+                }, {
+                    number: "328",
+                    label: "线上活动"
+                }, {
+                    number: "42",
+                    label: "国家地区"
+                }]
+            },
+            offline: {
+                title: "线下行动",
+                description: "参与本地社区的实际行动，面对面传递和平理念",
+                color: "offline-theme",
+                activities: [{
+                    title: "城市和平音乐会",
+                    description: "汇聚知名艺人的公益音乐会，门票收入将用于支持冲突地区儿童教育",
+                    progress: 24,
+                    button: "申请志愿者",
+                    button2: "购票",
+                    time: "活动时间：2025年11月15日 19:00-22:00",
+                    tag: "popular",
+                    link: ('http://www.ihuod.cn/zixun/4191.html')
+                }, {
+                    title: "社区清洁活动",
+                    description: "组织社区居民共同参与环境清洁，营造更美好的生活空间",
+                    progress: null,
+                    button: "报名参加",
+                    button2: "分享",
+                    time: "活动时间：2025年10月28日 9:00-12:00",
+                    tag: "new",
+                    link: ('http://www.gsht.gov.cn/zwdt/XZDT/art/2024/art_928469596ae54b2fb653255598481517.html')
+                }, {
+                    title: "和平游行",
+                    description: "通过和平游行表达对和平的渴望，呼吁社会关注冲突解决",
+                    progress: null,
+                    button: "参与游行",
+                    button2: "了解更多",
+                    time: "活动时间：2025年11月11日 14:00-17:00",
+                    tag: "featured",
+                    link: ('https://news.qq.com/rain/a/20230410A00X4L00')
+                }, {
+                    title: "和平主题市集",
+                    description: "本地手工艺品和美食市集，部分收益捐赠给和平组织",
+                    progress: 45,
+                    button: "申请摊位",
+                    button2: "志愿者",
+                    time: "活动时间：2025年12月5日 10:00-18:00",
+                    tag: "new",
+                    link: ('https://www.lnce.org.cn/qiche/973.html')
+                }, {
+                    title: "和平主题电影放映",
+                    description: "放映和平主题纪录片和短片，映后与导演交流",
+                    progress: null,
+                    button: "预约座位",
+                    button2: "分享",
+                    time: "活动时间：2025年11月20日 19:00-21:00",
+                    tag: "featured",
+                    link: ('https://www.163.com/dy/article/K279EE1G05506BEH.html')
+                }, {
+                    title: "社区植树活动",
+                    description: "组织社区居民共同植树，改善环境，促进社区和谐",
+                    progress: 30,
+                    button: "报名参加",
+                    button2: "捐赠树苗",
+                    time: "活动时间：2025年10月30日 9:00-12:00",
+                    tag: "popular",
+                    link: ('http://ahwh.wenming.cn/wmzc/202503/t20250313_8850717.shtml')
+                }],
+                resources: [{
+                    title: "活动组织手册",
+                    description: "全面指南，帮助您成功组织线下和平活动",
+                    button: "下载手册"
+                }, {
+                    title: "志愿者管理",
+                    description: "学习如何有效招募、培训和管理志愿者团队",
+                    button: "下载指南"
+                }, {
+                    title: "活动安全指南",
+                    description: "确保活动安全进行的专业建议和检查清单",
+                    button: "下载指南"
+                }],
+                stats: [{
+                    number: "5,278",
+                    label: "志愿者"
+                }, {
+                    number: "186",
+                    label: "城市"
+                }, {
+                    number: "34",
+                    label: "国家"
+                }]
+            },
+            education: {
+                title: "教育行动",
+                description: "通过教育培养和平意识，塑造下一代和平使者",
+                color: "education-theme",
+                activities: [{
+                    title: "和平教育工作坊",
+                    description: "面向青少年的和平教育系列工作坊，培养冲突解决与沟通技巧",
+                    progress: 65,
+                    button: "了解详情",
+                    button2: "报名",
+                    time: "活动时间：2025年10月21日 14:00-16:00",
+                    tag: "featured",
+                    link: ('https://www.sokaglobal.org/chs/in-society/initiatives/young-builders-of-peace.html')
+                }, {
+                    title: "和平主题讲座",
+                    description: "邀请专家分享和平发展的最新趋势和实践经验",
+                    progress: null,
+                    button: "预约讲座",
+                    button2: "分享",
+                    time: "活动时间：2025年11月5日 19:30-21:00",
+                    tag: "popular",
+                    link: ('https://www.tsinghua.edu.cn/info/1182/108129.htm')
+                }, {
+                    title: "校园和平大使计划",
+                    description: "培训学生成为校园和平大使，促进校园和谐氛围",
+                    progress: null,
+                    button: "申请加入",
+                    button2: "下载资料",
+                    time: "活动时间：2025年10月-2026年1月",
+                    tag: "new",
+                    link: ('https://developer.huawei.com/consumer/cn/programs/hsd/ambassador?ha_source=saike&ha_sourceId=89000050')
+                }, {
+                    title: "和平主题绘画比赛",
+                    description: "面向中小学生的和平主题绘画比赛，优秀作品将在线上展览",
+                    progress: 30,
+                    button: "提交作品",
+                    button2: "投票",
+                    time: "活动时间：2025年10月15日-11月15日",
+                    tag: "new",
+                    link: ('https://www.peace-art.com/article/Introduction#:~:text=%E7%94%B1UNESCO%20CENTER%20FOR,PEACE%20%28%E8%81%94%E5%90%88%E5%9B%BD%E6%95%99%E7%A7%91%E6%96%87%E7%BB%84%E7%BB%87%E5%92%8C%E5%B9%B3%E4%B8%AD%E5%BF%83%29%E6%8E%88%E6%9D%83%E5%8F%91%E8%B5%B7%E7%9A%84%E2%80%9C%E7%AC%AC%E4%B8%89%E5%B1%8APEACE%20ART%E5%9B%BD%E9%99%85%E9%9D%92%E5%B0%91%E5%84%BF%E8%89%BA%E6%9C%AF%E5%A4%A7%E5%B1%95%E2%80%9D%EF%BC%8C%E6%97%A8%E5%9C%A8%E9%80%9A%E8%BF%87%E8%89%BA%E6%9C%AF%E6%B4%BB%E5%8A%A8%E4%BF%83%E8%BF%9B%E3%80%81%E6%8E%A8%E5%B9%BF%E8%81%94%E5%90%88%E5%9B%BD%E6%95%99%E7%A7%91%E6%96%87%E7%BB%84%E7%BB%87%E7%9A%84%E7%90%86%E6%83%B3%E5%92%8C%E6%84%BF%E6%99%AF%E2%80%94%E2%80%94%E5%B0%86%E6%96%B0%E4%B8%80%E4%BB%A3%E9%9D%92%E5%B0%91%E5%84%BF%E5%9F%B9%E5%85%BB%E6%88%90%E5%9B%BD%E9%99%85%E5%92%8C%E5%B9%B3%E7%BC%94%E9%80%A0%E8%80%85%EF%BC%8C%E5%9C%A8%E5%85%A8%E7%90%83%E9%9D%92%E5%B0%91%E5%B9%B4%E5%84%BF%E7%AB%A5%E4%B8%AD%E4%BC%A0%E9%80%92%E5%92%8C%E5%B9%B3%E7%9A%84%E7%90%86%E5%BF%B5%EF%BC%8C%E4%BC%A0%E6%92%AD%E5%92%8C%E5%B9%B3%E7%9A%84%E7%A7%8D%E5%AD%90%EF%BC%9B%E5%90%8C%E6%97%B6%EF%BC%8C%E4%B8%BA%E5%85%A8%E7%90%83%E9%9D%92%E5%B0%91%E5%84%BF%E7%9A%84%E6%96%87%E5%8C%96%E4%BA%A4%E6%B5%81%E6%90%AD%E5%BB%BA%E8%B5%B7%E6%A1%A5%E6%A2%81%E5%92%8C%E5%B9%B3%E5%8F%B0%EF%BC%8C%E7%94%A8%E8%89%BA%E6%9C%AF%E7%9A%84%E8%A1%A8%E8%BE%BE%E6%96%B9%E5%BC%8F%EF%BC%8C%E4%BF%83%E8%BF%9B%E4%B8%8D%E5%90%8C%E5%9C%B0%E5%9F%9F%E3%80%81%E4%B8%8D%E5%90%8C%E7%A7%8D%E6%97%8F%E9%9D%92%E5%B0%91%E5%84%BF%E4%B9%8B%E9%97%B4%E7%9A%84%E5%92%8C%E5%B9%B3%E4%B8%8E%E5%8F%8B%E8%B0%8A%EF%BC%8C%E4%B8%80%E8%B5%B7%E8%B5%B0%E5%90%91%E6%9C%AA%E6%9D%A5%E3%80%82')
+                }, {
+                    title: "教师和平教育培训",
+                    description: "为教师提供和平教育方法和资源的专业培训",
+                    progress: null,
+                    button: "报名培训",
+                    button2: "下载资料",
+                    time: "活动时间：2025年11月8日 9:00-16:00",
+                    tag: "featured",
+                    link: ('https://www.peace-ed-campaign.org/zh-CN/study-peace-ed/')
+                }, {
+                    title: "和平教育夏令营",
+                    description: "为青少年设计的和平主题夏令营，寓教于乐",
+                    progress: 55,
+                    button: "查看详情",
+                    button2: "报名",
+                    time: "活动时间：2025年7月15日-7月30日",
+                    tag: "popular",
+                    link: ('https://www.163.com/dy/article/EJC2FSUC05239S0U.html')
+                }],
+                resources: [{
+                    title: "教学资源包",
+                    description: "为教师提供的和平教育课程和活动方案",
+                    button: "下载资源"
+                }, {
+                    title: "青少年活动指南",
+                    description: "适合青少年参与的和平主题活动设计",
+                    button: "下载指南"
+                }, {
+                    title: "冲突解决课程",
+                    description: "帮助学生学会和平解决冲突的互动课程",
+                    button: "下载课程"
+                }],
+                stats: [{
+                    number: "2,450",
+                    label: "参与学校"
+                }, {
+                    number: "36,800",
+                    label: "学生参与"
+                }, {
+                    number: "780",
+                    label: "教师培训"
+                }]
+            },
+            emergency: {
+                title: "紧急响应",
+                description: "在危机时刻提供快速援助，保护受冲突影响的人们",
+                color: "emergency-theme",
+                activities: [{
+                    title: "自然灾害救援",
+                    description: "为受灾地区提供紧急救援物资和援助",
+                    progress: 42,
+                    button: "立即捐赠",
+                    button2: "分享",
+                    time: "活动时间：即日起至2030年12月31日",
+                    tag: "featured",
+                    link: ('https://cn.chinadaily.com.cn/a/202306/01/WS64789491a31064684b05428d.html')
+                }, {
+                    title: "冲突地区人道援助",
+                    description: "为冲突地区的居民提供食品、医疗和安全保障",
+                    progress: null,
+                    button: "参与援助",
+                    button2: "了解更多",
+                    time: "持续进行",
+                    tag: "popular",
+                    link: ('https://www.un.org/zh/our-work/deliver-humanitarian-aid')
+                }, {
+                    title: "公共卫生事件应对",
+                    description: "协助医疗机构进行疫情防控和救治工作",
+                    progress: null,
+                    button: "加入行动",
+                    button2: "志愿者报名",
+                    time: "活动时间：2025年10月-12月",
+                    tag: "new",
+                    link: ('https://www.chinacdc.cn/jkyj/tfggws/jswj1/201810/t20181015_301445.html')
+                }, {
+                    title: "紧急救援物资募捐",
+                    description: "为受冲突影响的家庭募集食品、衣物和医疗用品",
+                    progress: 60,
+                    button: "捐赠物资",
+                    button2: "物流支持",
+                    time: "活动时间：即日起至2025年11月30日",
+                    tag: "featured",
+                    link: ('https://zh.wfp.org/news/zhongguoyuanzhu')
+                }, {
+                    title: "心理支持热线",
+                    description: "为受冲突影响的人们提供免费心理咨询服务",
+                    progress: null,
+                    button: "志愿者报名",
+                    button2: "寻求帮助",
+                    time: "活动时间：每日9:00-21:00",
+                    tag: "popular",
+                    link: ('https://www.gov.cn/zhengce/zhengceku/202412/content_6994470.htm')
+                }, {
+                    title: "灾后重建计划",
+                    description: "帮助受灾社区重建家园，恢复基本生活设施",
+                    progress: 25,
+                    button: "捐款支持",
+                    button2: "志愿者",
+                    time: "活动时间：2025年11月-2026年3月",
+                    tag: "new",
+                    link: ('https://www.mem.gov.cn/gk/zfxxgkpt/fdzdgknr/202307/t20230719_456671.shtml#:~:text=%E5%80%92%E6%8D%9F%E4%BD%8F%E6%88%BF%E6%81%A2%E5%A4%8D%E9%87%8D%E5%BB%BA%E6%95%91%E5%8A%A9%E5%B7%A5%E4%BD%9C%E6%98%AF%E4%B8%BA%E4%BA%86%E6%94%AF%E6%8C%81%E5%B8%AE%E5%8A%A9%E5%9B%A0%E8%87%AA%E7%84%B6%E7%81%BE%E5%AE%B3%E5%AF%BC%E8%87%B4%E4%BD%8F%E6%88%BF%E5%80%92%E5%A1%8C%E6%88%96%E6%8D%9F%E5%9D%8F%E7%9A%84%E5%8F%97%E7%81%BE%E7%BE%A4%E4%BC%97%E5%8F%8A%E6%97%B6%E6%81%A2%E5%A4%8D%E9%87%8D%E5%BB%BA%E5%92%8C%E4%BF%AE%E7%BC%AE%E5%80%92%E6%8D%9F%E6%88%BF%E5%B1%8B%EF%BC%8C%E5%B8%AE%E5%8A%A9%E8%A7%A3%E5%86%B3%E5%8F%97%E7%81%BE%E7%BE%A4%E4%BC%97%E5%9F%BA%E6%9C%AC%E4%BD%8F%E6%88%BF%E9%97%AE%E9%A2%98%E3%80%82,%E5%80%92%E6%8D%9F%E4%BD%8F%E6%88%BF%E6%81%A2%E5%A4%8D%E9%87%8D%E5%BB%BA%E6%95%91%E5%8A%A9%E5%B7%A5%E4%BD%9C%E7%94%B1%E7%81%BE%E5%8C%BA%E5%90%84%E7%BA%A7%E5%9C%B0%E6%96%B9%E6%94%BF%E5%BA%9C%E8%B4%9F%E8%B4%A3%E8%90%BD%E5%AE%9E%EF%BC%8C%E5%BA%94%E6%80%A5%E7%AE%A1%E7%90%86%E9%83%A8%E3%80%81%E8%B4%A2%E6%94%BF%E9%83%A8%E6%A0%B9%E6%8D%AE%E5%9B%BD%E5%8A%A1%E9%99%A2%E6%9C%89%E5%85%B3%E9%83%A8%E7%BD%B2%E7%BB%9F%E7%AD%B9%E6%8C%87%E5%AF%BC%E3%80%82%20%E5%9C%B0%E6%96%B9%E5%90%84%E7%BA%A7%E8%B4%A2%E6%94%BF%E5%BA%94%E8%B6%B3%E9%A2%9D%E5%AE%89%E6%8E%92%E5%9B%A0%E7%81%BE%E5%80%92%E6%8D%9F%E4%BD%8F%E6%88%BF%E6%81%A2%E5%A4%8D%E9%87%8D%E5%BB%BA%E8%A1%A5%E5%8A%A9%E8%B5%84%E9%87%91%EF%BC%8C%E4%B8%AD%E5%A4%AE%E8%B4%A2%E6%94%BF%E7%BB%99%E4%BA%88%E9%80%82%E5%BD%93%E8%A1%A5%E5%8A%A9%E3%80%82')
+                }],
+                resources: [{
+                    title: "紧急响应指南",
+                    description: "在危机情况下组织人道主义援助的最佳实践",
+                    button: "下载指南"
+                }, {
+                    title: "筹款工具包",
+                    description: "高效筹集紧急救援资金的方法和工具",
+                    button: "下载工具包"
+                }, {
+                    title: "志愿者培训",
+                    description: "紧急响应志愿者必备技能和知识培训",
+                    button: "下载资料"
+                }],
+                stats: [{
+                    number: "186",
+                    label: "紧急响应"
+                }, {
+                    number: "24",
+                    label: "国家地区"
+                }, {
+                    number: "78,450",
+                    label: "受助人员"
+                }]
+            }
+        };
+
+        // 行为类型定义
+        const BEHAVIOR_TYPES = {
+            ACTION_BUTTON_CLICK: '活动按钮点击',
+            ACTION_TYPE_VIEW: '活动类型查看',
+            RESOURCE_DOWNLOAD: '资源下载'
+        };
+
+        // 初始化行为记录数组
+        let userBehaviors = [];
+
+        // 用户状态管理
+        function updateUserUI() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const usernameDisplay = document.getElementById('username-display');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user) {
+                usernameDisplay.textContent = `欢迎，${user.username}`;
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                usernameDisplay.textContent = '';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            return user ? user.id : null;
+        }
+
+        // 从localStorage加载行为记录
+        function loadBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) return;
+
+            const savedBehaviors = localStorage.getItem(`warTruthBehaviors_${userId}`);
+            if (savedBehaviors) {
+                userBehaviors = JSON.parse(savedBehaviors);
+            }
+        }
+
+        // 保存行为记录到localStorage
+        function saveBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) return;
+
+            localStorage.setItem(`warTruthBehaviors_${userId}`, JSON.stringify(userBehaviors));
+        }
+
+        // 记录用户行为
+        function recordBehavior(type, details = {}) {
+            const behavior = {
+                type,
+                details,
+                timestamp: new Date().toISOString()
+            };
+
+            userBehaviors.push(behavior);
+            saveBehaviors();
+            showNotification(`已记录: ${type}`);
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.classList.remove('show');
+                        setTimeout(() => {
+                            if (notification.parentNode) {
+                                document.body.removeChild(notification);
+                            }
+                        }, 300);
+                    }
+                }, 2500);
+            }, 10);
+        }
+
+        // 渲染活动页面
+        function renderActionPage(type) {
+            const data = actionData[type];
+            const rgb = getComputedStyle(document.documentElement).getPropertyValue(`--${type}-theme-rgb`).trim();
+
+            document.documentElement.style.setProperty('--theme-color-rgb', rgb);
+
+            const content = `
+        <section class="hero ${data.color}">
+            <div class="hero-content">
+                <h1>${data.title}</h1>
+                <p>${data.description}</p>
+            </div>
+        </section>
+        
+        <section class="container">
+            <div class="section-title">
+                <h2>当前${data.title}</h2>
+                <p>选择您感兴趣的活动参与其中，共同创造和平未来</p>
+            </div>
+            
+            <div class="card-grid">
+                ${data.activities.map(activity => `
+                    <div class="card">
+                        ${activity.tag ? `<div class="card-tag card-${activity.tag}">${activity.tag === 'popular' ? '热门' : activity.tag === 'new' ? '新活动' : '精选'}</div>` : ''}
+                        <div class="card-time-info">
+                            <div class="time-icon">
+                                <i class="fa fa-clock-o"></i>
+                            </div>
+                            <div class="time-details">
+                                <div class="time-label">活动时间</div>
+                                <div class="time-value">${activity.time}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-content">
+                            <span class="card-badge">${data.title}</span>
+                            <h3 class="card-title">${activity.title}</h3>
+                            <p class="card-desc">${activity.description}</p>
+                            
+                            ${activity.progress ? `
+                                <div class="progress-container">
+                                    <div class="progress-label">
+                                        <span>进度</span>
+                                        <span class="progress-percent">${activity.progress}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" 
+                                             style="width: ${activity.progress}%"
+                                             data-progress="${activity.progress}"></div>
+                                    </div>
+                                </div>
+                            ` : ''}
+    <div class="btn-group">
+        <button class="btn btn-secondary" 
+                ${activity.link ? `data-link="${activity.link}"` : ''}>
+            ${activity.button2}
+        </button>
+    </div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </section>
+                
+                <section class="resources">
+                    <div class="container">
+                        <div class="section-title">
+                            <h2>行动资源</h2>
+                            <p>下载实用资源，帮助你更有效地组织和参与${data.title}</p>
+                        </div>
+                        
+                        <div class="resource-grid">
+                            ${data.resources.map(resource => `
+                                <div class="resource-card">
+                                    <div class="resource-icon">
+                                        <i class="fa fa-file-text-o"></i>
+                                    </div>
+                                    <h3 class="resource-title">${resource.title}</h3>
+                                    <p class="resource-desc">${resource.description}</p>
+                                    <button class="btn download-btn" data-filename="范例.docx">${resource.button}</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </section>
+                
+                <section class="stats">
+                    <div class="container">
+                        <div class="section-title">
+                            <h2>行动统计</h2>
+                            <p>我们的${data.title}正在产生实际影响</p>
+                        </div>
+                        
+                        <div class="stat-grid">
+                            ${data.stats.map(stat => `
+                                <div class="stat-card">
+                                    <div class="stat-number">${stat.number}</div>
+                                    <div class="stat-label">${stat.label}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </section>
+            `;
+            
+            document.getElementById('content').innerHTML = content;
+            
+            // 添加下载按钮事件监听器
+            document.querySelectorAll('.download-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const filename = this.getAttribute('data-filename');
+                    downloadFile(filename);
+                    
+                    // 记录资源下载行为
+                    const resourceTitle = this.closest('.resource-card').querySelector('.resource-title').textContent;
+                    recordBehavior(BEHAVIOR_TYPES.RESOURCE_DOWNLOAD, {
+                        actionType: type,
+                        resource: resourceTitle,
+                        filename: filename
+                    });
+                });
+            });
+            
+            // 添加活动按钮事件监听器
+            document.querySelectorAll('.btn-group .btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const action = this.textContent;
+                    const cardTitle = this.closest('.card').querySelector('.card-title').textContent;
+                    
+                    // 记录行为
+                    recordBehavior(BEHAVIOR_TYPES.ACTION_BUTTON_CLICK, {
+                        actionType: type,
+                        buttonText: action,
+                        activity: cardTitle
+                    });
+                });
+            });
+            
+            // 更新导航栏活动状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector(`.nav-link:nth-child(${getNavIndex(type)})`).classList.add('active');
+            
+            // 初始化进度条
+            setTimeout(initProgressBars, 100);
+
+            // 添加活动按钮事件监听器 - 处理所有按钮的链接
+document.querySelectorAll('.btn-group .btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const link = this.dataset.link;
+        const action = this.textContent;
+        const cardTitle = this.closest('.card').querySelector('.card-title').textContent;
+        
+        // 记录行为
+        recordBehavior(BEHAVIOR_TYPES.ACTION_BUTTON_CLICK, {
+            actionType: type,
+            buttonText: action,
+            activity: cardTitle,
+            link: link
+        });
+        
+        // 如果有链接，在新标签页打开
+        if (link) {
+            window.open(link, '_blank');
+        } else {
+            // 没有链接时显示提示
+            showNotification(`已执行: ${action}`);
+        }
+    });
+});
+        }
+        
+        // 修改initProgressBars函数
+        function initProgressBars() {
+            document.querySelectorAll('.progress-fill').forEach(bar => {
+                const progress = parseInt(bar.getAttribute('data-progress'));
+                
+                // 确保进度条宽度设置正确
+                bar.style.width = `${progress}%`;
+                
+                // 移除所有颜色类
+                bar.classList.remove('low', 'medium', 'high', 'complete');
+                
+                // 根据进度添加对应颜色类
+                if (progress < 30) {
+                    bar.classList.add('low');
+                } else if (progress < 70) {
+                    bar.classList.add('medium');
+                } else if (progress < 100) {
+                    bar.classList.add('high');
+                } else {
+                    bar.classList.add('complete');
+                }
+            });
+        }
+        
+        // 下载文件函数
+        function downloadFile(filename) {
+            // 显示下载提示
+            const hint = document.getElementById('downloadHint');
+            hint.textContent = `📥 正在下载: ${filename}`;
+            hint.classList.add('show');
+            
+            // 模拟文件下载（实际项目中替换为真实文件URL）
+            setTimeout(() => {
+                // 创建虚拟文件内容
+                const content = "和平行动指南\n\n本指南包含参与和平行动的重要信息和建议，帮助您更有效地组织和平活动。";
+                
+                // 创建Blob对象
+                const blob = new Blob([content], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+                
+                // 创建下载链接
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                
+                // 触发下载
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // 3秒后隐藏提示
+                setTimeout(() => {
+                    hint.classList.remove('show');
+                }, 3000);
+            }, 1000);
+        }
+
+        // 获取导航索引
+        function getNavIndex(type) {
+            const types = ['online', 'offline', 'education', 'emergency'];
+            return types.indexOf(type) + 2;
+        }
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置CSS变量
+            document.documentElement.style.setProperty('--online-theme-rgb', '22, 93, 255');
+            document.documentElement.style.setProperty('--offline-theme-rgb', '54, 211, 153');
+            document.documentElement.style.setProperty('--education-theme-rgb', '255, 159, 67');
+            document.documentElement.style.setProperty('--emergency-theme-rgb', '248, 114, 114');
+            
+            // 默认显示线上行动页面
+            renderActionPage('online');
+            
+            // 添加导航事件
+            document.querySelectorAll('.nav-link').forEach((link, index) => {
+                link.addEventListener('click', function(e) {
+                    // 如果是"关于我们"链接，不执行默认行为
+                    if (index === 5) {
+                        e.preventDefault();
+                        return;
+                    }
+                    
+                    if (index === 0) {
+                        // 首页链接
+                        window.location.href = '首页2.0.html';
+                        return;
+                    }
+                    
+                    const types = ['online', 'offline', 'education', 'emergency'];
+                    renderActionPage(types[index - 1]);
+                    
+                    // 记录活动类型查看行为
+                    recordBehavior(BEHAVIOR_TYPES.ACTION_TYPE_VIEW, {
+                        actionType: types[index - 1]
+                    });
+                });
+            });
+            
+            // 移动端菜单切换
+            document.querySelector('.mobile-menu-btn').addEventListener('click', function() {
+                document.querySelector('.desktop-nav').classList.toggle('show');
+            });
+            
+            // 初始化进度条
+            setTimeout(initProgressBars, 500);
+            
+            // 添加锚点滚动功能
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    // 排除导航栏中的活动链接
+                    if (!this.classList.contains('nav-link') || this.getAttribute('href') === '#footer') {
+                        const targetId = this.getAttribute('href');
+                        if (targetId !== '#' && targetId !== '#content') {
+                            e.preventDefault();
+                            
+                            // 如果是"关于我们"链接，滚动到页脚
+                            if (targetId === '#footer') {
+                                document.querySelector(targetId).scrollIntoView({
+                                    behavior: 'smooth'
+                                });
+                                
+                                // 更新导航栏活动状态
+                                document.querySelectorAll('.nav-link').forEach(link => {
+                                    link.classList.remove('active');
+                                });
+                                this.classList.add('active');
+                            }
+                        }
+                    }
+                });
+            });
+            
+            // 初始化用户界面
+            updateUserUI();
+            
+            // 登录按钮事件
+            document.getElementById('login-btn').addEventListener('click', function() {
+                window.location.href = '登录页面.html';
+            });
+            
+            // 退出按钮事件
+            document.getElementById('logout-btn').addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                updateUserUI();
+                showNotification('您已退出登录');
+            });
+            
+            // 加载行为数据
+            loadBehaviors();
+            
+            // 记录活动类型查看
+            recordBehavior(BEHAVIOR_TYPES.ACTION_TYPE_VIEW, {
+                actionType: 'online'
+            });
+            
+            // 添加页脚导航事件
+            document.querySelectorAll('.footer-nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const actionType = this.getAttribute('data-action');
+                    renderActionPage(actionType);
+                    // 滚动到页面顶部
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // 记录活动类型查看行为
+                    recordBehavior(BEHAVIOR_TYPES.ACTION_TYPE_VIEW, {
+                        actionType: actionType
+                    });
+                });
+            });
+            
+            // 订阅表单验证
+            const subscribeForm = document.querySelector('.subscribe-form');
+            if (subscribeForm) {
+                const emailInput = subscribeForm.querySelector('input');
+                const submitBtn = subscribeForm.querySelector('button');
+                
+                submitBtn.addEventListener('click', function() {
+                    const email = emailInput.value.trim();
+                    if (isValidEmail(email)) {
+                        alert('订阅成功！感谢您的订阅');
+                        emailInput.value = ''; // 清空输入框
+                    } else {
+                        alert('您的邮箱输入有误，请修改');
+                    }
+                });
+                
+                // 邮箱格式验证函数
+                function isValidEmail(email) {
+                    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+                }
+            }
+
+                // 添加返回顶部功能
+    const backToTopBtn = document.getElementById('back-to-top');
+    
+    // 监听滚动事件
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+            backToTopBtn.classList.add('show');
+        } else {
+            backToTopBtn.classList.remove('show');
+        }
+    });
+    
+    // 添加点击事件
+    backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+        });
+    </script>
+</body>
+
+</html>

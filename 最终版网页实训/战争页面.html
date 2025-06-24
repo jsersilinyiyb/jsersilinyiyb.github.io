@@ -1,0 +1,3503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战争真相 | 沉浸式数据叙事与用户分析</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Roboto:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    
+    <script>
+        // 在页面加载完成后添加音频功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为每个故事定义不同的音频路径
+            const storyAudios = {
+                "安娜·彼得罗娃": "sy/我们.mp3",
+                "伊万·科瓦连科": "sy/作为.mp3",
+                "迈克尔·约翰逊": "sy/战场.mp3",
+                "萨拉·阿卜杜拉": "sy/爆炸.mp3",
+                "阿里·哈桑": "sy/我8岁.mp3",
+                "金顺玉": "sy/战争让我.mp3"
+            };
+        
+            // 创建音频播放器容器
+            const audioContainer = document.createElement('div');
+            audioContainer.style.display = 'none';
+            document.body.appendChild(audioContainer);
+        
+            // 全局变量跟踪当前播放状态
+            let currentPlayingAudio = null;
+            let currentPlayingButton = null;
+            
+            // 处理音频播放按钮点击
+            document.getElementById('stories-container').addEventListener('click', function(e) {
+                if (e.target.closest('.audio-control')) {
+                    const card = e.target.closest('.story-card');
+                    const name = card.querySelector('.story-info span').textContent.split('|')[0].trim();
+                    const button = card.querySelector('.audio-control');
+                    const icon = button.querySelector('i');
+                    
+                    // 获取对应的音频路径
+                    const audioPath = storyAudios[name];
+                    
+                    if (audioPath) {
+                        // 如果点击的是当前正在播放的音频
+                        if (currentPlayingButton === button && currentPlayingAudio && !currentPlayingAudio.paused) {
+                            // 暂停音频
+                            currentPlayingAudio.pause();
+                            icon.classList.remove('fa-pause-circle');
+                            icon.classList.add('fa-play-circle');
+                            currentPlayingAudio = null;
+                            currentPlayingButton = null;
+                            
+                            // 显示通知：暂停
+                            showNotification(`已暂停: ${name}的故事`);
+                        } else {
+                            // 暂停当前正在播放的音频（如果有）
+                            if (currentPlayingAudio && !currentPlayingAudio.paused) {
+                                currentPlayingAudio.pause();
+                                const prevIcon = currentPlayingButton.querySelector('i');
+                                prevIcon.classList.remove('fa-pause-circle');
+                                prevIcon.classList.add('fa-play-circle');
+                            }
+                            
+                            // 创建或重用音频元素
+                            let audio = card.querySelector('audio');
+                            if (!audio) {
+                                audio = document.createElement('audio');
+                                audio.src = audioPath;
+                                audio.controls = false;
+                                card.appendChild(audio);
+                            }
+                            
+                            // 播放音频
+                            audio.play();
+                            
+                            // 更新播放按钮状态
+                            icon.classList.remove('fa-play-circle');
+                            icon.classList.add('fa-pause-circle');
+                            
+                            // 更新当前播放状态
+                            currentPlayingAudio = audio;
+                            currentPlayingButton = button;
+                            
+                            // 添加音频结束事件处理
+                            audio.onended = function() {
+                                icon.classList.remove('fa-pause-circle');
+                                icon.classList.add('fa-play-circle');
+                                currentPlayingAudio = null;
+                                currentPlayingButton = null;
+                            };
+                            
+                            // 记录行为：播放音频
+                            recordBehavior(BEHAVIOR_TYPES.AUDIO_PLAY, {
+                                story: name
+                            });
+                            
+                            // 显示播放提示
+                            showNotification(`正在播放: ${name}的故事`);
+                        }
+                    }
+                }
+            });
+        });
+        </script>
+    <style>
+        
+        /* 原有样式保持不变 */
+
+        /* 新增页脚优化样式 */
+        #footer {
+            background: linear-gradient(135deg, #050508 0%, #0a0a0f 100%);
+            padding: 50px 0 20px;
+            border-top: 1px solid rgba(100, 100, 120, 0.3);
+            margin-top: 50px;
+        }
+
+        .footer-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .footer-section {
+            padding: 15px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent-gold);
+        }
+
+        .footer-about {
+            grid-column: span 2;
+        }
+
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(252, 163, 17, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: var(--accent-gold);
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent-gold);
+            transform: translateX(5px);
+        }
+
+        .footer-links a i {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+        }
+
+        .contact-info {
+            list-style: none;
+        }
+
+        .contact-info li {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .contact-info i {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            min-width: 24px;
+            margin-top: 3px;
+        }
+
+        .friend-links {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .friend-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .friend-links a:hover {
+            color: var(--accent-gold);
+        }
+
+        .friend-links a i {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+        }
+
+        .copyright {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+
+        .copyright strong {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 992px) {
+            .footer-about {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-section h3 {
+                margin-bottom: 20px;
+            }
+
+            .copyright {
+                text-align: left;
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', function () {
+            // 更新用户界面函数
+            function updateUserUI() {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                const usernameDisplay = document.getElementById('username-display');
+                const loginBtn = document.getElementById('login-btn');
+                const logoutBtn = document.getElementById('logout-btn');
+
+                if (user) {
+                    usernameDisplay.textContent = `欢迎，${user.username}`;
+                    loginBtn.style.display = 'none';
+                    logoutBtn.style.display = 'inline-block';
+                } else {
+                    usernameDisplay.textContent = '';
+                    loginBtn.style.display = 'inline-block';
+                    logoutBtn.style.display = 'none';
+                }
+            }
+
+            // 初始化用户界面
+            updateUserUI();
+
+            // 登录按钮事件
+            document.getElementById('login-btn').addEventListener('click', function () {
+                window.location.href = '登录页面.html';
+            });
+
+            // 退出按钮事件
+            document.getElementById('logout-btn').addEventListener('click', function () {
+                localStorage.removeItem('currentUser');
+                updateUserUI();
+                alert('您已退出登录');
+            });
+
+            // 其他页面代码保持不变...
+            // [原页面的其他JavaScript代码]
+        });
+    </script>
+    <style>
+        /* 用户栏样式 */
+
+        .user-bar {
+            background: rgba(20, 20, 30, 0.9);
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-btn {
+            background: #1d3557;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+
+        .user-btn:hover {
+            background: #2a5a8c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --accent-red: #e63946;
+            --accent-blue: #1d3557;
+            --accent-gold: #fca311;
+            --light-text: #f1faee;
+            --gray-text: #a8a8a8;
+            --card-bg: rgba(30, 30, 40, 0.8);
+            --border-color: rgba(100, 100, 120, 0.3);
+        }
+
+        body {
+            font-family: 'Roboto', 'Noto Serif SC', sans-serif;
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            color: var(--light-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 页首视频 */
+
+        .header-video {
+            height: 60vh;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        #war-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: cover;
+            filter: grayscale(30%) contrast(120%);
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .header-title {
+            font-size: 4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(230, 57, 70, 0.7);
+            animation: flicker 3s infinite alternate;
+        }
+
+        @keyframes flicker {
+
+            0%,
+            19%,
+            21%,
+            23%,
+            25%,
+            54%,
+            56%,
+            100% {
+                text-shadow: 0 0 10px rgba(230, 57, 70, 0.7), 0 0 20px rgba(230, 57, 70, 0.5), 0 0 30px rgba(230, 57, 70, 0.3);
+            }
+
+            20%,
+            24%,
+            55% {
+                text-shadow: none;
+            }
+        }
+
+        .header-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            max-width: 700px;
+            text-align: center;
+            opacity: 0.9;
+        }
+
+        /* 主内容区 */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            padding: 30px 0;
+        }
+
+        /* 侧边导航 */
+
+        .sidebar {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(230, 57, 70, 0.3) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 10px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(230, 57, 70, 0.3);
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .sidebar:hover::-webkit-scrollbar-thumb {
+            background: rgba(230, 57, 70, 0.7);
+        }
+
+        .nav-category {
+            margin-bottom: 30px;
+        }
+
+        .nav-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-gold);
+        }
+
+        .timeline {
+            list-style: none;
+        }
+
+        .timeline-item {
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--accent-red);
+            background: rgba(230, 57, 70, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-item:hover {
+            background: rgba(230, 57, 70, 0.3);
+            transform: translateX(5px);
+        }
+
+        .timeline-item.active {
+            background: rgba(230, 57, 70, 0.3);
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .timeline-year {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .timeline-event {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 时间轴详情区域 */
+
+        .timeline-detail {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-title {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+        }
+
+        .detail-close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-text);
+            transition: color 0.3s;
+        }
+
+        .detail-close:hover {
+            color: var(--accent-red);
+        }
+
+        .detail-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .detail-text {
+            line-height: 1.8;
+        }
+
+        .detail-image {
+            border-radius: 8px;
+            overflow: hidden;
+            height: 300px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .detail-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 3px solid var(--accent-red);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* 同时期战争卡片区域 */
+
+        .contemporary-wars {
+            margin-top: 30px;
+        }
+
+        .contemporary-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--accent-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contemporary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 15px;
+        }
+
+        .more-wars {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 15px;
+        }
+
+        .more-wars.active {
+            display: grid;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .war-card {
+            position: relative;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+
+        .war-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(230, 57, 70, 0.4);
+        }
+
+        .war-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            opacity: 0.7;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .war-card:hover::before {
+            opacity: 0.3;
+        }
+
+        .war-card-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .war-card:hover .war-card-image {
+            transform: scale(1.1);
+        }
+
+        .war-card-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            z-index: 2;
+            transition: all 0.4s ease;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+        }
+
+        .war-card:hover .war-card-content {
+            height: 100%;
+            background: rgba(10, 10, 15, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .war-card-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        .war-card-period {
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+        }
+
+        .war-card-stats {
+            display: none;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .war-card:hover .war-card-stats {
+            display: block;
+        }
+
+        .war-card-description {
+            display: none;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .war-card:hover .war-card-description {
+            display: block;
+        }
+
+        .war-card-link {
+            display: none;
+            margin-top: 15px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .war-card:hover .war-card-link {
+            display: inline-block;
+        }
+
+        .war-card-link:hover {
+            color: #ffcc00;
+        }
+
+        .show-more-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .show-more-btn:hover {
+            background: #2a5a8c;
+            transform: translateY(-2px);
+        }
+
+        /* 主内容区 */
+
+        .main-content {
+            display: grid;
+            grid-template-rows: auto auto auto auto;
+        }
+
+        /* 地图区域 */
+
+        .map-section {
+            height: 400px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #conflict-map {
+            height: 100%;
+            width: 100%;
+            z-index: 1;
+        }
+
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2;
+            background: rgba(10, 10, 15, 0.8);
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+
+        .map-legend {
+            display: flex;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .legend-red {
+            background: var(--accent-red);
+        }
+
+        .legend-gray {
+            background: var(--gray-text);
+        }
+
+        /* 数据可视化模块 */
+
+        .data-visualization {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .chart-container {
+            height: 300px;
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: var(--accent-gold);
+        }
+
+        /* 图表容器 */
+
+        .chart {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* 实时计数器 */
+
+        .real-time-counter {
+            background: rgba(230, 57, 70, 0.2);
+            border: 1px solid var(--accent-red);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .counter-title {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: var(--accent-gold);
+        }
+
+        .counter-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-red);
+            font-family: 'Courier New', monospace;
+        }
+
+        .counter-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        /* 幸存者故事 */
+
+        .survivor-stories {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .story-filters {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background: rgba(100, 100, 120, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: var(--accent-red);
+        }
+
+        .stories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .story-card {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .story-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .story-image {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .story-type {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(10, 10, 15, 0.8);
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        .soldier {
+            color: #ff9f1c;
+        }
+
+        .civilian {
+            color: #2a9d8f;
+        }
+
+        .child {
+            color: #e9c46a;
+        }
+
+        .story-content {
+            padding: 20px;
+        }
+
+        .story-quote {
+            font-style: italic;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .story-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .audio-control {
+            color: var(--accent-gold);
+            cursor: pointer;
+        }
+
+        /* 资源下载区 */
+
+        .download-section {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .download-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .download-card {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .download-card:hover {
+            transform: translateY(-5px);
+            background: rgba(230, 57, 70, 0.1);
+            border-color: var(--accent-red);
+        }
+
+        .download-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+        }
+
+        .download-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .download-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 15px;
+        }
+
+        .download-btn {
+            background: var(--accent-blue);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #2a5a8c;
+        }
+
+        /* 页脚 */
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        /* 数据加载控制 */
+
+        .data-control {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .reload-btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 1rem;
+        }
+
+        .reload-btn:hover {
+            background: #2a5a8c;
+        }
+
+        .loading {
+            color: var(--accent-gold);
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(252, 163, 17, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-gold);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 分析入口按钮 */
+
+        .analytics-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-gold);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .analytics-btn:hover {
+            background: #e69500;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* 响应式设计 */
+
+        @media (max-width: 1200px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+
+            .header-title {
+                font-size: 2.5rem;
+            }
+
+            .detail-content {
+                grid-template-columns: 1fr;
+            }
+
+            .contemporary-grid,
+            .more-wars {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 2rem;
+            }
+
+            .header-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .stories-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contemporary-grid,
+            .more-wars {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-btn {
+                bottom: 15px;
+                right: 15px;
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+        }
+
+        /* 新增通知样式 */
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(41, 128, 185, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* 返回顶部按钮样式 */
+
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .back-to-top-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(252, 163, 17, 0.9);
+            color: #fff;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top-link:hover {
+            background: #e69500;
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #username-display.text-peace-blue {
+            color: white !important;
+            /* 修改为你想要的颜色 */
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 页首视频 -->
+    <div class="header-video" id="top">
+        <video id="war-video" autoplay muted loop>
+            <source src="sp.mp4" type="video/mp4">
+            您的浏览器不支持HTML5视频
+        </video>
+        <div class="video-overlay">
+            <h1 class="header-title">战争真相</h1>
+            <p class="header-subtitle">沉浸式数据叙事 - 探索战争的成本与和平的价值</p>
+        </div>
+    </div>
+
+    <!-- 在用户信息栏中添加返回首页按钮 -->
+    <div class="user-bar">
+        <div class="container">
+            <div id="user-info" style="text-align: right; padding: 10px;">
+                                    <a href="个人中心页面.html" id="username-display" class="text-peace-blue font-medium mr-2 hover:underline"></a >
+                <!-- 添加返回首页按钮 -->
+                <a href="首页2.0.html" id="home-btn" class="user-btn">返回首页</a>
+                <button id="login-btn" class="user-btn">登录</button>
+                <button id="logout-btn" class="user-btn" style="display:none">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="data-control">
+            <div class="loading" id="loading-indicator">
+                <span class="loading-spinner"></span> 正在加载数据...
+            </div>
+            <p>  <button class="reload-btn" id="reload-data"><i class="fas fa-sync-alt"></i> </button>
+            </p>
+        </div>
+
+        <div class="content-grid">
+            <!-- 左侧导航 -->
+            <div class="sidebar">
+                <div class="nav-category">
+                    <h2 class="nav-title">时间轴导航</h2>
+                    <ul class="timeline" id="timeline-container">
+                        <!-- 时间轴项目将由JS动态生成 -->
+                    </ul>
+                </div>
+
+                <div class="nav-category">
+                    <h2 class="nav-title">数据对比</h2>
+                    <div class="comparison-mini">
+                        <div class="data-item">
+                            <div class="data-label"><i class="fas fa-money-bill-wave"></i> 全球军费支出</div>
+                            <div class="data-value" id="military-spending">$2.24万亿</div>
+                        </div>
+                        <div class="data-item">
+                            <div class="data-label"><i class="fas fa-book"></i> 全球教育支出</div>
+                            <div class="data-value" id="education-spending">$4.8万亿</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <!-- 时间轴详情区域 -->
+                <div class="timeline-detail" id="timeline-detail">
+                    <div class="detail-header">
+                        <h2 class="detail-title" id="detail-title">事件详情</h2>
+                        <div class="detail-close" id="detail-close"><i class="fas fa-times"></i></div>
+                    </div>
+                    <div class="detail-content">
+                        <div class="detail-text" id="detail-text">
+                            <p>选择一个时间轴事件以查看详情...</p>
+                        </div>
+                        <div class="detail-image" id="detail-image"></div>
+                    </div>
+                    <div class="detail-stats" id="detail-stats">
+                        <!-- 统计信息会动态添加 -->
+                    </div>
+
+                    <!-- 同时期战争卡片区域 -->
+                    <div class="contemporary-wars">
+                        <h3 class="contemporary-title">
+                            <i class="fas fa-folder-open"></i> 同时期其他战争
+                            <button class="show-more-btn" id="show-more-btn">
+                                <i class="fas fa-chevron-down"></i> 查看更多同时期战争
+                            </button>
+                        </h3>
+                        <div class="contemporary-grid" id="contemporary-container">
+                            <!-- 同时期战争卡片将由JS动态生成 -->
+                        </div>
+                        <div class="more-wars" id="more-wars-container">
+                            <!-- 更多战争卡片将由JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
+                <h1>冲突区与战争遗址地图</h1>
+                <!-- 地图区域 -->
+                <div class="map-section">
+                    <div id="conflict-map"></div>
+                    <div class="map-overlay">
+                        <div class="map-legend">
+                            <div class="legend-item">
+                                <div class="legend-color legend-red"></div>
+                                <span>当前冲突区</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color legend-gray"></div>
+                                <span>历史战争遗址</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据可视化模块 -->
+                <div class="data-visualization">
+                    <h2 class="nav-title"><i class="fas fa-chart-line"></i> 战争数据深度分析</h2>
+
+                    <div class="chart-grid">
+                        <div class="chart-container">
+                            <div class="chart-title">全球军费开支趋势（1945-2023）</div>
+                            <div id="military-spending-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">战争死亡人数分布</div>
+                            <div id="death-distribution-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">战争成本与和平效益对比</div>
+                            <div id="cost-benefit-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">主要冲突地区军费占比</div>
+                            <div id="region-spending-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">战争持续时间对比</div>
+                            <div id="war-duration-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">战争经济损失对比</div>
+                            <div id="economic-loss-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">战后难民人数</div>
+                            <div id="refugee-chart" class="chart"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-title">冲突地区分布</div>
+                            <div id="conflict-region-chart" class="chart"></div>
+                        </div>
+                    </div>
+                    <br> <br> <br> <br>
+                    <!-- 受难人数实时动态 -->
+                    <div class="real-time-counter">
+                        <div class="counter-title"><i class="fas fa-skull"></i> 全球冲突直接死亡人数</div>
+                        <div class="counter-value" id="casualty-counter">0</div>
+                        <div class="counter-subtitle">自2001年以来的累计数字 (每分钟更新)</div>
+                    </div>
+                </div>
+
+                <!-- 幸存者故事 -->
+                <div class="survivor-stories">
+                    <h2 class="nav-title"><i class="fas fa-history"></i> 幸存者故事</h2>
+                    <div class="story-filters">
+                        <button class="filter-btn active" data-type="all">全部</button>
+                        <button class="filter-btn" data-type="soldier"><i class="fas fa-helmet-battle"></i> 士兵</button>
+                        <button class="filter-btn" data-type="civilian"><i class="fas fa-user"></i> 平民</button>
+                        <button class="filter-btn" data-type="child"><i class="fas fa-child"></i> 儿童</button>
+                    </div>
+
+                    <div class="stories-grid" id="stories-container">
+                        <!-- 故事卡片将由JS动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 资源下载区 -->
+        <div class="download-section">
+            <h2 class="nav-title"><i class="fas fa-download"></i> 资源下载</h2>
+            <div class="download-grid">
+                <div class="download-card">
+                    <div class="download-icon"><i class="fas fa-file-pdf"></i></div>
+                    <h3 class="download-title">年度战争报告</h3>
+                    <p class="download-desc">2023年全球冲突与和平建设综合分析</p>
+                    <a href="#" class="download-btn">下载 PDF</a>
+                </div>
+
+                <div class="download-card">
+                    <div class="download-icon"><i class="fas fa-chart-bar"></i></div>
+                    <h3 class="download-title">数据图包</h3>
+                    <p class="download-desc">战争成本与和平效益的可视化数据图表</p>
+                    <a href="#" class="download-btn">下载 ZIP</a>
+                </div>
+
+                <div class="download-card">
+                    <div class="download-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                    <h3 class="download-title">教学PPT</h3>
+                    <p class="download-desc">战争与和平主题的教育演示文稿</p>
+                    <a href="#" class="download-btn">下载 PPTX</a>
+                </div>
+
+                <div class="download-card">
+                    <div class="download-icon"><i class="fas fa-palette"></i></div>
+                    <h3 class="download-title">海报模板</h3>
+                    <p class="download-desc">和平倡导活动的设计模板</p>
+                    <a href="#" class="download-btn">下载 PSD</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 放在footer之后 -->
+    <div class="back-to-top">
+        <a href="#top" class="back-to-top-link">
+            <i class="fas fa-arrow-up"></i>
+        </a>
+    </div>
+    <script>
+        // 平滑滚动到顶部
+        document.querySelector('.back-to-top-link').addEventListener('click', function (e) {
+            e.preventDefault();
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        // 定义用户行为类型
+        const BEHAVIOR_TYPES = {
+            // 核心内容交互行为
+            TIMELINE_CLICK: '时间轴事件点击',
+            DETAIL_OPEN: '事件详情面板查看',
+            DETAIL_CLOSE: '事件详情面板关闭',
+            WAR_CARD_EXPLORE: '同时期战争卡片探索',
+            CHART_INTERACTION: '图表数据探索',
+            COUNTER_VIEW: '全球冲突死亡实时计数器关注',
+
+            // 情感化内容参与
+            STORY_FILTER: '幸存者故事分类筛选',
+            AUDIO_PLAY: '音频内容播放请求',
+            STORY_READ: '幸存者故事阅读',
+
+            // 资源获取行为
+            DOWNLOAD_PDF: 'PDF报告下载',
+            DOWNLOAD_DATA: '数据包下载',
+            DOWNLOAD_PPT: '教学PPT下载',
+            DOWNLOAD_TEMPLATE: '设计模板下载',
+
+            // 地图与时空探索
+            MAP_MARKER_CLICK: '冲突标记点击'
+        };
+
+        // 初始化行为记录数组
+        let userBehaviors = [];
+
+        // 获取当前用户ID（修复未定义错误）
+        // 替换原有的getCurrentUserId函数
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            return user ? user.id : null;
+        }
+
+        // 从localStorage加载行为记录
+        function loadBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，不加载行为数据');
+                return;
+            }
+
+            const savedBehaviors = localStorage.getItem(`warTruthBehaviors_${userId}`);
+            if (savedBehaviors) {
+                userBehaviors = JSON.parse(savedBehaviors);
+            }
+        }
+
+        // 保存行为记录到localStorage
+        function saveBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，行为数据不保存');
+                return;
+            }
+
+            localStorage.setItem(`warTruthBehaviors_${userId}`, JSON.stringify(userBehaviors));
+        }
+
+        // 记录用户行为
+        function recordBehavior(type, details = {}) {
+            const behavior = {
+                type,
+                details,
+                timestamp: new Date().toISOString()
+            };
+
+            userBehaviors.push(behavior);
+            saveBehaviors();
+            showNotification(`已记录: ${type}`);
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // 直接内嵌JSON数据
+        const appData = {
+            "global": {
+                "militarySpending": "$2.24万亿",
+                "educationSpending": "$4.8万亿"
+            },
+            "timelineEvents": [{
+                "id": "ww2",
+                "year": "1939-1945",
+                "name": "第二次世界大战"
+            }, {
+                "id": "korean-war",
+                "year": "1950-1953",
+                "name": "朝鲜战争"
+            }, {
+                "id": "vietnam-war",
+                "year": "1955-1975",
+                "name": "越南战争"
+            }, {
+                "id": "gulf-war",
+                "year": "1990-1991",
+                "name": "海湾战争"
+            }, {
+                "id": "afghan-war",
+                "year": "2001-2021",
+                "name": "阿富汗战争"
+            }, {
+                "id": "iraq-war",
+                "year": "2003-2011",
+                "name": "伊拉克战争"
+            }, {
+                "id": "ukraine-war",
+                "year": "2022-至今",
+                "name": "俄乌冲突"
+            }],
+            "timelineDetails": {
+                "ww2": {
+                    "title": "第二次世界大战 (1939-1945)",
+                    "text": "<p>第二次世界大战是人类历史上规模最大的武装冲突，涉及全球大多数国家组成的两个对立军事同盟：同盟国和轴心国。战争在1939年9月1日德国入侵波兰开始，到1945年9月2日日本签署投降书结束。</p><p>这场战争直接导致约7000万人死亡，其中大部分是平民，是人类历史上最致命的冲突。战争改变了全球政治格局，导致联合国成立，并加速了非殖民化进程。</p>",
+                    "image": "https://images.unsplash.com/photo-1570804439970-015db4d1edb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200",
+                    "stats": [{
+                        "value": "7000万",
+                        "label": "死亡人数"
+                    }, {
+                        "value": "30万亿美元",
+                        "label": "经济损失"
+                    }, {
+                        "value": "4000万",
+                        "label": "平民死亡"
+                    }, {
+                        "value": "6年",
+                        "label": "持续时间"
+                    }]
+                },
+                "korean-war": {
+                    "title": "朝鲜战争 (1950-1953)",
+                    "text": "<p>朝鲜战争是冷战时期的第一场大规模军事冲突，始于1950年6月25日朝鲜入侵韩国。联合国军（主要由美国领导）支援韩国，而中国和苏联支援朝鲜。</p><p>战争以1953年7月27日签署停战协定结束，但技术上仍未正式结束。这场战争导致了朝鲜半岛的永久分裂，并建立了世界上最军事化的边界之一。</p>",
+                    "image": "zz/zz朝鲜战争.jpg",
+                    "stats": [{
+                        "value": "300万",
+                        "label": "死亡人数"
+                    }, {
+                        "value": "67万",
+                        "label": "平民死亡"
+                    }, {
+                        "value": "3年",
+                        "label": "持续时间"
+                    }, {
+                        "value": "38,000",
+                        "label": "美军死亡"
+                    }]
+                },
+                "vietnam-war": {
+                    "title": "越南战争 (1955-1975)",
+                    "text": "<p>越南战争是冷战时期的代理战争，发生在北越（得到苏联和中国的支持）与南越（得到美国及其盟友的支持）之间。战争从1955年持续到1975年西贡陷落。</p><p>这场战争在越南被称为'抵抗美国战争'，是美国历史上最不受欢迎的战争之一，引发了全球范围的反战运动。战争使用了包括橙剂在内的化学武器，对环境和后代健康造成长期影响。</p>",
+                    "image": "zz/i.webp",
+                    "stats": [{
+                        "value": "200万",
+                        "label": "越南人死亡"
+                    }, {
+                        "value": "58,000",
+                        "label": "美军死亡"
+                    }, {
+                        "value": "7700亿美元",
+                        "label": "美国成本"
+                    }, {
+                        "value": "20年",
+                        "label": "持续时间"
+                    }]
+                },
+                "gulf-war": {
+                    "title": "海湾战争 (1990-1991)",
+                    "text": "<p>海湾战争始于1990年8月2日伊拉克入侵科威特，以美国为首的35国联盟于1991年1月17日开始军事行动解放科威特。主要战斗行动仅持续42天，是历史上首次大规模直播的战争。</p><p>这场战争展示了现代高科技武器的威力，但同时也造成了严重的环境灾难（科威特油井大火）和长期的健康影响（海湾战争综合症）。</p>",
+                    "image": "zz/zz海湾战争.webp",
+                    "stats": [{
+                        "value": "25,000",
+                        "label": "伊拉克士兵死亡"
+                    }, {
+                        "value": "1000",
+                        "label": "联军死亡"
+                    }, {
+                        "value": "3000",
+                        "label": "科威特平民死亡"
+                    }, {
+                        "value": "61天",
+                        "label": "主要战斗时间"
+                    }]
+                },
+                "afghan-war": {
+                    "title": "阿富汗战争 (2001-2021)",
+                    "text": "<p>阿富汗战争始于2001年10月7日，以美国为首的联军对基地组织和塔利班发起军事行动，回应9·11恐怖袭击。这场战争成为美国历史上最长的战争，持续近20年。</p><p>2021年8月，塔利班重新控制阿富汗，标志着西方在阿富汗军事行动的失败。战争造成了巨大的人员伤亡和经济损失，并引发了持续的难民危机。</p>",
+                    "image": "zz/zz阿富汗.webp",
+                    "stats": [{
+                        "value": "24万",
+                        "label": "死亡人数"
+                    }, {
+                        "value": "2.26万亿美元",
+                        "label": "美国成本"
+                    }, {
+                        "value": "3800万",
+                        "label": "难民数量"
+                    }, {
+                        "value": "20年",
+                        "label": "持续时间"
+                    }]
+                },
+                "iraq-war": {
+                    "title": "伊拉克战争 (2003-2011)",
+                    "text": "<p>伊拉克战争始于2003年3月20日，以美国为首的联军入侵伊拉克，推翻了萨达姆·侯赛因政权。战争理由是伊拉克拥有大规模杀伤性武器，但后来被证明情报有误。</p><p>战争导致伊拉克陷入长期混乱，催生了伊斯兰国等极端组织。战后重建困难重重，国家分裂加剧，教派冲突不断。</p>",
+                    "image": "zz伊拉克战争.webp",
+                    "stats": [{
+                        "value": "50万",
+                        "label": "伊拉克人死亡"
+                    }, {
+                        "value": "4500",
+                        "label": "美军死亡"
+                    }, {
+                        "value": "1.7万亿美元",
+                        "label": "美国成本"
+                    }, {
+                        "value": "8年",
+                        "label": "主要战斗时间"
+                    }]
+                },
+                "ukraine-war": {
+                    "title": "俄乌冲突 (2022-至今)",
+                    "text": "<p>2022年2月24日，俄罗斯发动对乌克兰的全面入侵，引发欧洲自二战以来最严重的军事冲突。战争导致全球能源和粮食危机，并重塑了欧洲安全架构。</p><p>乌克兰展现出顽强抵抗，西方国家对乌提供大量军事援助。战争已演变为消耗战，双方损失惨重，平民承受巨大苦难。</p>",
+                    "image": "https://images.unsplash.com/photo-1648737966766-1d1f0ea5c9c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200",
+                    "stats": [{
+                        "value": "50万",
+                        "label": "伤亡人数"
+                    }, {
+                        "value": "1万亿美元",
+                        "label": "经济损失"
+                    }, {
+                        "value": "1000万",
+                        "label": "难民数量"
+                    }, {
+                        "value": "2022-至今",
+                        "label": "持续时间"
+                    }]
+                }
+            },
+            "survivorStories": {
+                "all": [{
+                    "name": "安娜·彼得罗娃",
+                    "period": "乌克兰战争",
+                    "quote": "我们失去了家园，但不会失去希望。战争教会我珍惜和平的每一刻。每天醒来听到的不是爆炸声，而是鸟鸣，这就是最大的幸福。",
+                    "image": "zz/平民幸存者.jpg",
+                    "type": "civilian"
+                }, {
+                    "name": "伊万·科瓦连科",
+                    "period": "乌克兰战争",
+                    "quote": "作为士兵，我看到了太多牺牲。真正的英雄是那些为保护家人而战斗的普通人。战争结束后，我们最需要的是理解与和解，而不是仇恨。",
+                    "image": "zz/退伍军人.jpg",
+                    "type": "soldier"
+                }, {
+                    "name": "迈克尔·约翰逊",
+                    "period": "伊拉克战争",
+                    "quote": "战场上的恐惧永远改变了我。回家后，真正的战争才刚开始——与自己记忆的战斗。每晚闭上眼睛，我仍能听到爆炸声，闻到硝烟味。",
+                    "image": "zz/退伍军人2.jpg",
+                    "type": "soldier"
+                }, {
+                    "name": "萨拉·阿卜杜拉",
+                    "period": "叙利亚战争",
+                    "quote": "爆炸声成为我童年的摇篮曲。十年战争，我失去了家人、家园和童年。但我拒绝让战争定义我的人生。教育是我的武器，知识是我的盔甲。",
+                    "image": "zz/平民幸存者2.jpg",
+                    "type": "civilian"
+                }, {
+                    "name": "阿里·哈桑",
+                    "period": "也门战争",
+                    "quote": "我8岁，但我记得的只有战争。我希望有一天能去学校，而不是躲避炸弹。我的梦想？成为一名医生，治愈战争的创伤。",
+                    "image": "zz/朝鲜战争.jpg",
+                    "type": "child"
+                }, {
+                    "name": "金顺玉",
+                    "period": "朝鲜战争",
+                    "quote": "战争让我在12岁成为孤儿。我背着弟弟走了300公里逃难。70年过去，我仍等待与北方家人的团聚。分裂的伤口从未愈合。",
+                    "image": "zz/战争儿童.jpg",
+                    "type": "child"
+                }],
+                "soldier": [{
+                    "name": "迈克尔·约翰逊",
+                    "period": "伊拉克战争",
+                    "quote": "战场上的恐惧永远改变了我。回家后，真正的战争才刚开始——与自己记忆的战斗。每晚闭上眼睛，我仍能听到爆炸声，闻到硝烟味。",
+                    "image": "zz/退伍军人2.jpg",
+                    "type": "soldier"
+                }, {
+                    "name": "伊万·科瓦连科",
+                    "period": "乌克兰战争",
+                    "quote": "作为士兵，我看到了太多牺牲。真正的英雄是那些为保护家人而战斗的普通人。战争结束后，我们最需要的是理解与和解，而不是仇恨。",
+                    "image": "zz/退伍军人.jpg",
+                    "type": "soldier"
+                }],
+                "civilian": [{
+                    "name": "安娜·彼得罗娃",
+                    "period": "乌克兰战争",
+                    "quote": "我们失去了家园，但不会失去希望。战争教会我珍惜和平的每一刻。每天醒来听到的不是爆炸声，而是鸟鸣，这就是最大的幸福。",
+                    "image": "zz/平民幸存者.jpg",
+                    "type": "civilian"
+                }, {
+                    "name": "萨拉·阿卜杜拉",
+                    "period": "叙利亚战争",
+                    "quote": "爆炸声成为我童年的摇篮曲。十年战争，我失去了家人、家园和童年。但我拒绝让战争定义我的人生。教育是我的武器，知识是我的盔甲。",
+                    "image": "zz/平民幸存者2.jpg",
+                    "type": "civilian"
+                }],
+                "child": [{
+                    "name": "阿里·哈桑",
+                    "period": "也门战争",
+                    "quote": "我8岁，但我记得的只有战争。我希望有一天能去学校，而不是躲避炸弹。我的梦想？成为一名医生，治愈战争的创伤。",
+                    "image": "zz/朝鲜战争.jpg",
+                    "type": "child"
+                }, {
+                    "name": "金顺玉",
+                    "period": "朝鲜战争",
+                    "quote": "战争让我在12岁成为孤儿。我背着弟弟走了300公里逃难。70年过去，我仍等待与北方家人的团聚。分裂的伤口从未愈合。",
+                    "image": "zz/战争儿童.jpg",
+                    "type": "child"
+                }]
+            },
+            "contemporaryWars": {
+                "ww2": [{
+                    "id": "pacific-war",
+                    "title": "太平洋战争",
+                    "period": "1941-1945",
+                    "image": "zz/zz1.jpg",
+                    "stats": "死亡人数: 3600万",
+                    "description": "太平洋战争是第二次世界大战期间以日本为首的轴心国和以美国为首的同盟国于1941年12月7日至1945年9月2日期间进行的战争，范围遍及太平洋、印度洋和东亚地区。"
+                }, {
+                    "id": "eastern-front",
+                    "title": "苏德战争",
+                    "period": "1941-1945",
+                    "image": "zz/zz2.jpg",
+                    "stats": "死亡人数: 2700万",
+                    "description": "苏德战争是第二次世界大战期间苏联与纳粹德国及双方盟国之间发生的战争，时间从1941年6月22日德国入侵苏联开始，至1945年5月9日德国投降为止。"
+                }, {
+                    "id": "north-africa",
+                    "title": "北非战役",
+                    "period": "1940-1943",
+                    "image": "zz/zz3.webp",
+                    "stats": "死亡人数: 35万",
+                    "description": "北非战役是第二次世界大战中在北非战场上进行的一系列战役，时间从1940年6月10日意大利对英法宣战开始，至1943年5月13日轴心国军队在突尼斯投降结束。"
+                }, {
+                    "id": "battle-of-britain",
+                    "title": "不列颠空战",
+                    "period": "1940",
+                    "image": "zz/c.webp",
+                    "stats": "死亡人数: 6万",
+                    "description": "不列颠战役是第二次世界大战期间纳粹德国对英国发动的大规模空战，时间从1940年7月10日至10月31日，是二战中规模最大的空战。"
+                }, {
+                    "id": "italian-campaign",
+                    "title": "意大利战役",
+                    "period": "1943-1945",
+                    "image": "zz/zz5.webp",
+                    "stats": "死亡人数: 32万",
+                    "description": "意大利战役是第二次世界大战期间盟军在意大利本土进行的一系列战役，时间从1943年9月3日盟军登陆意大利开始，至1945年5月2日在意大利的德军投降结束。"
+                }, {
+                    "id": "battle-of-atlantic",
+                    "title": "大西洋海战",
+                    "period": "1939-1945",
+                    "image": "zz/zz6.webp",
+                    "stats": "死亡人数: 10万",
+                    "description": "大西洋战役是第二次世界大战期间德国海军与盟军海军在大西洋上进行的海上战役，时间贯穿整个二战，是持续时间最长的战役。"
+                }, {
+                    "id": "burma-campaign",
+                    "title": "缅甸战役",
+                    "period": "1942-1945",
+                    "image": "zz/zz7.webp",
+                    "stats": "死亡人数: 50万",
+                    "description": "缅甸战役是第二次世界大战期间盟军与日军在缅甸进行的一系列战役，时间从1942年1月日军入侵缅甸开始，至1945年7月盟军收复缅甸结束。"
+                }, {
+                    "id": "battle-of-france",
+                    "title": "法国战役",
+                    "period": "1940",
+                    "image": "zz/zz8.jpg",
+                    "stats": "死亡人数: 46万",
+                    "description": "法国战役是第二次世界大战期间纳粹德国对法国、比利时、荷兰和卢森堡的进攻战役，时间从1940年5月10日至6月25日，德军以闪电战迅速击败盟军。"
+                }],
+                "vietnam-war": [{
+                    "id": "six-day-war",
+                    "title": "六日战争",
+                    "period": "1967",
+                    "image": "zz/2.webp",
+                    "stats": "死亡人数: 2万",
+                    "description": "六日战争，亦称第三次中东战争、六月战争、六五战争，发生在1967年6月初，是'闪电战'的一个典范。它发生在以色列国和毗邻的埃及、叙利亚及约旦等阿拉伯国家之间。"
+                }, {
+                    "id": "sino-indian",
+                    "title": "中印边境战争",
+                    "period": "1962",
+                    "image": "zz/3.webp",
+                    "stats": "死亡人数: 5千",
+                    "description": "中印边境战争是1962年10月20日至11月21日期间中华人民共和国和印度共和国在藏南地区发生的一场短暂但影响深远的边境战争。"
+                }, {
+                    "id": "biafra",
+                    "title": "比夫拉战争",
+                    "period": "1967-1970",
+                    "image": "zz/4.webp",
+                    "stats": "死亡人数: 100万",
+                    "description": "比夫拉战争，又称尼日利亚内战，是1967年至1970年间尼日利亚政府和自行宣布独立的比夫拉共和国之间的内战。战争因种族、经济、文化和宗教紧张局势而爆发。"
+                }, {
+                    "id": "congo-crisis",
+                    "title": "刚果危机",
+                    "period": "1960-1965",
+                    "image": "zz/5.webp",
+                    "stats": "死亡人数: 10万",
+                    "description": "刚果危机是1960年至1965年期间在刚果共和国（今刚果民主共和国）发生的一系列政治动荡和武装冲突，是冷战时期最复杂的代理人战争之一。"
+                }, {
+                    "id": "indonesia-malaysia",
+                    "title": "印马对抗",
+                    "period": "1963-1966",
+                    "image": "zz/zz二战.jpg",
+                    "stats": "死亡人数: 1千",
+                    "description": "印马对抗是印度尼西亚反对新成立的马来西亚联邦而进行的低强度武装冲突，时间从1963年持续到1966年，涉及边境冲突和小规模军事行动。"
+                }, {
+                    "id": "dominican-civil",
+                    "title": "多米尼加内战",
+                    "period": "1965",
+                    "image": "zz/zz俄乌战争 .jpg",
+                    "stats": "死亡人数: 6千",
+                    "description": "多米尼加内战是1965年4月发生在多米尼加共和国的一场内战，起因是支持前总统胡安·博什的立宪派军人与保守派军人之间的冲突，最终导致美国军事干预。"
+                }, {
+                    "id": "rhodesian-bush",
+                    "title": "罗德西亚丛林战争",
+                    "period": "1964-1979",
+                    "image": "zz/zz越南.webp",
+                    "stats": "死亡人数: 3万",
+                    "description": "罗德西亚丛林战争是罗德西亚（今津巴布韦）黑人游击队与伊恩·史密斯领导的少数白人政府之间的武装冲突，时间从1964年持续到1979年，最终导致津巴布韦独立。"
+                }],
+                "ukraine-war": [{
+                    "id": "ethiopia",
+                    "title": "埃塞俄比亚内战",
+                    "period": "2020-至今",
+                    "image": "zz/zz4.png",
+                    "stats": "死亡人数: 60万",
+                    "description": "埃塞俄比亚内战始于2020年11月，是埃塞俄比亚联邦政府与提格雷人民解放阵线之间的武装冲突。冲突迅速升级，导致严重的人道主义危机，并蔓延到邻近地区。"
+                }, {
+                    "id": "yemen",
+                    "title": "也门内战",
+                    "period": "2014-至今",
+                    "image": "zz/d.webp",
+                    "stats": "死亡人数: 37万",
+                    "description": "也门内战是也门自2014年持续至今的内战，由胡塞武装组织与也门总统阿卜杜拉布·曼苏尔·哈迪领导的政府之间的冲突演变而成。沙特领导的军事联盟于2015年介入支持政府军。"
+                }, {
+                    "id": "myanmar",
+                    "title": "缅甸内战",
+                    "period": "2021-至今",
+                    "image": "zz/zz7.webp",
+                    "stats": "死亡人数: 2.5万",
+                    "description": "缅甸内战始于2021年缅甸军事政变后，全国各地爆发反对军政府的抗议活动，随后演变为武装冲突。多个少数民族武装组织和人民防卫军参与了这场全国性冲突。"
+                }, {
+                    "id": "nagorno-karabakh",
+                    "title": "纳戈尔诺-卡拉巴赫冲突",
+                    "period": "2020",
+                    "image": "zz/e.webp",
+                    "stats": "死亡人数: 6千",
+                    "description": "2020年纳戈尔诺-卡拉巴赫战争是阿塞拜疆和亚美尼亚之间在纳戈尔诺-卡拉巴赫地区爆发的武装冲突，持续44天，最终以阿塞拜疆收复部分领土告终。"
+                }, {
+                    "id": "syria",
+                    "title": "叙利亚内战",
+                    "period": "2011-至今",
+                    "image": "zz/zz8.jpg",
+                    "stats": "死亡人数: 50万",
+                    "description": "叙利亚内战是叙利亚自2011年持续至今的内战，起初是反政府抗议活动，随后演变为多国参与的复杂冲突。战争导致大规模难民危机和人道主义灾难。"
+                }, {
+                    "id": "mali-conflict",
+                    "title": "马里冲突",
+                    "period": "2012-至今",
+                    "image": "zz/f.webp",
+                    "stats": "死亡人数: 3万",
+                    "description": "马里冲突始于2012年图阿雷格族叛乱，随后演变为复杂的多边冲突，涉及伊斯兰极端组织、政府军和国际部队。冲突已蔓延至布基纳法索和尼日尔。"
+                }, {
+                    "id": "libya-crisis",
+                    "title": "利比亚危机",
+                    "period": "2014-至今",
+                    "image": "zz/g.webp",
+                    "stats": "死亡人数: 2万",
+                    "description": "利比亚危机是2011年卡扎菲政权倒台后爆发的持续冲突，涉及多个武装派别和外国势力，形成东西两个对立政府，导致国家长期分裂。"
+                }, {
+                    "id": "cameroon-conflict",
+                    "title": "喀麦隆冲突",
+                    "period": "2017-至今",
+                    "image": "zz/h.webp",
+                    "stats": "死亡人数: 6千",
+                    "description": "喀麦隆冲突是英语区分离主义者与法语区主导的政府之间的武装冲突，始于2017年，被称为\"安巴佐尼亚危机\"，导致严重的人道主义危机。"
+                }],
+                "korean-war": [{
+                    "id": "inva-south",
+                    "title": "朝鲜南侵",
+                    "period": "1950.6.25",
+                    "image": "zz/zz古巴导弹危机.jpg",
+                    "stats": "首日推进: 15公里",
+                    "description": "1950年6月25日朝鲜人民军7个师团在T-34坦克支援下越过三八线，3天内攻陷汉城。联合国安理会通过第82号决议，首次授权组建'联合国军'干预冲突。"
+                }, {
+                    "id": "incheon",
+                    "title": "仁川登陆",
+                    "period": "1950.9.15",
+                    "image": "zz/zz法国大革命.jpg",
+                    "stats": "潮差极限: 9.2米",
+                    "description": "麦克阿瑟指挥7万美军在仁川冒险登陆，利用月球引起的最大潮汐突破飞鱼航道。两周内切断朝军补给线，收复汉城，将战局从釜山防御圈彻底逆转。"
+                }, {
+                    "id": "chosin",
+                    "title": "长津湖战役",
+                    "period": "1950.11-12",
+                    "image": "zz/zz美国内战.jpg",
+                    "stats": "极端低温: -40℃",
+                    "description": "志愿军第9兵团15万人秘密入朝，在盖马高原包围美陆战1师。双方在极寒中血战17天，美军创造'向大海进攻'的突围奇迹，但伤亡减员达1.5万人。"
+                }, {
+                    "id": "pork-chop",
+                    "title": "猪排山血战",
+                    "period": "1953.3-7",
+                    "image": "zz/zz俄国十月革命.jpg",
+                    "stats": "山头易手: 24次",
+                    "description": "停战前夕的绞肉机战役，联合国军与中朝军队为控制金城前线无名高地（代号猪排山）反复争夺。仅7月6日夜间就爆发11次白刃战，最终阵地被炮火削低2米。"
+                }, {
+                    "id": "mig-alley",
+                    "title": "米格走廊",
+                    "period": "1951-1953",
+                    "image": "zz/zz西班牙内战.jpg",
+                    "stats": "空战比: 10:1",
+                    "description": "中苏空军在鸭绿江至清川江空域建立的'禁区'，苏军秘密投入米格-15战机1200架次。美国王牌飞行员损失率高达22%，催生F-86佩刀战机与'萨奇剪'战术革新。"
+                }, {
+                    "id": "stalemate",
+                    "title": "阵地对峙",
+                    "period": "1951.7-1953",
+                    "image": "zz/zz拿破仑战争.jpg",
+                    "stats": "坑道总长: 1250公里",
+                    "description": "双方沿三八线构建纵深防御体系，志愿军创造'坑道战'模式，上甘岭阵地承受190万发炮弹轰炸仍不陷落。期间爆发大小战斗3000余次，战线波动不超过10公里。"
+                }, {
+                    "id": "armistice",
+                    "title": "停战协定",
+                    "period": "1953.7.27",
+                    "image": "zz/zz两伊战争.jpg",
+                    "stats": "战俘遣返: 7.5万人",
+                    "description": "在板门店签署的《朝鲜停战协定》创造多项纪录：谈判耗时747天（史上最长），划定241公里非军事区，但未达成永久和平条约。最后时刻仍有1063名志愿军战俘坚持遣返台湾。"
+                }],
+                "gulf-war": [{
+                    "id": "desert-shield",
+                    "title": "沙漠盾牌行动",
+                    "period": "1990-1991",
+                    "image": "zz/zz巴尔干战争.jpg",
+                    "stats": "死亡人数: 2万",
+                    "description": "1990年8月启动的防御性军事部署，43国联军在沙特集结54万兵力，构建现代战争史上最庞大防御体系，成功遏制萨达姆军队南下攻势，为后续‘沙漠风暴’奠定战略基础。"
+                }, {
+                    "id": "desert-storm",
+                    "title": "沙漠风暴行动",
+                    "period": "1991",
+                    "image": "zz/zz克里米亚战争.jpg",
+                    "stats": "死亡人数: 3.5万",
+                    "description": "1991年1月展开的立体攻势，38天空袭投射8.8万吨弹药，摧毁伊拉克80%电力系统，配合100小时地面闪电战，以压倒性科技优势重创伊军42个师，重塑现代战争形态。"
+                }, {
+                    "id": "khafji-battle",
+                    "title": "海夫吉战役",
+                    "period": "1991",
+                    "image": "zz/zz甲午战争.jpg",
+                    "stats": "死亡人数: 300",
+                    "description": "1991年1月末的边境争夺战，伊军两个机械化师突袭沙特海夫吉，多国部队首次地面交锋中动用AC-130炮艇机反攻，三天激战粉碎萨达姆‘诱敌深入’战略意图。"
+                }, {
+                    "id": "scud-attacks",
+                    "title": "飞毛腿导弹攻击",
+                    "period": "1991",
+                    "image": "zz/zz阿以战争.jpg",
+                    "stats": "死亡人数: 46",
+                    "description": "伊拉克发射的85枚飞毛腿导弹虽仅造成28名美军死亡，却迫使联军抽调30%空中力量执行‘寻歼任务’，更促成以色列史上首次配备防毒面具全民战备，考验联盟凝聚力。"
+                }, {
+                    "id": "highway-death",
+                    "title": "死亡公路战役",
+                    "period": "1991",
+                    "image": "zz/zz布尔战争.jpg",
+                    "stats": "死亡人数: 2000",
+                    "description": "1991年2月26日对80号公路的空中绞杀，A-10攻击机与B-52编队连续12小时轰炸，将2000余辆溃逃军车炸成‘金属坟墓’，引发战争伦理争议并催生日内瓦公约新条款。"
+                }, {
+                    "id": "kuwait-liberation",
+                    "title": "科威特解放行动",
+                    "period": "1991",
+                    "image": "zz/zz海湾战争.webp",
+                    "stats": "死亡人数: 1100",
+                    "description": "1991年2月24日启动的地面总攻，美海军陆战队两栖佯攻牵制主力，第七装甲军团左翼大迂回切断伊军退路，仅96小时解放科威特并歼灭共和国卫队三个精锐师。"
+                }, {
+                    "id": "oil-spill-disaster",
+                    "title": "原油泄漏事件",
+                    "period": "1991",
+                    "image": "zz/zz阿富汗.webp",
+                    "stats": "生态死亡: 不可估量",
+                    "description": "萨达姆实施的生态恐怖主义，主动炸毁科威特7处油井与输油终端，日均泄漏2万吨原油持续八个月，污染2500公里海岸线，生态恢复耗时二十年耗资500亿美元。"
+                }],
+                "afghan-war": [{
+                    "id": "enduring-freedom",
+                    "title": "持久自由行动",
+                    "period": "2001-2014",
+                    "image": "zz/zz朝鲜战争.jpg",
+                    "stats": "死亡人数: 24万",
+                    "description": "以911事件为导火索的全球反恐首战，北约联军两周内瓦解塔利班政权，却陷入长达二十年的治安战泥潭，耗资2万亿美元造成24万人死亡，暴露现代反叛乱战争困境。"
+                }, {
+                    "id": "tora-bora",
+                    "title": "托拉博拉战役",
+                    "period": "2001",
+                    "image": "zz/zz伊拉克战争.webp",
+                    "stats": "死亡人数: 200",
+                    "description": "2001年12月针对本·拉登的围剿行动，美军特种部队配合当地军阀在贾拉拉巴德山区展开洞穴清剿，虽未捕获首要目标，但摧毁基地组织核心指挥网络与训练设施。"
+                }, {
+                    "id": "operation-anaconda",
+                    "title": "蟒蛇行动",
+                    "period": "2002",
+                    "image": "zz/afg3.webp",
+                    "stats": "死亡人数: 500",
+                    "description": "2002年3月沙希库特山谷围剿战，美军首次大规模地面作战，遭遇千余名塔利班分子顽强抵抗，经七日血战依靠空中火力优势歼灭敌军，凸显山地作战严峻挑战。"
+                }, {
+                    "id": "kandahar-siege",
+                    "title": "坎大哈围攻战",
+                    "period": "2001",
+                    "image": "zz/afg4.webp",
+                    "stats": "死亡人数: 1100",
+                    "description": "2001年11月北方联盟在美军空中支援下猛攻塔利班精神首都，经历两周残酷巷战后控制全城，迫使奥马尔逃亡，标志塔利班政权正式垮台与阿富汗权力更迭。"
+                }, {
+                    "id": "helmand-conflict",
+                    "title": "赫尔曼德战役",
+                    "period": "2006-2014",
+                    "image": "zz/afg5.jpg",
+                    "stats": "死亡人数: 1.5万",
+                    "description": "在鸦片主产区的八年拉锯战，英军遭遇越战后最惨重伤亡，塔利班利用地道网络发动游击袭击，北约虽控制主要城镇却未能切断武装分子农村根基。"
+                }, {
+                    "id": "bin-laden-raid",
+                    "title": "海神之矛行动",
+                    "period": "2011",
+                    "image": "zz/afg6.webp",
+                    "stats": "死亡人数: 5",
+                    "description": "2011年5月2日海豹六队突袭阿伯塔巴德院落，40分钟击毙本·拉登并获取大量情报，隐秘行动规避巴方雷达系统，终结持续十年的全球头号通缉犯追捕。"
+                }, {
+                    "id": "kabul-fall",
+                    "title": "喀布尔陷落",
+                    "period": "2021",
+                    "image": "zz/afg7.jpg",
+                    "stats": "死亡人数: 432",
+                    "description": "2021年8月美军撤离期间塔利班发动闪电攻势，政府军全面崩溃，喀布尔机场爆发撤离大混乱，标志美国最长战争以塔利班重新掌权告终。"
+                }],
+
+
+                "iraq-war": [{
+                    "id": "shock-and-awe",
+                    "title": "震慑行动",
+                    "period": "2003",
+                    "image": "zz/iraq1.webp",
+                    "stats": "死亡人数: 9200",
+                    "description": "2003年3月发动的心理震慑空袭，首日300枚巡航导弹覆盖巴格达要害目标，试图通过毁灭性打击瓦解伊军意志，开创'快速决定性作战'理论实践先例。"
+                }, {
+                    "id": "baghdad-fall",
+                    "title": "巴格达战役",
+                    "period": "2003",
+                    "image": "zz/iraq2.jpg",
+                    "stats": "死亡人数: 2300",
+                    "description": "2003年4月第三机步师装甲纵队突入市中心，萨达姆铜像被民众拉倒象征政权崩溃，但混乱中巴格达博物馆遭洗劫，损失1.5万件珍贵文物。"
+                }, {
+                    "id": "fallujah-I",
+                    "title": "第一次费卢杰战役",
+                    "period": "2004",
+                    "image": "zz/iraq3.webp",
+                    "stats": "死亡人数: 800",
+                    "description": "2004年4月为报复黑水公司雇员遇害，美军强攻逊尼派堡垒，遭遇自杀炸弹与巷战伏击，激战三周后因政治压力中止行动，埋下二次战役导火索。"
+                }, {
+                    "id": "phantom-fury",
+                    "title": "幻影狂怒行动",
+                    "period": "2004",
+                    "image": "zz/iraq4.jpg",
+                    "stats": "死亡人数: 2000",
+                    "description": "2004年11月美伊联军1.5万人清剿费卢杰，坦克推土机逐屋攻坚，战后城市75%建筑损毁，成为现代战争史上最残酷城市巷战典范之一。"
+                }, {
+                    "id": "surge-operation",
+                    "title": "增兵行动",
+                    "period": "2007-2008",
+                    "image": "zz/iraq5.webp",
+                    "stats": "死亡人数: 1700",
+                    "description": "2007年布什增派3万兵力，联合'觉醒运动'逊尼派部落打击基地组织，建立前哨基地网络，暴力事件减少90%，扭转安全局势。"
+                }, {
+                    "id": "basra-offensive",
+                    "title": "巴士拉战役",
+                    "period": "2008",
+                    "image": "zz/iraq6.jpg",
+                    "stats": "死亡人数: 600",
+                    "description": "2008年3月伊拉克政府军首次独立主导攻势，在英军支援下六周击溃萨德尔武装'迈赫迪军'，控制南部石油命脉，彰显安全部队成长。"
+                }, {
+                    "id": "withdrawal",
+                    "title": "撤军阶段",
+                    "period": "2009-2011",
+                    "image": "zz/iraq7.webp",
+                    "stats": "死亡人数: 1500",
+                    "description": "奥巴马政府执行撤军计划期间，基地组织分支频繁制造汽车炸弹袭击，2011年12月最后部队跨越科威特边境，结束九年战争遗留教派分裂危机。"
+                }],
+                "default": [{
+                    "id": "korean-war",
+                    "title": "朝鲜战争",
+                    "period": "1950-1953",
+                    "image": "zz/zz朝鲜战争.jpg",
+                    "stats": "死亡人数: 300万",
+                    "description": "朝鲜战争是冷战时期的第一场大规模军事冲突，始于1950年6月25日朝鲜入侵韩国。联合国军（主要由美国领导）支援韩国，而中国和苏联支援朝鲜。"
+                }, {
+                    "id": "gulf-war",
+                    "title": "海湾战争",
+                    "period": "1990-1991",
+                    "image": "zz/zz海湾战争.webp",
+                    "stats": "死亡人数: 3.5万",
+                    "description": "海湾战争始于1990年8月2日伊拉克入侵科威特，以美国为首的35国联盟于1991年1月17日开始军事行动解放科威特。主要战斗行动仅持续42天。"
+                }, {
+                    "id": "syria",
+                    "title": "叙利亚内战",
+                    "period": "2011-至今",
+                    "image": "zz/zz8.jpg",
+                    "stats": "死亡人数: 50万",
+                    "description": "叙利亚内战是叙利亚自2011年持续至今的内战，起初是反政府抗议活动，随后演变为多国参与的复杂冲突。战争导致大规模难民危机和人道主义灾难。"
+                }, {
+                    "id": "afghanistan",
+                    "title": "阿富汗战争",
+                    "period": "2001-2021",
+                    "image": "zz/zz阿富汗.webp",
+                    "stats": "死亡人数: 24万",
+                    "description": "阿富汗战争始于2001年10月7日，以美国为首的联军对基地组织和塔利班发起军事行动，回应9·11恐怖袭击。这场战争成为美国历史上最长的战争，持续近20年。"
+                }, {
+                    "id": "iraq-war",
+                    "title": "伊拉克战争",
+                    "period": "2003-2011",
+                    "image": "zz/zz伊拉克战争.webp",
+                    "stats": "死亡人数: 50万",
+                    "description": "伊拉克战争始于2003年3月20日，以美国为首的联军入侵伊拉克，推翻了萨达姆·侯赛因政权。战争理由是伊拉克拥有大规模杀伤性武器，但后来被证明情报有误。"
+                }, {
+                    "id": "somalia",
+                    "title": "索马里内战",
+                    "period": "1991-至今",
+                    "image": "zz/1.webp",
+                    "stats": "死亡人数: 50万",
+                    "description": "索马里内战是自1991年西亚德·巴雷政权倒台后爆发的持续冲突，涉及多个部族派别和伊斯兰极端组织，导致国家长期处于无政府状态。"
+                }, {
+                    "id": "darfur",
+                    "title": "达尔富尔冲突",
+                    "period": "2003-至今",
+                    "image": "zz/a.webp",
+                    "stats": "死亡人数: 30万",
+                    "description": "达尔富尔冲突是苏丹西部达尔富尔地区阿拉伯民兵组织与黑人反政府武装之间的冲突，始于2003年，被联合国称为\"世界上最严重的人道主义危机\"。"
+                }, {
+                    "id": "east-timor",
+                    "title": "东帝汶独立冲突",
+                    "period": "1975-1999",
+                    "image": "zz/b.webp",
+                    "stats": "死亡人数: 20万",
+                    "description": "东帝汶独立冲突是东帝汶独立革命阵线与印度尼西亚占领军之间的武装冲突，持续24年，最终在1999年联合国监督的公投后获得独立。"
+                }]
+            }
+        };
+        // 从内嵌数据加载
+        function loadData() {
+            try {
+                const loadingIndicator = document.getElementById('loading-indicator');
+                loadingIndicator.style.display = 'block';
+
+                // 检查 ECharts 对象是否已定义
+                if (typeof echarts === 'undefined') {
+                    console.error('ECharts 未正确加载');
+                    loadingIndicator.innerHTML =
+                        `<div style="color: var(--accent-red);">
+                            <i class="fas fa-exclamation-triangle"></i> 加载失败: ECharts 未正确加载
+                        </div>`;
+                    return;
+                }
+
+                // 更新全局数据
+                document.getElementById('military-spending').textContent = appData.global.militarySpending;
+                document.getElementById('education-spending').textContent = appData.global.educationSpending;
+
+                // 渲染时间轴
+                renderTimeline();
+
+                // 渲染幸存者故事
+                renderStories();
+
+                // 初始化图表
+                initCharts();
+
+                // 初始化地图
+                initMap();
+
+                // 隐藏加载指示器
+                loadingIndicator.style.display = 'none';
+
+                // 默认显示一个详情
+                showTimelineDetail('ukraine-war');
+                document.querySelector('.timeline-item[data-period="ukraine-war"]').classList.add('active');
+
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                document.getElementById('loading-indicator').innerHTML =
+                    `<div style="color: var(--accent-red);">
+                        <i class="fas fa-exclamation-triangle"></i> 数据加载失败: ${error.message}
+                    </div>`;
+            }
+        }
+
+        // 渲染时间轴
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            appData.timelineEvents.forEach(event => {
+                const li = document.createElement('li');
+                li.className = 'timeline-item';
+                li.dataset.period = event.id;
+
+                li.innerHTML = `
+                    <div class="timeline-year">${event.year}</div>
+                    <div class="timeline-event">${event.name}</div>
+                `;
+
+                li.addEventListener('click', function () {
+                    document.querySelectorAll('.timeline-item').forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    showTimelineDetail(event.id);
+
+                    // 记录行为：点击时间轴事件
+                    recordBehavior(BEHAVIOR_TYPES.TIMELINE_CLICK, {
+                        event: event.name
+                    });
+                });
+
+                container.appendChild(li);
+            });
+        }
+
+        // 初始化地图
+        function initMap() {
+            const map = L.map('conflict-map').setView([30, 10], 2);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            const currentConflicts = [
+                {
+                    lat: 48.3794, lng: 31.1656, title: '乌克兰战争', desc: '2022年2月爆发'
+                },
+                {
+                    lat: 33.9391, lng: 67.7100, title: '阿富汗冲突', desc: '持续冲突'
+                },
+                {
+                    lat: 12.8628, lng: 30.2176, title: '苏丹内战', desc: '2023年爆发'
+                },
+                {
+                    lat: 17.5707, lng: -3.9962, title: '马里冲突', desc: '持续冲突'
+                },
+                {
+                    lat: 31.0461, lng: 34.8516, title: '巴以冲突', desc: '持续冲突'
+                },
+                // 新增的当前冲突区
+                {
+                    lat: 15.5527, lng: 48.5164, title: '也门内战', desc: '2014年爆发'
+                },
+                {
+                    lat: 21.9162, lng: 95.9560, title: '缅甸内战', desc: '2021年爆发'
+                },
+                {
+                    lat: 9.1450, lng: 40.4897, title: '埃塞俄比亚内战', desc: '2020年爆发'
+                },
+                {
+                    lat: 5.1521, lng: 46.1996, title: '索马里冲突', desc: '持续冲突'
+                },
+                {
+                    lat: 12.2383, lng: -1.5616, title: '萨赫勒地区冲突', desc: '持续冲突'
+                }
+            ];
+
+            currentConflicts.forEach(conflict => {
+                const marker = L.circleMarker([conflict.lat, conflict.lng], {
+                    color: '#e63946',
+                    fillColor: '#e63946',
+                    fillOpacity: 0.7,
+                    radius: 8
+                }).addTo(map)
+                    .bindPopup(`<b>${conflict.title}</b><br>${conflict.desc}`);
+
+                marker.on('click', function () {
+                    recordBehavior(BEHAVIOR_TYPES.MAP_MARKER_CLICK, {
+                        markerName: conflict.title,
+                        markerType: 'current'
+                    });
+                });
+            });
+
+            // 添加历史战争遗址标记（灰色）
+            const historicalConflicts = [
+                {
+                    lat: 52.2297, lng: 21.0122, title: '华沙起义', desc: '1944年'
+                },
+                {
+                    lat: 39.9042, lng: 116.4074, title: '抗日战争', desc: '1937-1945'
+                },
+                {
+                    lat: 33.3152, lng: 44.3661, title: '伊拉克战争', desc: '2003-2011'
+                },
+                {
+                    lat: 34.5333, lng: 69.1333, title: '阿富汗战争', desc: '2001-2021'
+                },
+                {
+                    lat: 10.8231, lng: 106.6297, title: '越南战争', desc: '1955-1975'
+                },
+                // 新增的历史战争遗址
+                {
+                    lat: 49.4144, lng: -1.3167, title: '诺曼底登陆', desc: '1944年'
+                },
+                {
+                    lat: 48.7080, lng: 44.5133, title: '斯大林格勒战役', desc: '1942-1943'
+                },
+                {
+                    lat: 34.3928, lng: 132.4597, title: '广岛原爆', desc: '1945年'
+                },
+                {
+                    lat: 21.3667, lng: -157.9500, title: '珍珠港事件', desc: '1941年'
+                },
+                {
+                    lat: 52.5200, lng: 13.4050, title: '柏林战役', desc: '1945年'
+                }
+            ];
+
+            historicalConflicts.forEach(conflict => {
+                const marker = L.circleMarker([conflict.lat, conflict.lng], {
+                    color: '#a8a8a8',
+                    fillColor: '#a8a8a8',
+                    fillOpacity: 0.7,
+                    radius: 8
+                }).addTo(map)
+                    .bindPopup(`<b>${conflict.title}</b><br>${conflict.desc}`);
+
+                marker.on('click', function () {
+                    recordBehavior(BEHAVIOR_TYPES.MAP_MARKER_CLICK, {
+                        markerName: conflict.title,
+                        markerType: 'historical'
+                    });
+                });
+            });
+        }
+
+        // 初始化图表
+        function initCharts() {
+            const chartNameMap = new Map([
+                [document.getElementById('military-spending-chart'), '全球军费开支趋势'],
+                [document.getElementById('death-distribution-chart'), '战争死亡人数分布'],
+                [document.getElementById('cost-benefit-chart'), '战争成本与和平效益对比'],
+                [document.getElementById('region-spending-chart'), '主要冲突地区军费占比'],
+                [document.getElementById('war-duration-chart'), '战争持续时间对比'],
+                [document.getElementById('economic-loss-chart'), '战争经济损失对比'],
+                [document.getElementById('refugee-chart'), '战后难民人数'],
+                [document.getElementById('conflict-region-chart'), '冲突地区分布']
+            ]);
+            // 全球军费开支趋势图 - 折线图
+            const militaryChart = echarts.init(document.getElementById('military-spending-chart'));
+            militaryChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c} 万亿美元'
+                },
+                grid: {
+                    top: '15%',
+                    left: '10%',
+                    right: '10%',
+                    bottom: '15%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['1945', '1950', '1960', '1970', '1980', '1990', '2000', '2010', '2023'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '万亿美元',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '全球军费开支',
+                    type: 'line',
+                    smooth: true,
+                    symbol: 'circle',
+                    symbolSize: 8,
+                    data: [0.2, 0.5, 0.9, 1.2, 1.8, 1.1, 1.5, 1.8, 2.24],
+                    lineStyle: {
+                        color: '#e63946',
+                        width: 3
+                    },
+                    itemStyle: {
+                        color: '#e63946'
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0,
+                                color: 'rgba(230, 57, 70, 0.3)'
+                            }, {
+                                offset: 1,
+                                color: 'rgba(230, 57, 70, 0.01)'
+                            }]
+                        }
+                    }
+                }]
+            });
+
+            // 死亡人数分布图 - 饼图
+            const deathChart = echarts.init(document.getElementById('death-distribution-chart'));
+            deathChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 0,
+                    textStyle: {
+                        color: '#f1faee'
+                    }
+                },
+                series: [{
+                    name: '死亡人数分布',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: 'rgba(0, 0, 0, 0.5)',
+                        borderWidth: 2
+                    },
+                    label: {
+                        show: true,
+                        formatter: '{b}: {c}'
+                    },
+                    data: [{
+                        value: 30,
+                        name: '士兵',
+                        itemStyle: {
+                            color: '#e63946'
+                        }
+                    }, {
+                        value: 50,
+                        name: '平民',
+                        itemStyle: {
+                            color: '#fca311'
+                        }
+                    }, {
+                        value: 20,
+                        name: '儿童',
+                        itemStyle: {
+                            color: '#e9c46a'
+                        }
+                    }]
+                }]
+            });
+
+            // 成本效益对比图 - 柱状图
+            const costChart = echarts.init(document.getElementById('cost-benefit-chart'));
+            costChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                legend: {
+                    data: ['战争成本', '和平效益'],
+                    textStyle: {
+                        color: '#f1faee'
+                    },
+                    top: 10
+                },
+                grid: {
+                    top: '20%',
+                    left: '3%',
+                    right: '4%',
+                    bottom: '3%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['经济成本', '生命损失', '难民数量', '环境破坏', '教育损失'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '损失程度（指数）',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '战争成本',
+                    type: 'bar',
+                    barWidth: '40%',
+                    data: [14.5, 0.94, 103, 5, 0.45],
+                    itemStyle: {
+                        color: '#e63946'
+                    }
+                }, {
+                    name: '和平效益',
+                    type: 'bar',
+                    barWidth: '40%',
+                    data: [0, 0, 0, 0, 4.8],
+                    itemStyle: {
+                        color: '#1d3557'
+                    }
+                }]
+            });
+
+            // 地区军费占比图 - 雷达图
+            const regionChart = echarts.init(document.getElementById('region-spending-chart'));
+            regionChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}%'
+                },
+                radar: {
+                    indicator: [{
+                        name: '北美',
+                        max: 100
+                    }, {
+                        name: '欧洲',
+                        max: 100
+                    }, {
+                        name: '亚洲',
+                        max: 100
+                    }, {
+                        name: '中东',
+                        max: 100
+                    }, {
+                        name: '非洲',
+                        max: 100
+                    }],
+                    radius: '70%',
+                    splitArea: {
+                        areaStyle: {
+                            color: ['rgba(168, 168, 168, 0.1)']
+                        }
+                    },
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.5)'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.5)'
+                        }
+                    }
+                },
+                series: [{
+                    type: 'radar',
+                    data: [{
+                        value: [30, 25, 20, 15, 10],
+                        name: '军费占比',
+                        areaStyle: {
+                            color: 'rgba(230, 57, 70, 0.2)'
+                        },
+                        lineStyle: {
+                            color: '#e63946',
+                            width: 2
+                        },
+                        itemStyle: {
+                            color: '#e63946'
+                        },
+                        label: {
+                            show: true,
+                            formatter: '{c}%'
+                        }
+                    }]
+                }]
+            });
+
+            // 战争持续时间对比 - 柱状图
+            const durationChart = echarts.init(document.getElementById('war-duration-chart'));
+            durationChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c} 年'
+                },
+                grid: {
+                    top: '15%',
+                    left: '15%',
+                    right: '10%',
+                    bottom: '15%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['二战', '朝鲜战争', '越南战争', '海湾战争', '阿富汗战争', '伊拉克战争', '俄乌冲突'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '年',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '持续时间',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: [6, 3, 20, 1, 20, 8, 3],
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#fca311'
+                        }, {
+                            offset: 1,
+                            color: '#e63946'
+                        }])
+                    }
+                }]
+            });
+
+            // 战争经济损失对比 - 柱状图
+            const economicChart = echarts.init(document.getElementById('economic-loss-chart'));
+            economicChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c} 万亿美元'
+                },
+                grid: {
+                    top: '15%',
+                    left: '15%',
+                    right: '10%',
+                    bottom: '15%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: ['二战', '朝鲜战争', '越南战争', '海湾战争', '阿富汗战争', '伊拉克战争', '俄乌冲突'],
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '万亿美元',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '经济损失',
+                    type: 'bar',
+                    barWidth: '60%',
+                    data: [30, 0.3, 0.77, 0.1, 2.26, 1.7, 1.0],
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#e63946'
+                        }, {
+                            offset: 1,
+                            color: '#1d3557'
+                        }])
+                    }
+                }]
+            });
+
+            // 战后难民人数 - 南丁格尔图
+            const refugeeChart = echarts.init(document.getElementById('refugee-chart'));
+            refugeeChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} 百万'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 0,
+                    textStyle: {
+                        color: '#f1faee'
+                    }
+                },
+                series: [{
+                    name: '难民人数',
+                    type: 'pie',
+                    radius: '70%',
+                    roseType: 'area',
+                    itemStyle: {
+                        borderRadius: 8
+                    },
+                    label: {
+                        formatter: '{b}: {c}百万'
+                    },
+                    data: [{
+                        value: 60,
+                        name: '二战',
+                        itemStyle: {
+                            color: '#e63946'
+                        }
+                    }, {
+                        value: 5,
+                        name: '朝鲜战争',
+                        itemStyle: {
+                            color: '#fca311'
+                        }
+                    }, {
+                        value: 3,
+                        name: '越南战争',
+                        itemStyle: {
+                            color: '#e9c46a'
+                        }
+                    }, {
+                        value: 5,
+                        name: '海湾战争',
+                        itemStyle: {
+                            color: '#2a9d8f'
+                        }
+                    }, {
+                        value: 38,
+                        name: '阿富汗战争',
+                        itemStyle: {
+                            color: '#1d3557'
+                        }
+                    }, {
+                        value: 9,
+                        name: '伊拉克战争',
+                        itemStyle: {
+                            color: '#a8dadc'
+                        }
+                    }, {
+                        value: 10,
+                        name: '俄乌冲突',
+                        itemStyle: {
+                            color: '#f4a261'
+                        }
+                    }]
+                }]
+            });
+
+            // 冲突地区分布 - 南丁格尔图
+            const regionConflictChart = echarts.init(document.getElementById('conflict-region-chart'));
+            regionConflictChart.setOption({
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}%'
+                },
+                series: [{
+                    name: '冲突地区分布',
+                    type: 'pie',
+                    radius: ['30%', '80%'],
+                    roseType: 'area',
+                    itemStyle: {
+                        borderRadius: 8
+                    },
+                    label: {
+                        formatter: '{b}: {c}%'
+                    },
+                    data: [{
+                        value: 35,
+                        name: '中东',
+                        itemStyle: {
+                            color: '#e63946'
+                        }
+                    }, {
+                        value: 25,
+                        name: '非洲',
+                        itemStyle: {
+                            color: '#fca311'
+                        }
+                    }, {
+                        value: 20,
+                        name: '亚洲',
+                        itemStyle: {
+                            color: '#e9c46a'
+                        }
+                    }, {
+                        value: 10,
+                        name: '欧洲',
+                        itemStyle: {
+                            color: '#2a9d8f'
+                        }
+                    }, {
+                        value: 5,
+                        name: '美洲',
+                        itemStyle: {
+                            color: '#1d3557'
+                        }
+                    }, {
+                        value: 5,
+                        name: '其他',
+                        itemStyle: {
+                            color: '#a8dadc'
+                        }
+                    }]
+                }]
+            });
+
+            // 图表点击事件
+            const charts = [
+                militaryChart, deathChart, costChart, regionChart,
+                durationChart, economicChart, refugeeChart, regionConflictChart
+            ];
+
+            charts.forEach(chart => {
+                const chartElement = chart.getDom();
+                const chartName = chartNameMap.get(chartElement) || '未知图表';
+
+                chart.on('click', function () {
+                    recordBehavior(BEHAVIOR_TYPES.CHART_INTERACTION, {
+                        chart: chartName,
+                        id: chartElement.id
+                    });
+                });
+            });
+        }
+
+        // 显示时间轴详情
+        function showTimelineDetail(id) {
+            const eventData = appData.timelineDetails[id];
+            document.getElementById('detail-title').textContent = eventData.title;
+            document.getElementById('detail-text').innerHTML = eventData.text;
+            document.getElementById('detail-image').style.backgroundImage = `url('${eventData.image}')`;
+
+            const statsContainer = document.getElementById('detail-stats');
+            statsContainer.innerHTML = '';
+
+            eventData.stats.forEach(stat => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                statCard.innerHTML = `
+                    <div class="stat-value">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                `;
+                statsContainer.appendChild(statCard);
+            });
+
+            // 渲染同时期战争卡片
+            renderContemporaryWars(id);
+
+            document.getElementById('timeline-detail').style.display = 'block';
+
+            // 记录行为：打开详情面板
+            recordBehavior(BEHAVIOR_TYPES.DETAIL_OPEN, {
+                event: eventData.title
+            });
+        }
+
+        // 渲染同时期战争卡片
+        function renderContemporaryWars(id) {
+            const container = document.getElementById('contemporary-container');
+            container.innerHTML = '';
+
+            const moreContainer = document.getElementById('more-wars-container');
+            moreContainer.innerHTML = '';
+            moreContainer.classList.remove('active');
+
+            // 获取当前战争的同时期战争数据
+            const wars = appData.contemporaryWars[id] || appData.contemporaryWars['default'];
+
+            // 初始显示4个战争
+            const initialWars = wars.slice(0, 6);
+            const moreWars = wars.slice(6);
+
+            // 渲染初始战争
+            initialWars.forEach(war => {
+                container.appendChild(createWarCard(war));
+            });
+
+            // 渲染更多战争
+            moreWars.forEach(war => {
+                moreContainer.appendChild(createWarCard(war));
+            });
+
+            // 更新按钮文本
+            const moreBtn = document.getElementById('show-more-btn');
+            if (moreWars.length > 0) {
+                moreBtn.style.display = 'flex';
+                moreBtn.innerHTML = `<i class="fas fa-chevron-down"></i> 查看更多同时期战争 (${moreWars.length})`;
+            } else {
+                moreBtn.style.display = 'none';
+            }
+        }
+
+        // 创建战争卡片
+        function createWarCard(war) {
+            const card = document.createElement('div');
+            card.className = 'war-card';
+            card.innerHTML = `
+                <img src="${war.image}" alt="${war.title}" class="war-card-image">
+                <div class="war-card-content">
+                    <div class="war-card-title">${war.title}</div>
+                    <div class="war-card-period">${war.period}</div>
+                    <div class="war-card-stats">${war.stats}</div>
+                    <div class="war-card-description">${war.description}</div>
+                    <a href="#" class="war-card-link">查看详情 <i class="fas fa-arrow-right"></i></a>
+                </div>
+            `;
+
+                // 点击卡片查看详情
+            card.addEventListener('click', function (event) {
+                // 防止链接的默认行为
+                if (event.target.closest('.war-card-link')) {
+                    event.preventDefault();
+                }
+
+                // 记录行为：探索战争卡片
+                recordBehavior(BEHAVIOR_TYPES.WAR_CARD_EXPLORE, {
+                    war: war.title,
+                    period: war.period,
+                    id: war.id
+                });
+                //跳转详情页
+               localStorage.setItem('selectedWar', war.title);
+                window.location.href = '战争详情页.html';
+                // 如果是太平洋战争卡片，跳转到详情页
+                if (war.id === '                  ') {
+                    window.location.href = 'pacific_war.html';
+                } else {
+                    // 显示通知
+                    showNotification(`探索战争: ${war.title}`);
+                }
+            });
+
+            return card;
+        }
+
+        // 渲染幸存者故事
+        function renderStories(type = 'all') {
+            const container = document.getElementById('stories-container');
+            container.innerHTML = '';
+
+            let stories = [];
+            if (type === 'all') {
+                stories = appData.survivorStories.all;
+            } else {
+                stories = appData.survivorStories[type];
+            }
+
+            stories.forEach(story => {
+                const card = document.createElement('div');
+                card.className = 'story-card';
+
+                let typeClass = '';
+                let typeText = '';
+
+                switch (story.type) {
+                    case 'soldier':
+                        typeClass = 'soldier';
+                        typeText = '退伍军人';
+                        break;
+                    case 'civilian':
+                        typeClass = 'civilian';
+                        typeText = '平民幸存者';
+                        break;
+                    case 'child':
+                        typeClass = 'child';
+                        typeText = '战争儿童';
+                        break;
+                }
+
+                card.innerHTML = `
+                    <div class="story-image" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${story.image}');">
+                        <span class="story-type ${typeClass}">${typeText}</span>
+                    </div>
+                    <div class="story-content">
+                        <p class="story-quote">"${story.quote}"</p>
+                        <div class="story-info">
+                            <span>${story.name} | ${story.period}</span>
+                            <span class="audio-control"><i class="fas fa-play-circle"></i> 播放声音</span>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // 受难人数实时计数器
+        function initCasualtyCounter() {
+            const counter = document.getElementById('casualty-counter');
+            // 初始值基于2001年以来的估计战争死亡人数
+            let count = 940000;
+            counter.textContent = count.toLocaleString();
+
+            // 每分钟更新一次（实际应用中应该从API获取实时数据）
+            setInterval(() => {
+                // 每分钟增加约1.8人（基于每年约100万战争相关死亡人数的估计）
+                count += Math.floor(Math.random() * 3) + 1;
+                counter.textContent = count.toLocaleString();
+            }, 60000); // 每分钟更新一次
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            // 检查是否有记住的用户
+            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
+            if (rememberedUser && !localStorage.getItem('currentUser')) {
+                localStorage.setItem('currentUser', JSON.stringify(rememberedUser));
+            }
+
+            updateUserUI();
+
+            // 加载行为数据
+            loadBehaviors();
+
+            // 初始化计数器
+            initCasualtyCounter();
+
+            // 加载页面数据
+            loadData();
+
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const usernameDisplay = document.getElementById('username-display');
+
+            // 更新用户界面状态
+            // 用户状态管理函数
+            function updateUserUI() {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                const usernameDisplay = document.getElementById('username-display');
+                const loginBtn = document.getElementById('login-btn');
+                const logoutBtn = document.getElementById('logout-btn');
+
+                if (user) {
+                    usernameDisplay.textContent = `欢迎，${user.username}`;
+                    loginBtn.style.display = 'none';
+                    logoutBtn.style.display = 'inline-block';
+                } else {
+                    usernameDisplay.textContent = '';
+                    loginBtn.style.display = 'inline-block';
+                    logoutBtn.style.display = 'none';
+                }
+            }
+
+
+            // 退出功能
+            document.getElementById('logout-btn').addEventListener('click', function () {
+                localStorage.removeItem('currentUser');
+                updateUserUI();
+                alert('您已退出登录');
+            });
+            // 登录按钮跳转
+            document.getElementById('login-btn').addEventListener('click', function () {
+                window.location.href = '登录页面.html';
+            });
+
+            // 初始状态
+            updateUserUI();
+            // 关闭详情
+            document.getElementById('detail-close').addEventListener('click', function () {
+                const eventTitle = document.getElementById('detail-title').textContent;
+                document.getElementById('timeline-detail').style.display = 'none';
+                document.querySelectorAll('.timeline-item').forEach(i => i.classList.remove('active'));
+
+                // 记录行为：关闭详情面板
+                recordBehavior(BEHAVIOR_TYPES.DETAIL_CLOSE, {
+                    event: eventTitle
+                });
+            });
+
+            // 幸存者故事筛选
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const type = this.dataset.type;
+                    renderStories(type);
+
+                    // 记录行为：故事筛选
+                    recordBehavior(BEHAVIOR_TYPES.STORY_FILTER, {
+                        filter: this.textContent.trim()
+                    });
+                });
+            });
+
+            // 数据重新加载按钮
+            document.getElementById('reload-data').addEventListener('click', function () {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    loadData();
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+
+                    // 显示成功提示
+                    showNotification('数据已更新！');
+
+                    // 记录行为：重新加载数据
+                    recordBehavior('重新加载数据');
+                }, 2000);
+            });
+
+            // 查看更多按钮
+            document.getElementById('show-more-btn').addEventListener('click', function () {
+                const moreContainer = document.getElementById('more-wars-container');
+                const isActive = moreContainer.classList.contains('active');
+
+                if (isActive) {
+                    moreContainer.classList.remove('active');
+                    this.innerHTML = '<i class="fas fa-chevron-down"></i> 查看更多同时期战争';
+                    // 滚动到标题位置
+                    this.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                } else {
+                    moreContainer.classList.add('active');
+                    this.innerHTML = '<i class="fas fa-chevron-up"></i> 收起战争列表';
+                }
+
+                // 记录行为：查看更多战争
+                recordBehavior(BEHAVIOR_TYPES.WAR_CARD_EXPLORE, {
+                    action: isActive ? '收起' : '展开'
+                });
+            });
+
+            // 故事音频播放
+            document.getElementById('stories-container').addEventListener('click', function (e) {
+                if (e.target.closest('.audio-control')) {
+                    const card = e.target.closest('.story-card');
+                    const name = card.querySelector('.story-info span').textContent.split('|')[0].trim();
+
+                    // 记录行为：播放音频
+                    recordBehavior(BEHAVIOR_TYPES.AUDIO_PLAY, {
+                        story: name
+                    });
+
+                    // 显示提示
+                    showNotification('开始播放音频故事');
+                }
+            });
+
+            // 故事阅读（点击卡片）
+            document.getElementById('stories-container').addEventListener('click', function (e) {
+                if (!e.target.closest('.audio-control')) {
+                    const card = e.target.closest('.story-card');
+                    if (card) {
+                        const name = card.querySelector('.story-info span').textContent.split('|')[0].trim();
+
+                        // 记录行为：阅读故事
+                        recordBehavior(BEHAVIOR_TYPES.STORY_READ, {
+                            story: name
+                        });
+                    }
+                }
+            });
+
+            // 资源下载
+            document.querySelector('.download-grid').addEventListener('click', function (e) {
+                if (e.target.classList.contains('download-btn')) {
+                    e.preventDefault();
+                    const card = e.target.closest('.download-card');
+                    const title = card.querySelector('.download-title').textContent;
+
+                    // 根据标题判断下载类型
+                    let behaviorType = BEHAVIOR_TYPES.DOWNLOAD_PDF;
+                    if (title.includes('数据图包')) behaviorType = BEHAVIOR_TYPES.DOWNLOAD_DATA;
+                    if (title.includes('PPT')) behaviorType = BEHAVIOR_TYPES.DOWNLOAD_PPT;
+                    if (title.includes('模板')) behaviorType = BEHAVIOR_TYPES.DOWNLOAD_TEMPLATE;
+
+                    // 记录行为：下载资源
+                    recordBehavior(behaviorType, {
+                        resource: title
+                    });
+
+                    // 显示下载提示
+                    showNotification(`开始下载: ${title}`);
+                }
+            });
+
+            // 实时计数器点击
+            document.querySelector('.real-time-counter').addEventListener('click', function () {
+                recordBehavior(BEHAVIOR_TYPES.COUNTER_VIEW);
+            });
+
+            // 分析按钮点击
+            document.getElementById('analytics-btn').addEventListener('click', function () {
+                window.location.href = '个人分析.html';
+            });
+
+            // 页脚分析链接
+            document.getElementById('analytics-link').addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = '个人分析.html';
+            });
+
+            document.getElementById('home-btn').addEventListener('click', function () {
+                window.location.href = '首页2.0.html';
+            });
+        });
+    </script>
+    <!-- 页脚版权声明 -->
+    <footer class="footer">
+        <div class="footer-container" id="footer">
+            <div class="footer-section">
+                <h3 id="footer-about-us">关于我们</h3>
+                <p id="footer-about-text">
+                    和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-links">快速链接</h3>
+                <ul class="footer-links">
+                    <li><a href="首页2.0.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-home">首页</span></a></li>
+                    <li><a href="关于我们页面.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-about">关于我们</span></a>
+                    </li>
+                    <li><a href="标志页面.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-logo">标志</span></a></li>
+                    <li><a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate"><i
+                                class="fa fa-chevron-right"></i> <span data-key="footer-donate">捐款</span></a>
+                    </li>
+                    <li><a href="首页2.0.html#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-war-peace">战争与和平</span></a></li>
+                    <li><a href="活动页面.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-events">活动</span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-contact">联系我们</h3>
+                <ul class="contact-info">
+                    <li>
+
+                        <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-phone">电话:12345678910 <br>举报热线:110</div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-wechat">微信:lllllll </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 id="footer-friend-links">友情链接</h3>
+                <div class="friend-links">
+                    <a href="https://www.unesco.org/zh" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-unesco">联合国教科文组织</span></a>
+                    <a href="https://www.icrc.org" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-red-cross">国际红十字会</span></a>
+                    <a href="https://www.tufts.edu/wpf" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-peace-foundation">世界和平基金会</span></a>
+                    <a href="https://www.unocha.org" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-aid-network">人道主义援助网</span></a>
+                    <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                        target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+                    <a href="https://www.tc.edu/peace-ed" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-education">和平教育中心</span></a>
+                    <a href="https://www.warmuseum.nl" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-history">战争历史档案馆</span></a>
+                    <a href="https://www.unhcr.org" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-refugee">难民救助组织</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p id="footer-disclaimer">
+                <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+            </p>
+            <p id="footer-compliance">
+                本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+            </p>
+            <p id="footer-copyright">
+                © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+            </p>
+        </div>
+    </footer>
+    
+</body>
+
+</html>

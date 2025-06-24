@@ -1,0 +1,3165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户行为分析 - 战争真相 & 和平页面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 删除原有页脚样式，替换为以下新样式 */
+
+        #footer {
+            background: linear-gradient(135deg, #050508 0%, #0a0a0f 100%);
+            padding: 60px 0 20px;
+            border-top: 1px solid rgba(100, 100, 120, 0.3);
+            color: #a0a0b0;
+            font-size: 0.95rem;
+        }
+
+        .footer-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-section {
+            padding: 10px;
+        }
+
+        .footer-section h3 {
+            font-size: 1.3rem;
+            color: #f8f8f8;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            position: relative;
+            font-weight: 600;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: #f1c40f;
+            border-radius: 2px;
+        }
+
+        .footer-about {
+            grid-column: span 2;
+        }
+
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(252, 163, 17, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f1c40f;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            background: #f1c40f;
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            color: #a0a0b0;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .footer-links a:hover {
+            color: #f1c40f;
+            transform: translateX(5px);
+        }
+
+        .footer-links a::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .contact-info {
+            list-style: none;
+        }
+
+        .contact-info li {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            line-height: 1.6;
+        }
+
+        .contact-info i {
+            color: #f1c40f;
+            font-size: 1.2rem;
+            min-width: 24px;
+            margin-top: 3px;
+        }
+
+        .friend-links {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .friend-links a {
+            color: #a0a0b0;
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+        }
+
+        .friend-links a:hover {
+            color: #f1c40f;
+        }
+
+        .copyright {
+            margin-top: 60px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(100, 100, 120, 0.3);
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+
+        .copyright strong {
+            color: #f1c40f;
+            font-weight: 600;
+        }
+
+        /* 响应式调整 */
+
+        @media (max-width: 992px) {
+            .footer-about {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-section h3 {
+                margin-bottom: 20px;
+            }
+
+            .copyright {
+                text-align: left;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .footer-about {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --accent-red: #e63946;
+            --accent-blue: #1d3557;
+            --accent-gold: #fca311;
+            --accent-green: #2ecc71;
+            --accent-purple: #9b59b6;
+            --accent-cyan: #00bcd4;
+            --light-text: #f1faee;
+            --gray-text: #a8a8a8;
+            --card-bg: rgba(30, 30, 40, 0.8);
+            --border-color: rgba(100, 100, 120, 0.3);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            color: var(--light-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .analytics-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .user-bar {
+            background: rgba(20, 20, 30, 0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #2a5a8c;
+            transform: translateY(-2px);
+        }
+
+        .btn.delete {
+            background: var(--accent-red);
+        }
+
+        .btn.delete:hover {
+            background: #c1121f;
+        }
+
+        .btn.export {
+            background: #2a9d8f;
+        }
+
+        .btn.export:hover {
+            background: #21867a;
+        }
+
+        .btn.generate {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        .btn.generate:hover {
+            background: #e69500;
+        }
+
+        .btn.peace {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        .btn.peace:hover {
+            background: #27ae60;
+        }
+
+        .btn.news {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .btn.news:hover {
+            background: #0097a7;
+        }
+
+        /* 首页按钮样式 */
+
+        .btn.home {
+            background: var(--accent-purple);
+            color: #fff;
+            margin-right: 15px;
+        }
+
+        .btn.home:hover {
+            background: #8e44ad;
+            transform: translateY(-2px);
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 40px 20px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(230, 57, 70, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .dashboard-title {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px rgba(252, 163, 17, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.85;
+            position: relative;
+            z-index: 1;
+        }
+
+        .analytics-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .analytics-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-gold);
+        }
+
+        .analytics-card.peace::after {
+            background: var(--accent-green);
+        }
+
+        .analytics-card.message::after {
+            background: var(--accent-purple);
+        }
+
+        .analytics-card.news::after {
+            background: var(--accent-cyan);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-icon {
+            font-size: 1.8rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(252, 163, 17, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--accent-gold);
+        }
+
+        .card-icon.peace {
+            background: rgba(46, 204, 113, 0.15);
+            color: var(--accent-green);
+        }
+
+        .card-icon.message {
+            background: rgba(155, 89, 182, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .card-icon.news {
+            background: rgba(0, 188, 212, 0.15);
+            color: var(--accent-cyan);
+        }
+
+        .card-title {
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+        }
+
+        .card-title.peace {
+            color: var(--accent-green);
+        }
+
+        .card-title.message {
+            color: var(--accent-purple);
+        }
+
+        .card-title.news {
+            color: var(--accent-cyan);
+        }
+
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+
+        .resource-chart {
+            height: 200px;
+        }
+
+        .behavior-panel {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 25px;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            padding: 25px 25px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+        }
+
+        .panel-title.peace {
+            color: var(--accent-green);
+        }
+
+        .panel-title.message {
+            color: var(--accent-purple);
+        }
+
+        .panel-title.news {
+            color: var(--accent-cyan);
+        }
+
+        .report-panel {
+            background: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 25px;
+        }
+
+        .behavior-list {
+            height: 300px;
+            overflow-y: auto;
+            padding: 15px 25px;
+        }
+
+        .behavior-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .behavior-list::-webkit-scrollbar-track {
+            background: rgba(100, 100, 120, 0.1);
+            border-radius: 10px;
+        }
+
+        .behavior-list::-webkit-scrollbar-thumb {
+            background: rgba(230, 57, 70, 0.5);
+            border-radius: 10px;
+        }
+
+        .behavior-item {
+            padding: 15px;
+            margin-bottom: 12px;
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-blue);
+            transition: all 0.3s ease;
+        }
+
+        .behavior-item.peace {
+            border-left: 3px solid var(--accent-green);
+        }
+
+        .behavior-item.message {
+            border-left: 3px solid var(--accent-purple);
+        }
+
+        .behavior-item.news {
+            border-left: 3px solid var(--accent-cyan);
+        }
+
+        .behavior-item:hover {
+            transform: translateX(5px);
+            background: rgba(30, 30, 45, 0.7);
+            border-left-color: var(--accent-gold);
+        }
+
+        .behavior-item.peace:hover {
+            border-left-color: var(--accent-green);
+        }
+
+        .behavior-item.message:hover {
+            border-left-color: var(--accent-purple);
+        }
+
+        .behavior-item.news:hover {
+            border-left-color: var(--accent-cyan);
+        }
+
+        .behavior-info {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .behavior-type {
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .behavior-type.peace {
+            color: var(--accent-green);
+        }
+
+        .behavior-type.message {
+            color: var(--accent-purple);
+        }
+
+        .behavior-type.news {
+            color: var(--accent-cyan);
+        }
+
+        .behavior-details {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            flex: 1;
+        }
+
+        .behavior-time {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            min-width: 80px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+        }
+
+        .analysis-report {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            overflow: hidden;
+        }
+
+        .report-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .report-title {
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            margin-right: 15px;
+        }
+
+        .report-date {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .report-content {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+            line-height: 1.8;
+        }
+
+        .report-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-title.peace {
+            color: var(--accent-green);
+        }
+
+        .section-title.message {
+            color: var(--accent-purple);
+        }
+
+        .section-title.news {
+            color: var(--accent-cyan);
+        }
+
+        .highlight {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .highlight.peace {
+            color: var(--accent-green);
+        }
+
+        .highlight.message {
+            color: var(--accent-purple);
+        }
+
+        .highlight.news {
+            color: var(--accent-cyan);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .data-points {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .data-point {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .data-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            margin: 5px 0;
+        }
+
+        .data-value.peace {
+            color: var(--accent-green);
+        }
+
+        .data-value.message {
+            color: var(--accent-purple);
+        }
+
+        .data-value.news {
+            color: var(--accent-cyan);
+        }
+
+        .data-label {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        .generate-container {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .report-placeholder {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 40px;
+            color: var(--gray-text);
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            margin: 20px;
+        }
+
+        .report-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+            opacity: 0.5;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(41, 128, 185, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            animation: slideIn 0.3s, fadeOut 0.5s 2.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* 和平页面详细分析卡片样式 */
+
+        .chart-grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            height: 500px;
+            margin-bottom: 20px;
+        }
+
+        .chart-grid-item {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            overflow: hidden;
+        }
+
+        .chart-grid-item .small-chart {
+            height: 100%;
+            width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+            .chart-grid-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(4, 1fr);
+                height: 800px;
+            }
+
+            .data-points {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2.2rem;
+            }
+
+            .dashboard-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .data-points {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-grid-container {
+                height: 1000px;
+            }
+        }
+    </style>
+    <style>
+        /* 固定按钮样式 */
+
+        .fixed-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 999;
+        }
+
+        .back-to-personal,
+        .back-to-top {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        .back-to-top:hover {
+            background: #e69500;
+            transform: translateY(-5px);
+        }
+
+        .back-to-personal {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .back-to-personal:hover {
+            background: #8e44ad;
+            transform: translateY(-5px);
+        }
+
+        /* 确保链接不会影响样式 */
+
+        .fixed-buttons a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="fixed-buttons">
+        <a href="个人中心页面.html" style="color:inherit;">
+            <div class="back-to-personal" id="backToPersonal" title="返回个人中心">
+                <i class="fas fa-user"></i>
+            </div>
+        </a>
+        <div class="back-to-top" id="backToTop" title="返回顶部">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const backToTop = document.getElementById('backToTop');
+
+            // 只需保留返回顶部功能
+            backToTop.addEventListener('click', function () {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+    <div class="analytics-container">
+
+        <div class="user-bar">
+
+            </button>
+
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div>
+                    <div id="username-display">未登录用户</div>
+                    <div class="user-email" id="user-email"></div>
+                </div>
+            </div>
+            <div class="user-actions">
+                <button class="btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </button>
+                <button class="btn delete" id="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">用户行为分析</h1>
+            <p class="dashboard-subtitle">探索您与战争真相和和平行动平台的互动模式</p>
+        </div>
+
+        <!-- 历史事件探索分析 -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h2 class="card-title">历史事件探索分析</h2>
+            </div>
+            <div id="event-chart" class="chart-container"></div>
+            <div class="data-points">
+                <div class="data-point">
+                    <div class="data-value" id="timeline-clicks">0</div>
+                    <div class="data-label">时间轴事件点击</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value" id="war-card-views">0</div>
+                    <div class="data-label">战争卡片探索</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value" id="story-views">0</div>
+                    <div class="data-label">故事阅读</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value" id="audio-plays">0</div>
+                    <div class="data-label">音频播放</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 情感化内容参与度 -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h2 class="card-title">情感化内容参与度</h2>
+            </div>
+            <div id="engagement-chart" class="chart-container"></div>
+        </div>
+
+        <!-- 资源获取行为分析 -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-download"></i>
+                </div>
+                <h2 class="card-title">资源获取行为分析</h2>
+            </div>
+            <div id="resource-chart" class="resource-chart"></div>
+        </div>
+
+        <!-- 地图与时空探索分析 -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <h2 class="card-title">地图与时空探索分析</h2>
+            </div>
+            <div id="map-chart" class="chart-container"></div>
+            <div class="data-points">
+                <div class="data-point">
+                    <div class="data-value" id="current-conflicts">0</div>
+                    <div class="data-label">当前冲突标记</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value" id="historical-markers">0</div>
+                    <div class="data-label">历史战争标记</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 和平行动分析 -->
+        <div class="analytics-card peace">
+            <div class="card-header">
+                <div class="card-icon peace">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h2 class="card-title peace">和平行动分析</h2>
+            </div>
+            <div id="peace-chart" class="chart-container"></div>
+            <div class="data-points">
+                <div class="data-point">
+                    <div class="data-value peace" id="declaration-count">0</div>
+                    <div class="data-label">宣言发布</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value peace" id="leaf-count">0</div>
+                    <div class="data-label">叶子添加</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 活动参与分析 -->
+        <div class="analytics-card peace">
+            <div class="card-header">
+                <div class="card-icon peace">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h2 class="card-title peace">活动参与分析</h2>
+            </div>
+            <div id="action-chart" class="chart-container"></div>
+        </div>
+
+        <!-- 和平行动详细分析 -->
+        <div class="analytics-card peace">
+            <div class="card-header">
+                <div class="card-icon peace">
+                    <i class="fas fa-dove"></i>
+                </div>
+                <h2 class="card-title peace">和平行动详细分析</h2>
+            </div>
+
+            <div class="chart-grid-container">
+                <div class="chart-grid-item">
+                    <div id="action-distribution-chart" class="small-chart"></div>
+                </div>
+                <div class="chart-grid-item">
+                    <div id="declaration-analysis-chart" class="small-chart"></div>
+                </div>
+                <div class="chart-grid-item">
+                    <div id="leaf-generation-chart" class="small-chart"></div>
+                </div>
+                <div class="chart-grid-item">
+                    <div id="message-engagement-chart" class="small-chart"></div>
+                </div>
+            </div>
+
+            <div class="data-points">
+                <div class="data-point">
+                    <div class="data-value peace" id="most-active-time">-</div>
+                    <div class="data-label">最活跃时段</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value peace" id="avg-declaration-length">0</div>
+                    <div class="data-label">平均宣言长度</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value peace" id="popular-emotion">-</div>
+                    <div class="data-label">最常用情感</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value peace" id="top-location">-</div>
+                    <div class="data-label">常用位置</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新闻阅读分析 -->
+        <div class="analytics-card news">
+            <div class="card-header">
+                <div class="card-icon news">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <h2 class="card-title news">新闻阅读分析</h2>
+            </div>
+            <div id="news-chart" class="chart-container"></div>
+
+            <div class="data-points">
+                <div class="data-point">
+                    <div class="data-value news" id="news-views">0</div>
+                    <div class="data-label">新闻阅读总数</div>
+                </div>
+                <div class="data-point">
+                    <div class="data-value news" id="top-news-category">-</div>
+                    <div class="data-label">最常阅读类型</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 用户行为记录 -->
+        <div class="behavior-panel">
+            <div class="panel-header">
+                <div class="card-icon">
+                    <i class="fas fa-list"></i>
+                </div>
+                <h2 class="panel-title">用户行为记录</h2>
+            </div>
+            <div class="behavior-list" id="behavior-list">
+                <!-- 行为记录将动态添加到这里 -->
+            </div>
+        </div>
+
+        <!-- 探索行为分析报告 -->
+        <div class="report-panel">
+            <div class="panel-header">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h2 class="panel-title">探索行为分析报告</h2>
+            </div>
+
+            <div class="generate-container">
+                <button class="btn generate" id="generate-report">
+                    <i class="fas fa-cogs"></i> 生成分析报告
+                </button>
+            </div>
+
+            <div class="analysis-report">
+                <div class="report-placeholder" id="report-placeholder">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>分析报告未生成</h3>
+                    <p>点击"生成分析报告"按钮，根据您的行为数据创建个性化分析报告</p>
+                </div>
+
+                <div id="report-content" style="display: none;">
+                    <div class="report-header">
+                        <div class="report-title">您的探索行为分析</div>
+                        <div class="report-date" id="report-date"></div>
+                    </div>
+                    <div class="report-content" id="report-content-body">
+                        <!-- 分析报告将动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn export" id="export-data">
+                <i class="fas fa-file-export"></i> 导出行为数据
+            </button>
+            <button class="btn peace" id="simulate-peace-data">
+                <i class="fas fa-dove"></i> 模拟和平行为
+            </button>
+            <button class="btn news" id="simulate-news-data">
+                <i class="fas fa-newspaper"></i> 模拟新闻行为
+            </button>
+            <button class="btn" id="simulate-data">
+                <i class="fas fa-bolt"></i> 模拟战争行为
+            </button>
+            <button class="btn delete" id="clear-data">
+                <i class="fas fa-trash-alt"></i> 清除所有记录
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 定义用户行为类型（扩展和平页面行为）
+        const BEHAVIOR_TYPES = {
+            // 战争真相行为
+            TIMELINE_CLICK: '时间轴事件点击',
+            DETAIL_OPEN: '事件详情面板查看',
+            DETAIL_CLOSE: '事件详情面板关闭',
+            WAR_CARD_EXPLORE: '同时期战争卡片探索',
+            CHART_INTERACTION: '图表数据探索',
+            COUNTER_VIEW: '全球冲突死亡实时计数器关注',
+            STORY_FILTER: '幸存者故事分类筛选',
+            AUDIO_PLAY: '音频内容播放请求',
+            STORY_READ: '幸存者故事阅读',
+            DOWNLOAD_PDF: 'PDF报告下载',
+            DOWNLOAD_DATA: '数据包下载',
+            DOWNLOAD_PPT: '教学PPT下载',
+            DOWNLOAD_TEMPLATE: '设计模板下载',
+            MAP_MARKER_CLICK: '冲突标记点击',
+
+            // 和平页面行为
+            MAP_FILTER: '地图时间筛选',
+            ACTION_TAG_CLICK: '行动标签点击',
+            DECLARATION_POSTED: '发布和平宣言',
+            DECLARATION_LIKED: '点赞和平宣言',
+            DECLARATION_DELETED: '删除和平宣言',
+            LEAF_ADDED: '添加和平之叶',
+            LEAF_DELETED: '删除和平之叶',
+            PEACE_RESOURCE_DOWNLOAD: '和平资源下载',
+
+            // 活动行为
+            ACTION_BUTTON_CLICK: '活动按钮点击',
+            ACTION_TYPE_VIEW: '活动类型查看',
+
+            // 新闻行为
+            NEWS_ARTICLE_CLICK: '新闻文章点击'
+        };
+
+        // 初始化行为记录数组
+        let userBehaviors = [];
+
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            return user ? user.id : null;
+        }
+
+        // 从localStorage加载行为记录
+        function loadBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，不加载行为数据');
+                return;
+            }
+
+            const savedBehaviors = localStorage.getItem(`warTruthBehaviors_${userId}`);
+            if (savedBehaviors) {
+                userBehaviors = JSON.parse(savedBehaviors);
+            }
+        }
+
+        // 保存行为记录到localStorage
+        function saveBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，行为数据不保存');
+                return;
+            }
+
+            localStorage.setItem(`warTruthBehaviors_${userId}`, JSON.stringify(userBehaviors));
+        }
+
+        // 记录用户行为
+        function recordBehavior(type, details = {}) {
+            const behavior = {
+                type,
+                details,
+                timestamp: new Date().toISOString()
+            };
+
+            userBehaviors.push(behavior);
+            saveBehaviors();
+            renderBehaviorList();
+            updateCharts();
+            showNotification(`已记录: ${type}`);
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+
+        // 更新用户界面
+        function updateUserUI() {
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const usernameDisplay = document.getElementById('username-display');
+            const userAvatar = document.getElementById('user-avatar');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            if (user) {
+                usernameDisplay.textContent = user.username;
+                userAvatar.textContent = user.username.charAt(0).toUpperCase();
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                usernameDisplay.textContent = '未登录用户';
+                userAvatar.textContent = 'G';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+        // 登录功能
+        function login() {
+            window.location.href = '登录页面.html';
+        }
+
+        // 退出功能
+        function logout() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                recordBehavior('用户退出', {
+                    username: user.username
+                });
+            }
+
+            localStorage.removeItem('currentUser');
+            userBehaviors = [];
+            updateUserUI();
+            renderBehaviorList();
+            updateCharts();
+            alert('您已退出登录');
+        }
+
+        // 初始化图表
+        function initCharts() {
+            window.eventChart = echarts.init(document.getElementById('event-chart'));
+            window.engagementChart = echarts.init(document.getElementById('engagement-chart'));
+            window.resourceChart = echarts.init(document.getElementById('resource-chart'));
+            window.mapChart = echarts.init(document.getElementById('map-chart'));
+            window.peaceChart = echarts.init(document.getElementById('peace-chart'));
+
+            // 新增和平页面详细分析图表
+            window.actionDistributionChart = echarts.init(document.getElementById('action-distribution-chart'));
+            window.declarationAnalysisChart = echarts.init(document.getElementById('declaration-analysis-chart'));
+            window.leafGenerationChart = echarts.init(document.getElementById('leaf-generation-chart'));
+            window.messageEngagementChart = echarts.init(document.getElementById('message-engagement-chart'));
+
+            // 新增活动分析图表
+            window.actionChart = echarts.init(document.getElementById('action-chart'));
+
+            // 新增新闻图表
+            window.newsChart = echarts.init(document.getElementById('news-chart'));
+
+            // 响应窗口大小变化
+            window.addEventListener('resize', function () {
+                eventChart.resize();
+                engagementChart.resize();
+                resourceChart.resize();
+                mapChart.resize();
+                peaceChart.resize();
+                actionDistributionChart.resize();
+                declarationAnalysisChart.resize();
+                leafGenerationChart.resize();
+                messageEngagementChart.resize();
+                actionChart.resize();
+                newsChart.resize();
+            });
+
+            updateCharts();
+        }
+
+        // 更新图表数据
+        function updateCharts() {
+            // 更新事件探索图表
+            updateEventChart();
+            updateEngagementChart();
+            updateResourceChart();
+            updateMapChart();
+            updatePeaceChart(); // 新增和平行动图表
+
+            // 更新和平页面详细分析图表
+            updateActionDistributionChart();
+            updateDeclarationAnalysisChart();
+            updateLeafGenerationChart();
+            updateMessageEngagementChart();
+            updatePeaceDataPoints();
+
+            // 更新活动分析图表
+            updateActionChart();
+
+            // 更新新闻图表
+            updateNewsChart();
+
+            // 更新数据点
+            updateDataPoints();
+        }
+
+        // 更新事件探索图表
+        function updateEventChart() {
+            // 收集事件探索数据
+            const events = {
+                '时间轴事件': 0,
+                '详情面板': 0,
+                '战争卡片': 0,
+                '图表交互': 0,
+                '计数器': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                switch (behavior.type) {
+                    case BEHAVIOR_TYPES.TIMELINE_CLICK:
+                        events['时间轴事件']++;
+                        break;
+                    case BEHAVIOR_TYPES.DETAIL_OPEN:
+                    case BEHAVIOR_TYPES.DETAIL_CLOSE:
+                        events['详情面板']++;
+                        break;
+                    case BEHAVIOR_TYPES.WAR_CARD_EXPLORE:
+                        events['战争卡片']++;
+                        break;
+                    case BEHAVIOR_TYPES.CHART_INTERACTION:
+                        events['图表交互']++;
+                        break;
+                    case BEHAVIOR_TYPES.COUNTER_VIEW:
+                        events['计数器']++;
+                        break;
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: Object.keys(events),
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '交互次数',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '交互次数',
+                    type: 'bar',
+                    data: Object.values(events),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#fca311'
+                        }, {
+                            offset: 1,
+                            color: '#e63946'
+                        }])
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#f1faee'
+                    }
+                }]
+            };
+
+            eventChart.setOption(option);
+        }
+
+        // 更新情感参与图表
+        function updateEngagementChart() {
+            // 收集情感参与数据
+            const engagement = {
+                '故事筛选': 0,
+                '音频播放': 0,
+                '故事阅读': 0
+            };
+
+            const storyTypes = {
+                '士兵': 0,
+                '平民': 0,
+                '儿童': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.STORY_FILTER) {
+                    engagement['故事筛选']++;
+                    if (behavior.details.filter) {
+                        storyTypes[behavior.details.filter] = (storyTypes[behavior.details.filter] || 0) + 1;
+                    }
+                } else if (behavior.type === BEHAVIOR_TYPES.AUDIO_PLAY) {
+                    engagement['音频播放']++;
+                } else if (behavior.type === BEHAVIOR_TYPES.STORY_READ) {
+                    engagement['故事阅读']++;
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'horizontal',
+                    bottom: 10,
+                    textStyle: {
+                        color: '#f1faee'
+                    }
+                },
+                series: [{
+                    name: '情感参与',
+                    type: 'pie',
+                    radius: '70%',
+                    data: Object.entries(engagement).map(([name, value]) => ({
+                        name,
+                        value
+                    })),
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        formatter: '{b}: {c}'
+                    },
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#2c3e50',
+                        borderWidth: 2
+                    }
+                }]
+            };
+
+            engagementChart.setOption(option);
+        }
+
+        // 更新资源下载图表
+        function updateResourceChart() {
+            // 收集资源下载数据
+            const resources = {
+                'PDF报告': 0,
+                '数据包': 0,
+                '教学PPT': 0,
+                '设计模板': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_PDF) {
+                    resources['PDF报告']++;
+                } else if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_DATA) {
+                    resources['数据包']++;
+                } else if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_PPT) {
+                    resources['教学PPT']++;
+                } else if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_TEMPLATE) {
+                    resources['设计模板']++;
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: Object.keys(resources),
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                series: [{
+                    name: '下载次数',
+                    type: 'bar',
+                    data: Object.values(resources),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+                            offset: 0,
+                            color: '#457b9d'
+                        }, {
+                            offset: 1,
+                            color: '#1d3557'
+                        }])
+                    },
+                    label: {
+                        show: true,
+                        position: 'right',
+                        color: '#f1faee'
+                    }
+                }]
+            };
+
+            resourceChart.setOption(option);
+        }
+
+        // 更新地图探索图表
+        function updateMapChart() {
+            // 收集地图探索数据
+            const markers = {
+                '当前冲突': 0,
+                '历史战争': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.MAP_MARKER_CLICK) {
+                    if (behavior.details.markerType === 'current') {
+                        markers['当前冲突']++;
+                    } else {
+                        markers['历史战争']++;
+                    }
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}次点击'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    textStyle: {
+                        color: '#f1faee'
+                    }
+                },
+                series: [{
+                    name: '地图标记点击',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: Object.entries(markers).map(([name, value]) => ({
+                        name,
+                        value
+                    })),
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        formatter: '{b}: {c}'
+                    },
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#2c3e50',
+                        borderWidth: 2
+                    }
+                }]
+            };
+
+            mapChart.setOption(option);
+        }
+
+        // 更新和平行动图表
+        function updatePeaceChart() {
+            // 收集和平行动数据
+            const peaceActions = {
+                '宣言发布': 0,
+                '叶子添加': 0,
+                '资源下载': 0,
+                '标签点击': 0,
+                '地图筛选': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                switch (behavior.type) {
+                    case BEHAVIOR_TYPES.DECLARATION_POSTED:
+                        peaceActions['宣言发布']++;
+                        break;
+                    case BEHAVIOR_TYPES.LEAF_ADDED:
+                        peaceActions['叶子添加']++;
+                        break;
+                    case BEHAVIOR_TYPES.PEACE_RESOURCE_DOWNLOAD:
+                        peaceActions['资源下载']++;
+                        break;
+                    case BEHAVIOR_TYPES.ACTION_TAG_CLICK:
+                        peaceActions['标签点击']++;
+                        break;
+                    case BEHAVIOR_TYPES.MAP_FILTER:
+                        peaceActions['地图筛选']++;
+                        break;
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: Object.keys(peaceActions),
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '交互次数',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '交互次数',
+                    type: 'bar',
+                    data: Object.values(peaceActions),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#36D399'
+                        }, {
+                            offset: 1,
+                            color: '#2ECC71'
+                        }])
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        color: '#f1faee'
+                    }
+                }]
+            };
+
+            peaceChart.setOption(option);
+        }
+
+        // 更新行动分布图表
+        function updateActionDistributionChart() {
+            const actions = {
+                '线上行动': 0,
+                '线下行动': 0,
+                '教育行动': 0,
+                '紧急响应': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.ACTION_TAG_CLICK) {
+                    const actionType = behavior.details.actionType;
+                    console.log(typeof actionType);
+
+                    // 定义映射对象
+
+                    const actionTypeMap = {
+                        'online': '线上行动',
+
+                        'offline': '线下行动',
+
+                        'education': '教育行动',
+
+                        'emergency': '紧急响应'
+                    };
+                    const category = actionTypeMap[actionType];
+
+                    if (category && actions[category] !== undefined) {
+                        actions[category] = actions[category] + 1;
+                    }
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c} ({d}%)'
+                },
+                legend: {
+                    bottom: 0,
+                    textStyle: {
+                        color: '#f1faee'
+                    }
+                },
+                series: [{
+                    name: '行动分布',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: Object.entries(actions).map(([name, value]) => ({
+                        name,
+                        value
+                    })),
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#2c3e50',
+                        borderWidth: 2
+                    },
+                    label: {
+                        formatter: '{b}: {c}'
+                    }
+                }]
+            };
+
+            actionDistributionChart.setOption(option);
+        }
+
+        // 更新宣言分析图表
+        function updateDeclarationAnalysisChart() {
+            const emotions = {
+                '悲伤': 0,
+                '愤怒': 0,
+                '希望': 0,
+                '爱': 0
+            };
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.DECLARATION_POSTED) {
+                    const emotion = behavior.details.emotion || '希望';
+                    if (emotions[emotion] !== undefined) {
+                        emotions[emotion]++;
+                    }
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c}'
+                },
+                grid: {
+                    top: '20%',
+                    bottom: '25%',
+                    left: '10%',
+                    right: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: Object.keys(emotions),
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                series: [{
+                    name: '情感分布',
+                    type: 'bar',
+                    data: Object.values(emotions),
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#36D399'
+                        }, {
+                            offset: 1,
+                            color: '#2ECC71'
+                        }])
+                    }
+                }]
+            };
+
+            declarationAnalysisChart.setOption(option);
+        }
+
+        // 更新叶子生成图表
+        function updateLeafGenerationChart() {
+            // 生成最近7天的日期
+            const dates = [];
+            const now = new Date();
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(now.getDate() - i);
+                dates.push(`${date.getMonth() + 1}/${date.getDate()}`);
+            }
+
+            // 初始化每日计数
+            const dailyCount = {};
+            dates.forEach(date => dailyCount[date] = 0);
+
+            // 统计叶子生成
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.LEAF_ADDED) {
+                    const date = new Date(behavior.timestamp);
+                    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+                    if (dailyCount[dateStr] !== undefined) {
+                        dailyCount[dateStr]++;
+                    }
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c}片叶子'
+                },
+                grid: {
+                    top: '15%',
+                    bottom: '15%',
+                    left: '10%',
+                    right: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                series: [{
+                    name: '叶子生成',
+                    type: 'line',
+                    data: dates.map(date => dailyCount[date]),
+                    smooth: true,
+                    lineStyle: {
+                        width: 3,
+                        color: '#36D399'
+                    },
+                    symbolSize: 8,
+                    itemStyle: {
+                        color: '#2ECC71'
+                    }
+                }]
+            };
+
+            leafGenerationChart.setOption(option);
+        }
+
+        // 更新留言互动图表
+        function updateMessageEngagementChart() {
+            const hours = Array.from({
+                length: 24
+            }, (_, i) => `${i}:00`);
+            const hourCounts = Array(24).fill(0);
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.DECLARATION_POSTED ||
+                    behavior.type === BEHAVIOR_TYPES.DECLARATION_LIKED) {
+                    const date = new Date(behavior.timestamp);
+                    const hour = date.getHours();
+                    hourCounts[hour]++;
+                }
+            });
+
+            const option = {
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: {c}次互动'
+                },
+                grid: {
+                    top: '15%',
+                    bottom: '15%',
+                    left: '10%',
+                    right: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: hours,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                series: [{
+                    name: '互动次数',
+                    type: 'bar',
+                    data: hourCounts,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#9b59b6'
+                        }, {
+                            offset: 1,
+                            color: '#8e44ad'
+                        }])
+                    }
+                }]
+            };
+
+            messageEngagementChart.setOption(option);
+        }
+
+        // 更新活动分析图表
+        function updateActionChart() {
+            const actionTypes = {
+                'online': '线上行动',
+                'offline': '线下行动',
+                'education': '教育行动',
+                'emergency': '紧急响应'
+            };
+
+            const actionCounts = {
+                '线上行动': 0,
+                '线下行动': 0,
+                '教育行动': 0,
+                '紧急响应': 0
+            };
+
+            const buttonClicks = {};
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.ACTION_TYPE_VIEW) {
+                    const type = behavior.details.actionType;
+                    const typeName = actionTypes[type] || type;
+                    if (actionCounts[typeName] !== undefined) {
+                        actionCounts[typeName]++;
+                    }
+                } else if (behavior.type === BEHAVIOR_TYPES.ACTION_BUTTON_CLICK) {
+                    const buttonText = behavior.details.buttonText || '未知按钮';
+                    buttonClicks[buttonText] = (buttonClicks[buttonText] || 0) + 1;
+                }
+            });
+
+            // 如果有按钮点击数据，则显示按钮点击图表
+            if (Object.keys(buttonClicks).length > 0) {
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '10%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: Object.keys(buttonClicks),
+                        axisLine: {
+                            lineStyle: {
+                                color: '#a8a8a8'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '点击次数',
+                        axisLine: {
+                            lineStyle: {
+                                color: '#a8a8a8'
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: 'rgba(168, 168, 168, 0.1)'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '点击次数',
+                        type: 'bar',
+                        data: Object.values(buttonClicks),
+                        itemStyle: {
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                                offset: 0,
+                                color: '#36D399'
+                            }, {
+                                offset: 1,
+                                color: '#2ECC71'
+                            }])
+                        },
+                        label: {
+                            show: true,
+                            position: 'top',
+                            color: '#f1faee'
+                        }
+                    }]
+                };
+
+                actionChart.setOption(option);
+            } else {
+                // 没有按钮点击数据时显示活动类型分布
+                const option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c} ({d}%)'
+                    },
+                    legend: {
+                        orient: 'horizontal',
+                        bottom: 10,
+                        textStyle: {
+                            color: '#f1faee'
+                        }
+                    },
+                    series: [{
+                        name: '活动类型查看',
+                        type: 'pie',
+                        radius: '50%',
+                        data: Object.entries(actionCounts).map(([name, value]) => ({
+                            name,
+                            value
+                        })),
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        },
+                        itemStyle: {
+                            borderRadius: 8,
+                            borderColor: '#2c3e50',
+                            borderWidth: 2
+                        }
+                    }]
+                };
+
+                actionChart.setOption(option);
+            }
+        }
+
+        // 更新新闻图表
+        function updateNewsChart() {
+            // 统计新闻阅读的分类分布
+            const categories = {};
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.NEWS_ARTICLE_CLICK) {
+                    const category = behavior.details.category;
+                    if (category) {
+                        categories[category] = (categories[category] || 0) + 1;
+                    }
+                }
+            });
+
+            // 更新数据点
+            document.getElementById('news-views').textContent = Object.values(categories).reduce((sum, val) => sum + val, 0);
+
+            // 找出最常阅读的新闻类型
+            let topCategory = '';
+            let maxCount = 0;
+            for (const [category, count] of Object.entries(categories)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topCategory = category;
+                }
+            }
+            document.getElementById('top-news-category').textContent = topCategory || '-';
+
+            // 准备图表数据
+            const data = Object.entries(categories).map(([name, value]) => ({
+                name,
+                value
+            }));
+
+            const option = {
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    textStyle: {
+                        color: '#f1faee'
+                    }
+                },
+                series: [{
+                    name: '新闻分类',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['40%', '50%'],
+                    data: data,
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        formatter: '{b}: {c}'
+                    },
+                    itemStyle: {
+                        borderRadius: 8,
+                        borderColor: '#2c3e50',
+                        borderWidth: 2
+                    }
+                }]
+            };
+
+            newsChart.setOption(option);
+        }
+
+        // 更新和平行动数据点
+        function updatePeaceDataPoints() {
+            let declarationCount = 0;
+            let totalDeclarationLength = 0;
+            const emotionCounts = {
+                '悲伤': 0,
+                '愤怒': 0,
+                '希望': 0,
+                '爱': 0
+            };
+            const locationCounts = {
+                '全球': 0,
+                '亚洲': 0,
+                '欧洲': 0,
+                '北美': 0
+            };
+            const hourCounts = Array(24).fill(0);
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.DECLARATION_POSTED) {
+                    declarationCount++;
+                    totalDeclarationLength += behavior.details.length || 0;
+
+                    const emotion = behavior.details.emotion || '希望';
+                    if (emotionCounts[emotion] !== undefined) {
+                        emotionCounts[emotion]++;
+                    }
+
+                    const location = behavior.details.location || '全球';
+                    if (locationCounts[location] !== undefined) {
+                        locationCounts[location]++;
+                    }
+
+                    const date = new Date(behavior.timestamp);
+                    const hour = date.getHours();
+                    hourCounts[hour]++;
+                }
+            });
+
+            // 计算平均宣言长度
+            const avgLength = declarationCount > 0 ?
+                Math.round(totalDeclarationLength / declarationCount) :
+                0;
+            document.getElementById('avg-declaration-length').textContent = `${avgLength}字`;
+
+            // 找出最常用情感
+            let maxEmotion = '';
+            let maxCount = 0;
+            for (const [emotion, count] of Object.entries(emotionCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    maxEmotion = emotion;
+                }
+            }
+            document.getElementById('popular-emotion').textContent = maxEmotion || '-';
+
+            // 找出最常用位置
+            let maxLocation = '';
+            maxCount = 0;
+            for (const [location, count] of Object.entries(locationCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    maxLocation = location;
+                }
+            }
+            document.getElementById('top-location').textContent = maxLocation || '-';
+
+            // 找出最活跃时段
+            let maxHour = 0;
+            maxCount = 0;
+            for (let i = 0; i < hourCounts.length; i++) {
+                if (hourCounts[i] > maxCount) {
+                    maxCount = hourCounts[i];
+                    maxHour = i;
+                }
+            }
+            document.getElementById('most-active-time').textContent =
+                maxCount > 0 ? `${maxHour}:00-${maxHour + 1}:00` : '-';
+        }
+
+        // 更新数据点
+        function updateDataPoints() {
+            let timelineClicks = 0;
+            let warCardViews = 0;
+            let storyViews = 0;
+            let audioPlays = 0;
+            let currentConflicts = 0;
+            let historicalMarkers = 0;
+            let declarationCount = 0;
+            let leafCount = 0;
+            let newsViews = 0;
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.TIMELINE_CLICK) timelineClicks++;
+                if (behavior.type === BEHAVIOR_TYPES.WAR_CARD_EXPLORE) warCardViews++;
+                if (behavior.type === BEHAVIOR_TYPES.STORY_READ) storyViews++;
+                if (behavior.type === BEHAVIOR_TYPES.AUDIO_PLAY) audioPlays++;
+
+                if (behavior.type === BEHAVIOR_TYPES.MAP_MARKER_CLICK) {
+                    if (behavior.details.markerType === 'current') {
+                        currentConflicts++;
+                    } else {
+                        historicalMarkers++;
+                    }
+                }
+
+                if (behavior.type === BEHAVIOR_TYPES.DECLARATION_POSTED) declarationCount++;
+                if (behavior.type === BEHAVIOR_TYPES.LEAF_ADDED) leafCount++;
+                if (behavior.type === BEHAVIOR_TYPES.NEWS_ARTICLE_CLICK) newsViews++;
+            });
+
+            document.getElementById('timeline-clicks').textContent = timelineClicks;
+            document.getElementById('war-card-views').textContent = warCardViews;
+            document.getElementById('story-views').textContent = storyViews;
+            document.getElementById('audio-plays').textContent = audioPlays;
+            document.getElementById('current-conflicts').textContent = currentConflicts;
+            document.getElementById('historical-markers').textContent = historicalMarkers;
+            document.getElementById('declaration-count').textContent = declarationCount;
+            document.getElementById('leaf-count').textContent = leafCount;
+            document.getElementById('news-views').textContent = newsViews;
+        }
+
+        // 渲染行为列表
+        function renderBehaviorList() {
+            const container = document.getElementById('behavior-list');
+            container.innerHTML = '';
+
+            // 按时间倒序排列
+            const sortedBehaviors = [...userBehaviors].reverse();
+
+            if (sortedBehaviors.length === 0) {
+                container.innerHTML = `
+                <div class="no-behaviors" style="text-align: center; padding: 30px; opacity: 0.7;">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                    <p>没有记录到用户行为数据</p>
+                    <p>点击"模拟用户行为"按钮生成示例数据</p>
+                </div>
+            `;
+                return;
+            }
+
+            sortedBehaviors.forEach(behavior => {
+                const item = document.createElement('div');
+
+                // 根据行为类型添加不同样式
+                let behaviorClass = "";
+                if (behavior.type.includes("宣言") ||
+                    behavior.type.includes("叶子") ||
+                    behavior.type.includes("和平") ||
+                    behavior.type.includes("活动")) {
+                    behaviorClass = "peace";
+                    item.className = 'behavior-item peace';
+                } else if (behavior.type.includes("新闻")) {
+                    behaviorClass = "news";
+                    item.className = 'behavior-item news';
+                } else {
+                    item.className = 'behavior-item';
+                }
+
+                const time = new Date(behavior.timestamp);
+                const timeString = time.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const dateString = time.toLocaleDateString([], {
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                let detailsText = '';
+                if (behavior.details) {
+                    if (behavior.details.war) {
+                        const period = behavior.details.period ? ` (${behavior.details.period})` : '';
+                        detailsText = `战争: ${behavior.details.war}${period}`;
+                    } else if (behavior.details.chart) {
+                        detailsText = `图表: ${behavior.details.chart}`;
+                    } else if (behavior.details.event) {
+                        detailsText = `事件: ${behavior.details.event}`;
+                    } else if (behavior.details.filter) {
+                        detailsText = `筛选: ${behavior.details.filter}`;
+                    } else if (behavior.details.story) {
+                        detailsText = `故事: ${behavior.details.story}`;
+                    } else if (behavior.details.markerName) {
+                        detailsText = `标记: ${behavior.details.markerName}`;
+                    } else if (behavior.details.resource) {
+                        detailsText = `资源: ${behavior.details.resource}`;
+                    } else if (behavior.details.username) {
+                        detailsText = `用户: ${behavior.details.username}`;
+                    } else if (behavior.details.content) {
+                        detailsText = `宣言: ${behavior.details.content.substring(0, 30)}...`;
+                    } else if (behavior.details.emotion) {
+                        detailsText = `情感: ${behavior.details.emotion}`;
+                    } else if (behavior.details.location) {
+                        detailsText = `位置: ${behavior.details.location}`;
+                    } else if (behavior.details.actionType) {
+                        detailsText = `活动类型: ${behavior.details.actionType}`;
+                    } else if (behavior.details.buttonText) {
+                        detailsText = `按钮: ${behavior.details.buttonText}`;
+                    } else if (behavior.details.category) {
+                        detailsText = `分类: ${behavior.details.category}`;
+                    } else if (behavior.details.title) {
+                        detailsText = `标题: ${behavior.details.title.substring(0, 40)}...`;
+                    }
+                }
+
+                item.innerHTML = `
+                <div class="behavior-type ${behaviorClass}">${behavior.type}</div>
+                <div class="behavior-info">
+                    <div class="behavior-details">${detailsText}</div>
+                    <div class="behavior-time">${timeString}<br>${dateString}</div>
+                </div>
+            `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // 生成分析报告
+        function generateAnalysisReport() {
+            const reportPlaceholder = document.getElementById('report-placeholder');
+            const reportContent = document.getElementById('report-content');
+            const reportBody = document.getElementById('report-content-body');
+            const reportDate = document.getElementById('report-date');
+
+            // 隐藏占位符，显示报告内容
+            reportPlaceholder.style.display = 'none';
+            reportContent.style.display = 'block';
+
+            // 设置报告日期
+            reportDate.textContent = new Date().toLocaleDateString();
+
+            if (userBehaviors.length === 0) {
+                reportBody.innerHTML = `
+                <p>目前还没有记录到您的探索行为。</p>
+                <p>开始浏览"战争真相"内容，您的交互数据将会在这里展示和分析。</p>
+            `;
+                return;
+            }
+
+            // 计算统计数据
+            let totalActions = userBehaviors.length;
+            let timelineClicks = 0;
+            let warCardViews = 0;
+            let storyViews = 0;
+            let audioPlays = 0;
+            let currentConflicts = 0;
+            let historicalMarkers = 0;
+            let pdfDownloads = 0;
+            let dataDownloads = 0;
+            let pptDownloads = 0;
+            let templateDownloads = 0;
+
+            // 和平页面行为统计
+            let declarationCount = 0;
+            let leafCount = 0;
+            let resourceDownloads = 0;
+            let tagClicks = 0;
+            let mapFilters = 0;
+
+            // 活动分析统计
+            let actionTypeViews = 0;
+            let buttonClicks = 0;
+
+            // 新闻阅读统计
+            let newsViews = 0;
+            const newsCategories = {};
+
+            // 和平页面详细分析统计
+            let totalDeclarationLength = 0;
+            const emotionCounts = {
+                '悲伤': 0,
+                '愤怒': 0,
+                '希望': 0,
+                '爱': 0
+            };
+            const locationCounts = {
+                '全球': 0,
+                '亚洲': 0,
+                '欧洲': 0,
+                '北美': 0
+            };
+            const actionCounts = {
+                '线上行动': 0,
+                '线下行动': 0,
+                '教育行动': 0,
+                '紧急响应': 0
+            };
+
+            const eventCounts = {};
+            const storyTypeCounts = {
+                '士兵': 0,
+                '平民': 0,
+                '儿童': 0
+            };
+            const warCardCounts = {};
+
+            userBehaviors.forEach(behavior => {
+                if (behavior.type === BEHAVIOR_TYPES.TIMELINE_CLICK) {
+                    timelineClicks++;
+                    if (behavior.details.event) {
+                        eventCounts[behavior.details.event] = (eventCounts[behavior.details.event] || 0) + 1;
+                    }
+                }
+                if (behavior.type === BEHAVIOR_TYPES.WAR_CARD_EXPLORE) {
+                    warCardViews++;
+                    if (behavior.details.war) {
+                        warCardCounts[behavior.details.war] = (warCardCounts[behavior.details.war] || 0) + 1;
+                    }
+                }
+                if (behavior.type === BEHAVIOR_TYPES.STORY_READ) storyViews++;
+                if (behavior.type === BEHAVIOR_TYPES.AUDIO_PLAY) audioPlays++;
+
+                if (behavior.type === BEHAVIOR_TYPES.STORY_FILTER && behavior.details.filter) {
+                    storyTypeCounts[behavior.details.filter] = (storyTypeCounts[behavior.details.filter] || 0) + 1;
+                }
+
+                if (behavior.type === BEHAVIOR_TYPES.MAP_MARKER_CLICK) {
+                    if (behavior.details.markerType === 'current') {
+                        currentConflicts++;
+                    } else {
+                        historicalMarkers++;
+                    }
+                }
+
+                if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_PDF) pdfDownloads++;
+                if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_DATA) dataDownloads++;
+                if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_PPT) pptDownloads++;
+                if (behavior.type === BEHAVIOR_TYPES.DOWNLOAD_TEMPLATE) templateDownloads++;
+
+                // 和平页面行为统计
+                if (behavior.type === BEHAVIOR_TYPES.DECLARATION_POSTED) {
+                    declarationCount++;
+                    totalDeclarationLength += behavior.details.length || 0;
+
+                    const emotion = behavior.details.emotion || '希望';
+                    if (emotionCounts[emotion] !== undefined) {
+                        emotionCounts[emotion]++;
+                    }
+
+                    const location = behavior.details.location || '全球';
+                    if (locationCounts[location] !== undefined) {
+                        locationCounts[location]++;
+                    }
+                }
+                if (behavior.type === BEHAVIOR_TYPES.LEAF_ADDED) leafCount++;
+                if (behavior.type === BEHAVIOR_TYPES.PEACE_RESOURCE_DOWNLOAD) resourceDownloads++;
+                if (behavior.type === BEHAVIOR_TYPES.ACTION_TAG_CLICK) {
+                    tagClicks++;
+                    const action = behavior.details.actionType || '线上行动';
+                    if (actionCounts[action] !== undefined) {
+                        actionCounts[action]++;
+                    }
+                }
+                if (behavior.type === BEHAVIOR_TYPES.MAP_FILTER) mapFilters++;
+
+                // 活动分析统计
+                if (behavior.type === BEHAVIOR_TYPES.ACTION_TYPE_VIEW) {
+                    actionTypeViews++;
+                }
+                if (behavior.type === BEHAVIOR_TYPES.ACTION_BUTTON_CLICK) {
+                    buttonClicks++;
+                }
+
+                // 新闻阅读统计
+                if (behavior.type === BEHAVIOR_TYPES.NEWS_ARTICLE_CLICK) {
+                    newsViews++;
+                    const category = behavior.details.category || '未分类';
+                    newsCategories[category] = (newsCategories[category] || 0) + 1;
+                }
+            });
+
+            // 找出最感兴趣的事件
+            let mostInterestedEvent = '';
+            let maxEventCount = 0;
+            for (const [event, count] of Object.entries(eventCounts)) {
+                if (count > maxEventCount) {
+                    maxEventCount = count;
+                    mostInterestedEvent = event;
+                }
+            }
+
+            // 找出最常关注的幸存者类型
+            let mostCommonStoryType = '';
+            let maxStoryTypeCount = 0;
+            for (const [type, count] of Object.entries(storyTypeCounts)) {
+                if (count > maxStoryTypeCount) {
+                    maxStoryTypeCount = count;
+                    mostCommonStoryType = type;
+                }
+            }
+
+            // 找出最常探索的战争卡片
+            let mostExploredWarCard = '';
+            let maxWarCardCount = 0;
+            for (const [war, count] of Object.entries(warCardCounts)) {
+                if (count > maxWarCardCount) {
+                    maxWarCardCount = count;
+                    mostExploredWarCard = war;
+                }
+            }
+
+            // 找出最常用情感
+            let maxEmotion = '';
+            let maxEmotionCount = 0;
+            for (const [emotion, count] of Object.entries(emotionCounts)) {
+                if (count > maxEmotionCount) {
+                    maxEmotionCount = count;
+                    maxEmotion = emotion;
+                }
+            }
+
+            // 找出最常用位置
+            let maxLocation = '';
+            let maxLocationCount = 0;
+            for (const [location, count] of Object.entries(locationCounts)) {
+                if (count > maxLocationCount) {
+                    maxLocationCount = count;
+                    maxLocation = location;
+                }
+            }
+
+            // 找出最常用行动类型
+            let maxAction = '';
+            let maxActionCount = 0;
+            for (const [action, count] of Object.entries(actionCounts)) {
+                if (count > maxActionCount) {
+                    maxActionCount = count;
+                    maxAction = action;
+                }
+            }
+
+            // 计算平均宣言长度
+            const avgDeclarationLength = declarationCount > 0 ?
+                Math.round(totalDeclarationLength / declarationCount) :
+                0;
+
+            // 找出最常阅读的新闻类型
+            let mostReadCategory = '';
+            let maxCategoryCount = 0;
+            for (const [category, count] of Object.entries(newsCategories)) {
+                if (count > maxCategoryCount) {
+                    maxCategoryCount = count;
+                    mostReadCategory = category;
+                }
+            }
+
+            // 生成报告HTML
+            reportBody.innerHTML = `
+            <div class="report-section">
+                <div class="section-title">探索概览</div>
+                <p>您总共进行了 <span class="highlight">${totalActions}</span> 次交互，展现了浓厚的历史探索兴趣。</p>
+                <p>其中，您最感兴趣的历史事件是 <span class="highlight">${mostInterestedEvent || '尚未发现'}</span>，点击了 ${maxEventCount} 次。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title">历史事件探索</div>
+                <p>您探索了 <span class="highlight">${timelineClicks}</span> 个历史事件，查看了 <span class="highlight">${warCardViews}</span> 个相关战争卡片。</p>
+                <p>您最常探索的战争卡片是 <span class="highlight">${mostExploredWarCard || '尚未发现'}</span>。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title">情感内容参与</div>
+                <p>您阅读了 <span class="highlight">${storyViews}</span> 个幸存者故事，收听了 <span class="highlight">${audioPlays}</span> 个音频内容。</p>
+                <p>您最常关注的幸存者类型是 <span class="highlight">${mostCommonStoryType || '尚未发现'}</span>。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title">地图探索</div>
+                <p>您点击了 <span class="highlight">${currentConflicts}</span> 个当前冲突标记和 <span class="highlight">${historicalMarkers}</span> 个历史战争标记。</p>
+                <p>这显示了您${currentConflicts > historicalMarkers ? '更关注当前全球冲突' : '对历史战争有深入研究兴趣'}。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title">资源获取</div>
+                <p>您下载了多种教育资源：</p>
+                <ul>
+                    <li>PDF报告: ${pdfDownloads} 次</li>
+                    <li>数据包: ${dataDownloads} 次</li>
+                    <li>教学PPT: ${pptDownloads} 次</li>
+                    <li>设计模板: ${templateDownloads} 次</li>
+                </ul>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title peace">和平行动分析</div>
+                <p>您积极参与了多种和平行动：</p>
+                <ul>
+                    <li>发布<span class="highlight peace">${declarationCount}</span>条和平宣言，平均长度<span class="highlight peace">${avgDeclarationLength}</span>字</li>
+                    <li>为和平之树添加<span class="highlight peace">${leafCount}</span>片叶子</li>
+                    <li>下载<span class="highlight peace">${resourceDownloads}</span>份和平资源</li>
+                    <li>点击行动标签<span class="highlight peace">${tagClicks}</span>次</li>
+                    <li>使用地图时间筛选<span class="highlight peace">${mapFilters}</span>次</li>
+                </ul>
+                <p>这展示了您对和平事业的高度参与和热情。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title peace">活动参与分析</div>
+                <p>您查看了<span class="highlight peace">${actionTypeViews}</span>次活动类型，点击了<span class="highlight peace">${buttonClicks}</span>次活动按钮。</p>
+                <p>您最常参与的活动类型是<span class="highlight peace">${maxAction || '线上行动'}</span>。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title news">新闻阅读分析</div>
+                <p>您阅读了<span class="highlight news">${newsViews}</span>篇新闻文章。</p>
+                <p>您最常关注的新闻类型是<span class="highlight news">${mostReadCategory || '尚未发现'}</span>，阅读了${maxCategoryCount}篇。</p>
+                <p>这表明您对${mostReadCategory ? mostReadCategory + '类' : ''}新闻内容有较高兴趣。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title peace">和平行动详细分析</div>
+                <p>您的和平宣言表达了强烈的<span class="highlight peace">${maxEmotion || '希望'}</span>情感，主要关注<span class="highlight peace">${maxLocation || '全球'}</span>地区。</p>
+                <p>您最常参与的和平行动是<span class="highlight peace">${maxAction || '线上行动'}</span>。</p>
+                <p>这些行为表明您是一位${maxEmotion === '希望' ? '乐观积极' : maxEmotion === '爱' ? '充满爱心' : '富有同理心'}的和平倡导者。</p>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title">探索建议</div>
+                <p>基于您的兴趣模式，我们建议：</p>
+                <ul>
+                    <li>探索更多与 <span class="highlight">${mostInterestedEvent || '第二次世界大战'}</span> 相关的历史事件</li>
+                    <li>深入了解 ${mostCommonStoryType ? mostCommonStoryType + '幸存者' : '不同群体'} 的战争经历</li>
+                    <li>查看您尚未探索的${currentConflicts > historicalMarkers ? '历史战争' : '当前冲突'}地图标记</li>
+                    <li>尝试收听相关音频内容，获取更沉浸式的体验</li>
+                    <li>参与更多和平行动，分享您的和平宣言</li>
+                    <li>阅读更多关于 <span class="highlight news">${mostReadCategory || '和平倡议'}</span> 的新闻文章</li>
+                </ul>
+            </div>
+            
+            <div class="report-section">
+                <div class="section-title">用户画像</div>
+                <p>根据您的行为模式，我们为您创建了以下用户画像：</p>
+                <p>您是一位对${mostCommonStoryType === '士兵' ? '军事战略' : mostCommonStoryType === '平民' ? '战争对平民生活的影响' : '战争对儿童的影响'}有浓厚兴趣的历史爱好者。</p>
+                <p>您更倾向于${pdfDownloads + dataDownloads > pptDownloads + templateDownloads ? '研究型资料' : '教学型资料'}，这反映了您的${pdfDownloads + dataDownloads > pptDownloads + templateDownloads ? '深度研究' : '教学传播'}倾向。</p>
+                ${declarationCount > 0 ? `<p>同时，您也是一位和平倡导者，已发布了${declarationCount}条和平宣言。</p>` : ''}
+                ${newsViews > 0 ? `<p>您对${mostReadCategory || '国际新闻'}类新闻表现出持续关注。</p>` : ''}
+            </div>
+        `;
+
+            showNotification('分析报告已生成');
+        }
+
+        // 导出行为数据
+        function exportBehaviorData() {
+            const dataStr = JSON.stringify(userBehaviors, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+            const exportFileDefaultName = 'user_behaviors.json';
+
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            document.body.appendChild(linkElement);
+            linkElement.click();
+            document.body.removeChild(linkElement);
+
+            showNotification('行为数据已成功导出为JSON文件');
+        }
+
+        // 清除行为数据
+        function clearBehaviorData() {
+            if (confirm('确定要清除所有用户行为数据吗？此操作不可恢复。')) {
+                const userId = getCurrentUserId();
+                if (userId) {
+                    localStorage.removeItem(`warTruthBehaviors_${userId}`);
+                }
+                userBehaviors = [];
+                renderBehaviorList();
+                updateCharts();
+                showNotification('所有用户行为数据已清除');
+
+                // 重置报告显示
+                document.getElementById('report-placeholder').style.display = 'flex';
+                document.getElementById('report-content').style.display = 'none';
+            }
+        }
+
+        // 模拟战争页面行为
+        function simulateWarBehaviors() {
+            // 添加一些模拟数据
+            const events = ['第二次世界大战', '朝鲜战争', '越南战争', '海湾战争', '阿富汗战争', '伊拉克战争', '俄乌冲突'];
+            const stories = ['安娜·彼得罗娃', '伊万·科瓦连科', '迈克尔·约翰逊', '萨拉·阿卜杜拉', '阿里·哈桑', '金顺玉'];
+            const filters = ['士兵', '平民', '儿童'];
+            const markers = [
+                { name: '乌克兰战争', type: 'current' },
+                { name: '阿富汗冲突', type: 'current' },
+                { name: '苏丹内战', type: 'current' },
+                { name: '巴以冲突', type: 'current' },
+                { name: '叙利亚内战', type: 'current' },
+                { name: '华沙起义', type: 'historical' },
+                { name: '抗日战争', type: 'historical' },
+                { name: '伊拉克战争', type: 'historical' },
+                { name: '阿富汗战争', type: 'historical' },
+                { name: '越南战争', type: 'historical' }
+            ];
+            const resources = ['PDF报告', '数据包', '教学PPT', '设计模板'];
+
+            // 添加事件探索行为
+            for (let i = 0; i < 15; i++) {
+                const event = events[Math.floor(Math.random() * events.length)];
+                recordBehavior(BEHAVIOR_TYPES.TIMELINE_CLICK, { event });
+
+                if (Math.random() > 0.3) {
+                    recordBehavior(BEHAVIOR_TYPES.DETAIL_OPEN, { event });
+
+                    if (Math.random() > 0.5) {
+                        recordBehavior(BEHAVIOR_TYPES.DETAIL_CLOSE, { event });
+                    }
+                }
+
+                if (Math.random() > 0.7) {
+                    const war = events[Math.floor(Math.random() * events.length)];
+                    recordBehavior(BEHAVIOR_TYPES.WAR_CARD_EXPLORE, { war });
+                }
+            }
+
+            // 添加图表交互行为
+            for (let i = 0; i < 8; i++) {
+                recordBehavior(BEHAVIOR_TYPES.CHART_INTERACTION, { chart: `图表${i + 1}` });
+            }
+
+            // 添加计数器关注行为
+            for (let i = 0; i < 5; i++) {
+                recordBehavior(BEHAVIOR_TYPES.COUNTER_VIEW);
+            }
+
+            // 添加情感参与行为
+            for (let i = 0; i < 10; i++) {
+                const filter = filters[Math.floor(Math.random() * filters.length)];
+                recordBehavior(BEHAVIOR_TYPES.STORY_FILTER, { filter });
+
+                const story = stories[Math.floor(Math.random() * stories.length)];
+                recordBehavior(BEHAVIOR_TYPES.STORY_READ, { story });
+
+                if (Math.random() > 0.6) {
+                    recordBehavior(BEHAVIOR_TYPES.AUDIO_PLAY, { story });
+                }
+            }
+
+            // 添加资源下载行为
+            for (let i = 0; i < 12; i++) {
+                const resource = resources[Math.floor(Math.random() * resources.length)];
+                if (resource === 'PDF报告') {
+                    recordBehavior(BEHAVIOR_TYPES.DOWNLOAD_PDF, { resource });
+                } else if (resource === '数据包') {
+                    recordBehavior(BEHAVIOR_TYPES.DOWNLOAD_DATA, { resource });
+                } else if (resource === '教学PPT') {
+                    recordBehavior(BEHAVIOR_TYPES.DOWNLOAD_PPT, { resource });
+                } else {
+                    recordBehavior(BEHAVIOR_TYPES.DOWNLOAD_TEMPLATE, { resource });
+                }
+            }
+
+            // 添加地图标记点击
+            for (let i = 0; i < 13; i++) {
+                const marker = markers[Math.floor(Math.random() * markers.length)];
+                recordBehavior(BEHAVIOR_TYPES.MAP_MARKER_CLICK, {
+                    markerName: marker.name,
+                    markerType: marker.type
+                });
+            }
+
+            showNotification('已生成模拟战争页面行为数据');
+        }
+
+        // 模拟和平页面行为
+        function simulatePeaceBehaviors() {
+            const messages = [
+                "愿世界和平",
+                "爱与和平同在",
+                "停止战争",
+                "和平从心开始",
+                "共建和谐家园",
+                "尊重每一种生命",
+                "和平教育改变未来",
+                "用对话代替冲突"
+            ];
+            const resources = ['抗议海报模板', '社区行动指南', '宣传文案范例'];
+            const emotions = ['悲伤', '愤怒', '希望', '爱'];
+            const locations = ['全球', '亚洲', '欧洲', '北美'];
+            const actions = ['online', 'offline', 'education', 'emergency'];
+            const buttons = ['立即参与', '查看详情', '分享活动', '捐赠支持'];
+
+            // 模拟行动标签点击
+            for (let i = 0; i < 10; i++) {
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                recordBehavior(BEHAVIOR_TYPES.ACTION_TAG_CLICK, { actionType: action });
+            }
+
+            // 模拟活动按钮点击
+            for (let i = 0; i < 8; i++) {
+                const button = buttons[Math.floor(Math.random() * buttons.length)];
+                recordBehavior(BEHAVIOR_TYPES.ACTION_BUTTON_CLICK, { buttonText: button });
+            }
+
+            // 模拟活动类型查看
+            for (let i = 0; i < 6; i++) {
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                recordBehavior(BEHAVIOR_TYPES.ACTION_TYPE_VIEW, { actionType: action });
+            }
+
+            // 模拟地图时间筛选
+            for (let i = 0; i < 8; i++) {
+                recordBehavior(BEHAVIOR_TYPES.MAP_FILTER, { year: 2020 + Math.floor(Math.random() * 4) });
+            }
+
+            // 模拟发表宣言
+            for (let i = 0; i < 6; i++) {
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                const emotion = emotions[Math.floor(Math.random() * emotions.length)];
+                const location = locations[Math.floor(Math.random() * locations.length)];
+                recordBehavior(BEHAVIOR_TYPES.DECLARATION_POSTED, {
+                    content: message.substring(0, 50),
+                    emotion: emotion,
+                    location: location,
+                    length: message.length
+                });
+            }
+
+            // 模拟添加和平之叶
+            for (let i = 0; i < 5; i++) {
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                recordBehavior(BEHAVIOR_TYPES.LEAF_ADDED, { content: message.substring(0, 30) });
+            }
+
+            // 模拟资源下载
+            for (let i = 0; i < 4; i++) {
+                const resource = resources[Math.floor(Math.random() * resources.length)];
+                recordBehavior(BEHAVIOR_TYPES.PEACE_RESOURCE_DOWNLOAD, { resource });
+            }
+
+            showNotification('已生成模拟和平页面行为数据');
+        }
+
+        // 模拟新闻阅读行为
+        function simulateNewsBehaviors() {
+            const categories = ['提倡和平', '国际外交', '战争冲突', '核安全', '经济发展', '科技创新'];
+            const titles = [
+                '古特雷斯呼吁和平解决冲突',
+                '中国代表在联合国发言支持和平倡议',
+                '中东地区冲突持续升级',
+                '伊朗核设施安全评估报告',
+                '全球经济复苏对和平的影响',
+                '人工智能技术在和平建设中的应用'
+            ];
+
+            // 模拟新闻阅读行为
+            for (let i = 0; i < 15; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const title = titles[Math.floor(Math.random() * titles.length)];
+                recordBehavior(BEHAVIOR_TYPES.NEWS_ARTICLE_CLICK, {
+                    category: category,
+                    title: title
+                });
+            }
+
+            showNotification('已生成模拟新闻阅读行为数据');
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function () {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const usernameDisplay = document.getElementById('username-display');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (currentUser) {
+                usernameDisplay.textContent = currentUser.username;
+                logoutBtn.style.display = 'inline-block';
+            }
+
+            logoutBtn.addEventListener('click', function () {
+                localStorage.removeItem('currentUser');
+                usernameDisplay.textContent = '未登录用户';
+                logoutBtn.style.display = 'none';
+            });
+            // 更新用户界面
+            updateUserUI();
+
+            // 加载行为数据
+            loadBehaviors();
+
+            // 初始化图表
+            initCharts();
+
+            // 渲染行为列表
+            renderBehaviorList();
+
+            // 绑定按钮事件
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+            document.getElementById('export-data').addEventListener('click', exportBehaviorData);
+            document.getElementById('clear-data').addEventListener('click', clearBehaviorData);
+            document.getElementById('simulate-data').addEventListener('click', simulateWarBehaviors);
+            document.getElementById('simulate-peace-data').addEventListener('click', simulatePeaceBehaviors);
+            document.getElementById('simulate-news-data').addEventListener('click', simulateNewsBehaviors);
+            document.getElementById('generate-report').addEventListener('click', generateAnalysisReport);
+        });
+    </script>
+    <footer class="footer">
+        <div class="footer-container" id="footer">
+            <div class="footer-section">
+                <h3 id="footer-about-us">关于我们</h3>
+                <p id="footer-about-text">
+                    和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-links">快速链接</h3>
+                <ul class="footer-links">
+                    <li><i class="fa fa-chevron-right"></i> <span data-key="footer-home">首页</span></li>
+                    <li><i class="fa fa-chevron-right"></i> <span data-key="footer-about">关于我们</span>
+                    </li>
+                    <li><i class="fa fa-chevron-right"></i> <span data-key="footer-logo">标志</span></li>
+                    <li>
+                    </li>
+                    <li><a href="首页2.0.html#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-war-peace">战争与和平</span></a></li>
+                    <li><i class="fa fa-chevron-right"></i> <span data-key="footer-events">活动</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-contact">联系我们</h3>
+                <ul class="contact-info">
+                    <li>
+
+                        <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-phone">电话:12345678910 <br>举报热线:110</div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-wechat">微信:lllllll </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 id="footer-friend-links">友情链接</h3>
+                <div class="friend-links">
+
+
+
+
+                    <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                        target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+
+
+
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p id="footer-disclaimer">
+                <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+            </p>
+            <p id="footer-compliance">
+                本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+            </p>
+            <p id="footer-copyright">
+                © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>
