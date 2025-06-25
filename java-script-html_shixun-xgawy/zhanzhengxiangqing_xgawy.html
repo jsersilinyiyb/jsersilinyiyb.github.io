@@ -1,0 +1,3432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>战争详情页 </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+
+        :root {
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --accent-red: #e63946;
+            --accent-blue: #1d3557;
+            --accent-gold: #fca311;
+            --light-text: #f1faee;
+            --gray-text: #a8a8a8;
+            --card-bg: rgba(30, 30, 40, 0.8);
+            --border-color: rgba(100, 100, 120, 0.3);
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            color: var(--light-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 粒子背景 */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 头部样式 */
+        .detail-header {
+            padding: 100px 0 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .detail-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            filter: brightness(0.3) blur(3px);
+            z-index: -1;
+            transform: scale(1.05);
+            transition: transform 10s ease;
+        }
+
+        .detail-header:hover::before {
+            transform: scale(1.1);
+        }
+
+        .detail-title {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(252, 163, 17, 0.5);
+            animation: titleGlow 2s infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(252, 163, 17, 0.7);
+            }
+
+            100% {
+                text-shadow: 0 0 20px rgba(252, 163, 17, 0.9), 0 0 30px rgba(252, 163, 17, 0.5);
+            }
+        }
+
+        .detail-period {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--accent-red);
+            font-weight: 500;
+        }
+
+        .detail-subtitle {
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            opacity: 0.9;
+            line-height: 1.7;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--accent-blue);
+            color: white;
+            padding: 14px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .back-btn:hover {
+            background: #2a5a8c;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(29, 53, 87, 0.5);
+        }
+
+        /* 主要内容区 */
+        .detail-content {
+            padding: 0 0 60px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .detail-image {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            height: 500px;
+            position: relative;
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: transform 0.8s ease;
+        }
+
+        .detail-image:hover {
+            transform: perspective(1000px) rotateY(0);
+        }
+
+        .detail-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+
+        .detail-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .detail-text {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--accent-red);
+            animation: fadeIn 1s ease;
+        }
+
+        .detail-text h2 {
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .detail-text p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s ease;
+            border: 1px solid transparent;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: statAppear 0.8s forwards;
+        }
+
+        .stat-card:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        .stat-card:nth-child(4) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes statAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-gold);
+            box-shadow: 0 15px 35px rgba(252, 163, 17, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 3.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+            transition: transform 0.5s ease;
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.2);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent-red);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        /* 时间线 */
+        .timeline-section {
+            margin: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--accent-gold);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--accent-red);
+            border-radius: 2px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .timeline::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--accent-red);
+            border-radius: 2px;
+        }
+
+        .timeline-item {
+            margin-bottom: 50px;
+            position: relative;
+            padding-left: 30px;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: fadeInRight 0.8s forwards;
+        }
+
+        .timeline-item:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .timeline-item:nth-child(2) {
+            animation-delay: 0.6s;
+        }
+
+        .timeline-item:nth-child(3) {
+            animation-delay: 0.9s;
+        }
+
+        .timeline-item:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+
+        .timeline-item:nth-child(5) {
+            animation-delay: 1.5s;
+        }
+
+        @keyframes fadeInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: -13px;
+            top: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            border: 4px solid var(--accent-red);
+            box-shadow: 0 0 15px rgba(252, 163, 17, 0.5);
+            z-index: 2;
+        }
+
+        .timeline-year {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .timeline-event {
+            background: rgba(20, 20, 30, 0.6);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 3px solid var(--accent-gold);
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        /* 数据可视化 */
+        .charts-section {
+            margin: 80px 0;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 30px;
+        }
+
+        .chart-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.4s ease;
+            height: 500px;
+        }
+
+        .chart-container:hover {
+            transform: translateY(-10px);
+        }
+
+        .chart-title {
+            text-align: center;
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            height: 400px;
+            position: relative;
+        }
+
+        /* 视差部分 */
+        .parallax-section {
+            height: 500px;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            position: relative;
+            margin: 80px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .parallax-overlay {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 50px;
+            border-radius: 15px;
+            max-width: 900px;
+            backdrop-filter: blur(5px);
+        }
+
+        .parallax-title {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+        }
+
+        .parallax-text {
+            font-size: 1.3rem;
+            line-height: 1.8;
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 50px 0 30px;
+            margin-top: 50px;
+            border-top: 1px solid var(--border-color);
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1100px) {
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-image {
+                height: 400px;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-container {
+                height: 450px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .detail-title {
+                font-size: 2.5rem;
+            }
+
+            .detail-period {
+                font-size: 1.4rem;
+            }
+
+            .detail-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .parallax-title {
+                font-size: 2rem;
+            }
+
+            .parallax-text {
+                font-size: 1.1rem;
+            }
+
+            .chart-container {
+                height: 350px;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
+    <div class="container">
+        <!-- 头部区域 -->
+        <div class="detail-header">
+            <h1 class="detail-title" id="war-title">战争数据分析</h1>
+            <div class="detail-period" id="war-period"></div>
+            <p class="detail-subtitle" id="war-subtitle"></p>
+            <a href="zhanzheng_xgawy.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> 返回战争列表
+            </a>
+        </div>
+
+        <!-- 主要内容区 -->
+        <div class="detail-content">
+            <div class="detail-grid">
+                <div class="detail-image">
+                    <img id="war-image" src="" alt="战争图片">
+                </div>
+
+                <div class="detail-text">
+                    <h2><i class="fas fa-database"></i> 数据概述</h2>
+                    <p id="war-description"></p>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid" id="stats-container">
+                <!-- 统计卡片将通过JS动态生成 -->
+            </div>
+
+            <!-- 数据可视化 -->
+            <div class="charts-section">
+                <h2 class="section-title"><i class="fas fa-chart-line"></i> 战争数据分析</h2>
+
+                <div class="charts-grid" id="charts-container">
+                    <!-- 图表将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 时间线部分 -->
+            <div class="timeline-section">
+                <h2 class="section-title"><i class="fas fa-timeline"></i> 战争关键转折点</h2>
+
+                <div class="timeline" id="timeline-container">
+                    <!-- 时间线将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 视差部分 -->
+            <div class="parallax-section" id="parallax-section">
+                <div class="parallax-overlay">
+                    <h3 class="parallax-title" id="parallax-title"></h3>
+                    <p class="parallax-text" id="parallax-text"></p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>战争历史数据可视化 | 数据来源：历史档案与军事记录 | © 2023 历史分析中心</p>
+            <p>本页面内容仅用于教育目的，致力于通过数据理解历史</p>
+        </footer>
+    </div>
+
+    <script>
+        // 战争数据定义
+        const warData = {
+            "北非战役": {
+                title: "北非战役数据分析",
+                period: "1940年6月10日 - 1943年5月13日",
+                subtitle: "基于历史数据的战争损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "北非战役是第二次世界大战中在北非沙漠地带进行的一系列战役，决定了地中海地区的控制权。本数据可视化基于盟军与轴心国的军事记录，展示了这场持续近3年的战争中的关键指标。数据显示，双方在北非投入了超过180万兵力，尽管战场面积广阔，但关键战役如阿拉曼战役和突尼斯战役直接影响了战局走向。隆美尔率领的德军一度扭转局势，但最终因后勤补给不足而失败。这场战争造成了约35万人死亡，是沙漠地形下机械化作战的经典案例。数据背后反映了后勤补给、装甲战术和空中支援在沙漠战中的决定性作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "35万", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "2年11个月", label: "持续时间" },
+                    { icon: "fas fa-tank", value: "3", label: "关键转折点" },
+                    { icon: "fas fa-truck", value: "200万吨", label: "物资消耗" }
+                ],
+                timeline: [
+                    { year: "1940年6月", event: "意大利入侵英属埃及，北非战役爆发。意军从利比亚发起进攻，但随后被英军反击并俘虏13万人，轴心国在北非的局势岌岌可危。" },
+                    { year: "1941年2月", event: "隆美尔率德军非洲军团抵达北非，迅速扭转战局。德军采用机动战术，将英军击退至埃及边境，重新夺回战略主动权。" },
+                    { year: "1942年10月", event: "第二次阿拉曼战役，蒙哥马利指挥盟军发动反攻。经过12天激战，德军防线崩溃，被迫向西撤退，成为北非战役的转折点。" },
+                    { year: "1942年11月", event: "火炬行动，盟军在法属北非登陆。美英联军从阿尔及利亚和摩洛哥登陆，对轴心国军队形成南北夹击之势。" },
+                    { year: "1943年5月", event: "轴心国军队在突尼斯投降，北非战役结束。约25万德意军队被俘，盟军完全控制北非，为西西里岛登陆和意大利战役奠定基础。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["盟军", "轴心国"],
+                            series: [
+                                { name: '海军舰艇', data: [200, 100] },
+                                { name: '飞机数量', data: [5000, 3000] },
+                                { name: '陆军兵力', data: [1200000, 600000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战役伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["第一次阿拉曼战役", "第二次阿拉曼战役", "突尼斯战役"],
+                            series: [
+                                { name: '盟军伤亡', data: [13250, 13560, 75000] },
+                                { name: '轴心国伤亡', data: [10000, 33000, 240000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "沙漠战场的历史意义",
+                    text: "北非战役的数据揭示了沙漠环境下战争的独特挑战：后勤补给线的漫长、装甲部队的机动战术、以及制空权的决定性作用。数据表明，尽管德军在战术上多次获胜，但盟军凭借其资源优势和战略协调最终取得胜利。阿拉曼战役的胜利不仅扭转了北非战局，也极大提升了盟军的士气。今天，透过这些数据，我们能更深刻地理解后勤保障在现代战争中的重要性，以及战略决策如何影响战场结果。北非战役的经验为后续盟军在欧洲的行动提供了宝贵的借鉴。",
+                    image: "https://images.unsplash.com/photo-1565373679100-7a1b0d3d0e3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "不列颠空战": {
+                title: "不列颠空战数据分析",
+                period: "1940年7月10日 - 1941年5月11日",
+                subtitle: "基于历史数据的空战损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "不列颠空战是第二次世界大战中规模最大的空战，德军试图通过空中优势摧毁英国皇家空军并为登陆做准备。本数据可视化基于双方的空战记录，展示了这场持续10个月的空战中的关键指标。数据显示，德国空军在数量上占据优势，但英国皇家空军凭借雷达技术、本土作战优势和飞行员的英勇抵抗，成功抵御了德军的进攻。伦敦大轰炸等战略轰炸未能迫使英国屈服，反而增强了英国民众的抗战决心。这场战争造成了约6万人死亡，是历史上首次完全由空中力量决定胜负的战役。数据背后反映了制空权、技术创新和民众意志在现代战争中的决定性作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "6万", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "10个月", label: "持续时间" },
+                    { icon: "fas fa-plane", value: "3000+", label: "飞机损失" },
+                    { icon: "fas fa-city", value: "100万+", label: "房屋损毁" }
+                ],
+                timeline: [
+                    { year: "1940年7月", event: "德国空军开始攻击英吉利海峡的英国船只和港口，不列颠空战正式开始。德国试图通过海空协同战术夺取制海权和制空权。" },
+                    { year: "1940年8月", event: "德国空军发动'鹰日行动'，大规模空袭英国皇家空军基地和雷达站。英国战斗机司令部承受巨大压力，但成功抵御了德军的进攻。" },
+                    { year: "1940年9月", event: "德国空军转向轰炸伦敦等城市，史称'伦敦大轰炸'。这一战略转变给英国平民带来巨大苦难，但也让英国皇家空军获得喘息机会。" },
+                    { year: "1940年10月", event: "英国皇家空军在伦敦上空取得决定性胜利，德国空军损失惨重。希特勒无限期推迟'海狮计划'，登陆英国的可能性彻底消除。" },
+                    { year: "1941年5月", event: "德国空军结束对英国的战略轰炸，将注意力转向东线战场。不列颠空战以英国的胜利告终，成为二战的重要转折点。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["德国", "英国"],
+                            series: [
+                                { name: '战斗机', data: [2600, 1963] },
+                                { name: '轰炸机', data: [1300, 464] },
+                                { name: '侦察机', data: [500, 350] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要空战阶段",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["初期阶段", "鹰日行动", "伦敦轰炸", "最后阶段"],
+                            series: [
+                                { name: '德国损失', data: [362, 606, 1330, 400] },
+                                { name: '英国损失', data: [183, 277, 550, 200] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "空战历史的启示",
+                    text: "不列颠空战的数据揭示了现代空战的关键要素：技术创新（如雷达）、战术灵活性和民众意志的重要性。尽管德国空军在数量上占据优势，但英国皇家空军凭借本土作战优势和高效指挥系统成功抵御了进攻。伦敦大轰炸的战略失误显示，无差别轰炸平民往往无法达到预期的战略目标，反而会增强敌方的抵抗意志。这场战役的胜利不仅拯救了英国，也为盟军最终反攻欧洲保留了重要的战略基地。数据清晰地表明，制空权在现代战争中具有决定性作用，而这一认识深刻影响了后续战争的发展。",
+                    image: "https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "诺曼底登陆": {
+                title: "诺曼底登陆数据分析",
+                period: "1944年6月6日 - 1944年8月25日",
+                subtitle: "基于历史数据的登陆作战损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "诺曼底登陆是第二次世界大战中规模最大的两栖登陆作战，标志着盟军在欧洲西线战场的反攻开始。本数据可视化基于双方的军事记录，展示了这场具有历史意义的战役中的关键指标。数据显示，盟军投入了超过288万兵力、5000余艘战舰和13000余架飞机，在诺曼底海滩进行了大规模登陆。尽管德军拥有坚固的防御工事，但盟军凭借周密的计划、强大的海空优势和士兵的英勇奋战，成功建立了滩头阵地。这场战争造成了约24万人伤亡，是人类历史上最大规模的两栖登陆战役。数据背后反映了两栖作战的复杂性和艰巨性，以及战略欺骗和情报工作在现代战争中的重要作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "24万", label: "伤亡人数" },
+                    { icon: "fas fa-calendar-days", value: "79天", label: "持续时间" },
+                    { icon: "fas fa-ship", value: "5000+", label: "战舰数量" },
+                    { icon: "fas fa-parachute-box", value: "15万+", label: "登陆部队" }
+                ],
+                timeline: [
+                    { year: "1944年6月6日", event: "D日登陆开始。盟军在五个海滩同时登陆：犹他海滩、奥马哈海滩、金滩、朱诺海滩和剑滩。尽管奥马哈海滩遭遇激烈抵抗，伤亡惨重，但其他海滩进展较为顺利。" },
+                    { year: "1944年6月17日", event: "盟军建立了稳固的滩头阵地，并开始向内陆推进。德军试图反击，但因兵力分散和盟军的空中优势而失败。" },
+                    { year: "1944年7月25日", event: "盟军发动'眼镜蛇行动'，突破德军防线。美军第1集团军在空军的支援下，迅速向纵深推进，打开了诺曼底的缺口。" },
+                    { year: "1944年8月1日", event: "美军第3集团军在巴顿将军的指挥下，从阿夫朗什缺口向西和向南推进，切断了德军的退路。" },
+                    { year: "1944年8月25日", event: "盟军解放巴黎，诺曼底战役结束。德军损失惨重，被迫向东撤退。诺曼底登陆的成功为盟军最终解放西欧奠定了基础。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["盟军", "德军"],
+                            series: [
+                                { name: '陆军兵力', data: [1500000, 850000] },
+                                { name: '坦克', data: [6000, 2000] },
+                                { name: '飞机', data: [13000, 1000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "各海滩伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["犹他海滩", "奥马哈海滩", "金滩", "朱诺海滩", "剑滩"],
+                            series: [
+                                { name: '盟军伤亡', data: [200, 2000, 400, 600, 630] },
+                                { name: '德军伤亡', data: [150, 1200, 350, 400, 500] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "两栖作战的历史意义",
+                    text: "诺曼底登陆的数据揭示了大规模两栖作战的复杂性：多军种协同作战、精确的情报工作和周密的战略欺骗计划。数据表明，尽管盟军在兵力和装备上占据绝对优势，但德军凭借坚固的防御工事和有利地形造成了巨大伤亡。奥马哈海滩的惨烈战斗成为现代战争研究的经典案例，展示了登陆作战面临的巨大挑战。这场战役也凸显了制空权和制海权在登陆作战中的关键作用。诺曼底登陆的成功不仅改变了欧洲战场的格局，也为现代两栖作战提供了宝贵经验，深刻影响了后续军事战略的发展。",
+                    image: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "苏德战争": {
+                title: "苏德战争数据分析",
+                period: "1941年6月22日 - 1945年5月9日",
+                subtitle: "基于历史数据的战争损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "苏德战争是第二次世界大战中规模最大、最残酷的陆上战争，占据了欧洲战场的核心地位。本数据可视化基于苏联和德国的军事档案，展示了这场持续近4年的战争中的关键指标。数据显示，苏德双方投入了超过1700万兵力，钢铁消耗达1.8亿吨，成为工业时代战争潜力的直接较量。斯大林格勒战役和库尔斯克战役等关键战役不仅改变了战争走向，也成为军事史上的经典案例。这场战争造成了约2700万人死亡，其中包括大量平民，是人类历史上最惨烈的冲突之一。数据背后反映了工业化战争对人力、资源的巨大消耗，以及战略决策对战争结局的决定性影响。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2,700万", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "3年10个月", label: "持续时间" },
+                    { icon: "fas fa-flag", value: "3", label: "关键转折点" },
+                    { icon: "fas fa-industry", value: "1.8亿吨", label: "钢铁消耗" }
+                ],
+                timeline: [
+                    { year: "1941年6月22日", event: "德国发动'巴巴罗萨计划'，集结550万兵力入侵苏联，苏德战争爆发。德军利用闪电战迅速推进，苏军初期损失惨重，西部领土大片沦陷。" },
+                    { year: "1942年-1943年", event: "斯大林格勒战役，苏德双方投入超过200万兵力，历经6个月激战。苏军最终获胜，成为苏德战争的转折点，德军丧失战略主动权。" },
+                    { year: "1943年7月", event: "库尔斯克战役，史上最大规模坦克战，双方投入超过8000辆坦克。苏军成功防御并反攻，彻底粉碎德军夏季攻势，奠定胜利基础。" },
+                    { year: "1944年", event: "巴格拉季昂行动，苏军发动大规模攻势，歼灭德军中央集团军群，收复白俄罗斯全境，德军在东线的防线全面崩溃。" },
+                    { year: "1945年5月9日", event: "德国签署无条件投降书，苏德战争结束。苏军攻占柏林，标志着纳粹德国的覆灭，欧洲战场战争终结。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["苏联", "德国"],
+                            series: [
+                                { name: '海军舰艇', data: [396, 217] },
+                                { name: '飞机数量', data: [15735, 10248] },
+                                { name: '陆军兵力', data: [11365000, 6060000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战役伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["莫斯科战役", "斯大林格勒战役", "库尔斯克战役"],
+                            series: [
+                                { name: '苏军伤亡', data: [1080000, 1129619, 1671991] },
+                                { name: '德军伤亡', data: [673000, 841000, 500000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "东线战场的历史意义",
+                    text: "苏德战争的数据揭示了工业化战争的残酷本质：钢铁与石油的消耗、千万级的兵力部署、以及难以想象的人员伤亡。这些数字背后，是莫斯科寒冬中的坚守、斯大林格勒废墟中的巷战、库尔斯克草原上的钢铁洪流。数据表明，苏联凭借其庞大的工业潜力和人力储备，最终拖垮了资源受限的德国。这场战争不仅决定了欧洲的命运，也为二战的最终胜利奠定了基础。今天，透过这些数据，我们更能理解和平的珍贵，以及战争对人类文明的巨大破坏。",
+                    image: "https://images.unsplash.com/photo-1545912452-8aea7e25a3d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "意大利战役": {
+                title: "意大利战役数据分析",
+                period: "1943年7月9日 - 1945年5月2日",
+                subtitle: "基于历史数据的地面战损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "意大利战役是第二次世界大战中盟军在欧洲战场的重要行动，旨在夺取意大利半岛，迫使意大利退出战争，并为后续进攻德国本土创造条件。本数据可视化基于双方的军事记录，展示了这场持续近2年的战役中的关键指标。数据显示，盟军在意大利战场投入了大量兵力，但面对德军精心构建的防御工事（如古斯塔夫防线），进展缓慢。战役中，盟军采取了两栖登陆、山地战等多种战术，付出了巨大代价。这场战争造成了约60万人伤亡，是二战中最为艰苦的战役之一。数据背后反映了山地地形、恶劣气候和坚固防御工事对现代战争的影响，以及后勤保障在持久战中的重要性。",
+                stats: [
+                    { icon: "fas fa-skull", value: "60万", label: "伤亡人数" },
+                    { icon: "fas fa-calendar-days", value: "22个月", label: "持续时间" },
+                    { icon: "fas fa-shield", value: "5", label: "主要防线" },
+                    { icon: "fas fa-people-carry-box", value: "450万吨", label: "物资消耗" }
+                ],
+                timeline: [
+                    { year: "1943年7月", event: "盟军在西西里岛登陆，意大利战役开始。经过38天战斗，盟军占领西西里岛，墨索里尼政府垮台。" },
+                    { year: "1943年9月", event: "盟军在萨勒诺登陆，同时意大利宣布投降。但德军迅速接管意大利北部，并建立了坚固的防御工事。" },
+                    { year: "1944年1月", event: "盟军在安齐奥登陆，试图绕过德军古斯塔夫防线。但登陆部队陷入僵局，遭受重大伤亡。" },
+                    { year: "1944年5月", event: "盟军发动'王冠行动'，突破古斯塔夫防线，并于6月4日解放罗马。但德军继续向北撤退，准备新的防御。" },
+                    { year: "1945年4月", event: "盟军发动最后攻势，突破哥特防线。德军节节败退，意大利全境迅速解放。5月2日，德军在意大利的指挥官签署无条件投降书。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["盟军", "德军"],
+                            series: [
+                                { name: '陆军兵力', data: [650000, 330000] },
+                                { name: '坦克', data: [3100, 1500] },
+                                { name: '火炮', data: [10000, 6500] },
+                                { name: '飞机', data: [4000, 1000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战役伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["西西里岛战役", "萨勒诺登陆", "安齐奥登陆", "罗马战役", "最终攻势"],
+                            series: [
+                                { name: '盟军伤亡', data: [22000, 31000, 50000, 20000, 40000] },
+                                { name: '德军伤亡', data: [16000, 15000, 30000, 15000, 65000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "山地战的挑战与启示",
+                    text: "意大利战役的数据揭示了山地战环境下战争的独特挑战：地形复杂导致推进缓慢，恶劣气候加剧后勤困难，坚固防御工事增加攻坚成本。尽管盟军在兵力和装备上占据优势，但德军利用意大利的山地地形构建了多层次防线，使得盟军每前进一步都付出巨大代价。安齐奥登陆的教训表明，即使拥有制海权和制空权，两栖登陆行动仍可能陷入困境。这场战役也凸显了后勤保障在持久战中的关键作用，盟军为维持前线作战投入了大量物资。意大利战役的经验对现代战争具有重要启示，特别是在复杂地形条件下的军事行动规划和执行方面。",
+                    image: "https://images.unsplash.com/photo-1547137127-fd073d31c01f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "六日战争": {
+                title: "六日战争数据分析",
+                period: "1967年6月5日 - 1967年6月10日",
+                subtitle: "基于历史数据的中东冲突军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "六日战争是第二次世界大战后中东地区最具决定性的冲突之一，以色列通过先发制人的打击迅速击败阿拉伯联盟国家。本数据可视化基于多方军事档案，展示了这场仅持续6天的战争中的关键指标。数据显示，以色列以约26万兵力对抗阿拉伯国家的46万大军，凭借空中优势和装甲部队的机动战术，在极短时间内夺取了西奈半岛、戈兰高地等战略要地。这场战争造成约2.7万人死亡，是现代快速机械化作战的经典案例。数据背后反映了情报预判、空军突击和装甲集群战术在现代局部战争中的决定性作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2.7万", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "6天", label: "持续时间" },
+                    { icon: "fas fa-tank", value: "4,500+", label: "坦克投入" },
+                    { icon: "fas fa-plane", value: "1,000+", label: "飞机出动架次" }
+                ],
+                timeline: [
+                    { year: "1967年6月5日", event: "以色列空军发动先发制人打击，摧毁埃及、叙利亚和约旦的空军基地，掌握制空权。地面部队同时入侵西奈半岛。" },
+                    { year: "1967年6月6日", event: "以色列装甲部队突破埃及防线，推进至苏伊士运河，埃及军队溃败。约旦军队对耶路撒冷发动进攻，遭以军反击。" },
+                    { year: "1967年6月7日", event: "以色列占领东耶路撒冷及约旦河西岸，联合国呼吁停火，但战斗持续。叙利亚军队在戈兰高地发起炮击。" },
+                    { year: "1967年6月8日", event: "以色列完全控制西奈半岛，埃及宣布接受停火。美国‘自由号’军舰遭以军误击，引发外交风波。" },
+                    { year: "1967年6月9日-10日", event: "以色列进攻戈兰高地，击败叙利亚军队并占领该地区。6月10日晚，双方达成停火，战争结束。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["以色列", "阿拉伯国家"],
+                            series: [
+                                { name: '陆军兵力', data: [260000, 460000] },
+                                { name: '坦克', data: [1700, 2800] },
+                                { name: '飞机', data: [400, 950] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战线伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["西奈半岛", "约旦河西岸", "戈兰高地"],
+                            series: [
+                                { name: '以色列伤亡', data: [2500, 1500, 700] },
+                                { name: '阿拉伯国家伤亡', data: [15000, 8000, 3000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "闪电战的中东启示",
+                    text: "六日战争的数据揭示了现代局部战争中‘时间优势’的关键意义：以色列通过48小时内摧毁敌方90%空军力量的闪电战术，彻底扭转了兵力数量劣势。数据表明，尽管阿拉伯国家在兵力和装备总量上占优，但情报滞后、指挥分散和战术僵化导致惨败。戈兰高地的坦克战与西奈半岛的装甲推进，成为现代机械化作战的研究范本。这场战争不仅重塑了中东地缘格局，更凸显了制空权、情报战和快速动员能力在当代冲突中的决定性作用，其经验深刻影响了后续中东战争的形态。",
+                    image: "https://images.unsplash.com/photo-1582972312725-0f472d91e33c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "中印边境战争": {
+                title: "中印边境战争数据分析",
+                period: "1962年10月20日 - 1962年11月21日",
+                subtitle: "基于历史数据的高原山地冲突军事行动与伤亡分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "中印边境战争是发生在青藏高原南麓的一场有限边境冲突，中国军队在恶劣地形条件下对印度的入侵行为进行反击。本数据可视化基于双方公开战报，展示了这场持续32天的高原战争中的关键指标。数据显示，中国军队在平均海拔4000米以上的地区投入约8万兵力，凭借机动穿插战术突破印度军队的预设防线。战争造成约2700人死亡，是世界军事史上少有的高海拔山地作战案例。数据背后反映了高原后勤保障、山地战术和气候适应能力在特殊环境战争中的决定性影响。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2,700+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "32天", label: "持续时间" },
+                    { icon: "fas fa-mountain", value: "5,000米+", label: "作战海拔" },
+                    { icon: "fas fa-truck", value: "1.5万吨", label: "物资运输量" }
+                ],
+                timeline: [
+                    { year: "1962年10月20日", event: "中国军队在东段西藏山南地区和西段新疆阿克赛钦同时发起反击，突破印度军队的第一道防线。" },
+                    { year: "1962年10月24日", event: "中国政府提出停火建议，但印度拒绝并增兵前线，战争规模扩大。中国军队在克节朗河谷歼灭印军主力。" },
+                    { year: "1962年11月14日", event: "印度军队在东段瓦弄地区发起反攻，遭中国军队重创。中国军队开始向传统习惯线推进。" },
+                    { year: "1962年11月16日", event: "中国军队在西段拔除印军全部入侵据点，并在东段突破印军‘麦线’以北的最后防线。" },
+                    { year: "1962年11月21日", event: "中国政府宣布单方面停火，并从1959年实际控制线后撤20公里，战争结束。印度军队伤亡惨重，全线溃败。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["中国", "印度"],
+                            series: [
+                                { name: '参战兵力', data: [80000, 220000] },
+                                { name: '火炮', data: [300, 500] },
+                                { name: '运输车辆', data: [1500, 3000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战场伤亡统计",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["克节朗河谷", "瓦弄地区", "阿克赛钦"],
+                            series: [
+                                { name: '中国军队伤亡', data: [722, 697, 225] },
+                                { name: '印度军队伤亡', data: [4383, 1697, 1897] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "高原战争的生存与战术",
+                    text: "中印边境战争的数据揭示了高海拔环境对战争的独特制约：中国军队通过人力畜力运输克服了海拔5000米以上的后勤难题，而印度军队依赖公路运输导致物资中断。数据显示，90%的非战斗减员源于高原反应和严寒，这使得战术机动必须优先考虑人员生理极限。达旺地区的山地穿插战证明，在缺氧环境下，轻装步兵的灵活性优于重装机械化部队。这场战争的经验为后世高海拔地区军事行动提供了关键参考，凸显了环境适应、后勤创新和心理韧性在特殊战场中的战略价值。",
+                    image: "https://images.unsplash.com/photo-1550379666-371c2f3d3082?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "比夫拉战争": {
+                title: "比夫拉战争数据分析",
+                period: "1967年7月6日 - 1970年1月15日",
+                subtitle: "基于历史数据的尼日利亚内战人道主义危机与军事冲突分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "比夫拉战争是尼日利亚东南部伊博人试图独立引发的内战，也是20世纪最惨烈的人道主义危机之一。本数据可视化结合军事记录与人道主义报告，展示了这场持续近3年的战争中的关键指标。数据显示，尼日利亚联邦政府以25万兵力对抗比夫拉的10万武装，通过封锁战术造成比夫拉地区严重饥荒。战争直接导致约100万人死亡（含90万平民），是非洲现代史上死亡人数最多的内战之一。数据背后反映了资源封锁、种族矛盾和国际干预在非洲内战中的复杂影响。",
+                stats: [
+                    { icon: "fas fa-skull", value: "100万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "2年6个月", label: "持续时间" },
+                    { icon: "fas fa-starvation", value: "90%", label: "平民死亡占比" },
+                    { icon: "fas fa-ship", value: "500+", label: "封锁船只" }
+                ],
+                timeline: [
+                    { year: "1967年5月30日", event: "伊博族领袖奥朱古宣布尼日利亚东南部地区独立，成立‘比夫拉共和国’，定都恩苏卡。" },
+                    { year: "1967年7月6日", event: "尼日利亚联邦军队发动‘团结行动’，从西部和北部攻入比夫拉，战争爆发。比夫拉军队初期击退进攻。" },
+                    { year: "1968年1月", event: "尼日利亚军队攻占比夫拉重要港口哈科特港，完成对其海上封锁，导致粮食进口中断。" },
+                    { year: "1968年7月", event: "国际社会开始关注比夫拉饥荒，‘救济行动’启动，但尼日利亚限制人道主义物资进入。比夫拉儿童死亡率飙升至每天5000人。" },
+                    { year: "1970年1月12日", event: "比夫拉首都恩苏卡被尼日利亚军队攻占，奥朱古流亡加蓬。1月15日，比夫拉宣布投降，战争结束。" }
+                ],
+                charts: [
+                    {
+                        title: "战争阶段死亡人数分布",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["1967年", "1968年", "1969年", "1970年"],
+                            series: [
+                                { name: '战斗死亡', data: [50000, 30000, 20000, 10000] },
+                                { name: '饥荒死亡', data: [100000, 400000, 300000, 100000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "双方军事力量变化",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["战争初期", "1968年中", "1969年底", "战争结束"],
+                            series: [
+                                { name: '尼日利亚兵力', data: [150000, 200000, 250000, 250000] },
+                                { name: '比夫拉兵力', data: [80000, 100000, 70000, 30000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "饥荒作为战争武器",
+                    text: "比夫拉战争的数据撕开了现代内战最残酷的一面：90%的死亡源于尼日利亚对海港的长期封锁，而非直接战斗。数据显示，比夫拉儿童平均体重仅为正常水平的60%，维生素缺乏症导致数十万人失明。这场战争暴露了非洲国家在独立后种族矛盾与资源分配的深层问题，也引发了国际社会对‘人道主义干预’合法性的激烈辩论。今天，这些数据仍在警示：当战争武器指向平民生存基础时，人类文明将付出何等代价。",
+                    image: "https://images.unsplash.com/photo-1510718436568-567b178d1d0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "刚果危机": {
+                title: "刚果危机数据分析",
+                period: "1960年6月30日 - 1965年11月24日",
+                subtitle: "基于历史数据的非洲独立后的多边冲突与国际干预分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "刚果危机是刚果民主共和国（原比属刚果）独立后爆发的多派系内战，涉及比利时、联合国及多个非洲国家的干预。本数据可视化整合了殖民档案与联合国报告，展示了这场持续5年的混乱中的关键指标。数据显示，刚果中央政府、加丹加分裂势力、联合国维和部队等多方力量参与冲突，总兵力超过25万。战争造成约10万人死亡，是非洲独立初期最复杂的国际冲突之一。数据背后反映了殖民遗留问题、资源争夺和冷战势力在非洲的渗透。",
+                stats: [
+                    { icon: "fas fa-skull", value: "10万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "5年5个月", label: "持续时间" },
+                    { icon: "fas fa-globe", value: "10+", label: "干预国家" },
+                    { icon: "fas fa-diamond", value: "占全球60%", label: "钴矿控制权争夺" }
+                ],
+                timeline: [
+                    { year: "1960年6月30日", event: "刚果宣布独立，卡萨武布当选总统，卢蒙巴任总理。比利时军队拒绝撤离，引发首都利奥波德维尔骚乱。" },
+                    { year: "1960年7月11日", event: "加丹加省在比利时支持下宣布独立，省长冲伯组建私人军队，控制全球重要钴矿资源。" },
+                    { year: "1960年9月14日", event: "刚果陆军参谋长蒙博托发动政变，解散政府，卢蒙巴寻求苏联支持，后被冲伯军队逮捕。" },
+                    { year: "1961年1月17日", label: "卢蒙巴被处决", event: "在比利时与冲伯合谋下，卢蒙巴在加丹加被杀害，引发刚果全国抗议和联合国干预升级。" },
+                    { year: "1965年11月24日", event: "蒙博托再次发动政变，建立军政府，结束混乱局面。刚果危机以强权政治暂时稳定告终，但留下长期分裂隐患。" }
+                ],
+                charts: [
+                    {
+                        title: "多方力量兵力对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["刚果中央政府", "加丹加分裂势力", "联合国维和部队", "比利时雇佣军"],
+                            series: [
+                                { name: '兵力', data: [80000, 50000, 90000, 30000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "关键年份死亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["1960年", "1961年", "1962年", "1963年", "1964年"],
+                            series: [
+                                { name: '战斗死亡', data: [15000, 25000, 20000, 15000, 25000] },
+                                { name: '平民死亡', data: [10000, 15000, 10000, 20000, 10000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "殖民遗产的战争诅咒",
+                    text: "刚果危机的数据揭示了非洲独立初期的核心困境：比利时殖民时期刻意制造的族群分裂（如巴卢巴族与伊隆加族），在独立后演变为武装冲突的导火索。数据显示，加丹加省的钴矿出口占当时全球60%，资源控制权争夺成为各方势力博弈的焦点。联合国维和部队（联刚特派团）首次尝试‘强制和平’行动，但因大国利益冲突而效果有限。这场危机证明，当殖民列强撤离时，未解决的边界、资源与族群问题，将使新生国家陷入长期动荡。",
+                    image: "https://images.unsplash.com/photo-1592189831104-5e0d97d759b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "印马对抗": {
+                title: "印马对抗数据分析",
+                period: "1963年8月31日 - 1966年8月11日",
+                subtitle: "基于历史数据的东南亚非常规战争与冷战渗透分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "印马对抗是印度尼西亚与马来西亚因领土争议引发的武装冲突，也是冷战时期东南亚的重要 proxy war（代理人战争）。本数据可视化基于印尼-马来西亚军事档案，展示了这场持续近3年的非常规战争中的关键指标。数据显示，印尼通过‘渗透战’向马来西亚派遣约4万名游击队员，马来西亚则在英国支持下以10万正规军应对。战争造成约2000人死亡，以印尼苏加诺政府倒台告终。数据背后反映了热带雨林游击战、心理战和国际舆论在冷战低强度冲突中的运用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2,000+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "2年11个月", label: "持续时间" },
+                    { icon: "fas fa-forest", value: "80%", label: "丛林作战占比" },
+                    { icon: "fas fa-loudspeaker", value: "100+", label: "心理战广播台" }
+                ],
+                timeline: [
+                    { year: "1963年8月31日", event: "印尼总统苏加诺宣布‘粉碎马来西亚’政策，派遣游击队渗透沙捞越和沙巴地区，对抗正式开始。" },
+                    { year: "1964年2月", event: "马来西亚联合英国军队发动‘克拉伦斯行动’，在热带雨林中建立封锁线，围剿印尼渗透者。" },
+                    { year: "1964年8月", event: "印尼军队越境袭击马来西亚柔佛州，英国皇家空军介入，轰炸印尼边境基地，冲突升级。" },
+                    { year: "1965年3月", event: "联合国斡旋下，双方签署《曼谷协定》，同意减少敌对行动，但渗透与反渗透战斗仍持续。" },
+                    { year: "1966年3月", event: "印尼发生‘九三〇事件’，苏哈诺政权倒台，新政府宣布放弃对抗政策。8月11日，双方签署和平协议，冲突结束。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事行动强度",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["1963年", "1964年", "1965年", "1966年"],
+                            series: [
+                                { name: '印尼渗透行动', data: [500, 1200, 800, 300] },
+                                { name: '马英反制行动', data: [300, 1000, 900, 400] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "丛林战伤亡分布",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["沙捞越", "沙巴", "柔佛", "加里曼丹边境"],
+                            series: [
+                                { name: '印尼伤亡', data: [600, 500, 300, 400] },
+                                { name: '马英伤亡', data: [300, 200, 150, 150] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "热带雨林中的冷战博弈",
+                    text: "印马对抗的数据揭示了非常规战争的独特逻辑：印尼4万游击队员中，80%的行动发生在热带雨林地区，依赖‘打了就跑’的渗透战术。马来西亚与英国通过建立‘沙捞越安全区’，结合空中侦察与部落民兵，逐步瓦解印尼的渗透网络。心理战成为关键战场——双方设立超过100个广播台，争夺原住民的人心。这场冲突表面是领土争议，实则是冷战中社会主义与资本主义阵营的间接较量，其经验为后世热带雨林反恐作战提供了重要参考。",
+                    image: "https://images.unsplash.com/photo-1560345613-71bc0d80382a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "多米尼加内战": {
+                title: "多米尼加内战数据分析",
+                period: "1965年4月24日 - 1965年9月3日",
+                subtitle: "基于历史数据的中美洲干预战争与冷战代理冲突分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "多米尼加内战是多米尼加共和国推翻军政府后的派系冲突，最终演变为美国大规模军事干预的事件。本数据可视化结合美国解密档案与美洲国家组织报告，展示了这场持续133天的冲突中的关键指标。数据显示，亲民主派与亲军政府派分别获得古巴与美国的支持，双方兵力约5万人。美国投入4.2万兵力介入，成为二战后美洲最大规模的军事干预之一。战争造成约3000人死亡，以美洲国家组织维和部队进驻结束。数据背后反映了冷战时期美国‘半球防御’政策与中美洲国家主权的冲突。",
+                stats: [
+                    { icon: "fas fa-skull", value: "3,000+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "133天", label: "持续时间" },
+                    { icon: "fas fa-ship", value: "40+", label: "美军舰艇" },
+                    { icon: "fas fa-plane", value: "200+", label: "飞机架次" }
+                ],
+                timeline: [
+                    { year: "1965年4月24日", event: "多米尼加首都圣多明各爆发起义，推翻前军政府领导人卡夫拉尔，亲特鲁希略派与亲博什派发生武装冲突。" },
+                    { year: "1965年4月28日", event: "美国总统约翰逊以‘保护美国公民’为由，下令美军第82空降师在多米尼加登陆，干预开始。" },
+                    { year: "1965年5月6日", event: "美洲国家组织成立‘泛美和平部队’，巴西、洪都拉斯等国派兵参与，试图调停双方冲突。" },
+                    { year: "1965年6月", event: "美军地面部队增至4.2万人，控制圣多明各主要街区，亲民主派转入巷战和游击战。" },
+                    { year: "1965年9月3日", event: "双方签署《圣伊斯德罗协定》，同意成立临时政府，美国开始撤军。多米尼加内战以国际干预下的政治妥协告终。" }
+                ],
+                charts: [
+                    {
+                        title: "各方兵力演变",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["亲民主派", "亲军政府派", "美军", "泛美和平部队"],
+                            series: [
+                                { name: '最大兵力', data: [25000, 25000, 42000, 15000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "冲突阶段伤亡统计",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["起义初期", "美军介入", "巷战阶段", "和平协议"],
+                            series: [
+                                { name: '亲民主派伤亡', data: [800, 1000, 600, 100] },
+                                { name: '亲军政府派伤亡', data: [700, 800, 500, 100] },
+                                { name: '美军伤亡', data: [50, 150, 70, 30] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "加勒比海的冷战前哨",
+                    text: "多米尼加内战的数据暴露了冷战时期美国‘门罗主义’的现代演绎：4.2万美军在133天内投放40艘舰艇和200架飞机，以‘防止古巴模式扩散’为由干预主权国家。数据显示，90%的美军伤亡发生在巷战阶段，凸显了城市环境下正规军与游击队对抗的困境。这场冲突促使美洲国家组织建立‘多边干预’机制，但也引发了关于‘人道主义干预’与‘主权侵犯’的长期争议。其教训为后世中美洲冲突（如尼加拉瓜内战）的国际应对提供了复杂参考。",
+                    image: "https://images.unsplash.com/photo-1593807655873-02f3d1d3a8f9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "罗德西亚丛林战争": {
+                title: "罗德西亚丛林战争数据分析",
+                period: "1964年7月 - 1979年12月",
+                subtitle: "基于历史数据的非洲独立战争游击战与反叛乱分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "罗德西亚丛林战争是津巴布韦（原南罗德西亚）黑人解放组织反对白人少数统治的独立战争，也是二战后非洲持续时间最长的反殖民冲突之一。本数据可视化整合了津巴布韦非洲民族联盟（ZANU）、非洲人民联盟（ZAPU）与罗德西亚安全部队的档案，展示了这场持续15年的战争中的关键指标。数据显示，罗德西亚以6万白人军队对抗约2.5万游击队员，通过‘丛林清剿’与‘心理战’试图维持统治。战争造成约2.7万人死亡，最终以白人政权垮台、津巴布韦独立告终。数据背后反映了热带雨林游击战、人口控制与国际制裁在反殖民战争中的综合作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2.7万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "15年5个月", label: "持续时间" },
+                    { icon: "fas fa-forest", value: "100+", label: "安全村" },
+                    { icon: "fas fa-plane", value: "500+", label: "直升机侦察架次" }
+                ],
+                timeline: [
+                    { year: "1964年7月", event: "津巴布韦非洲民族联盟（ZANU）开始武装斗争，在东北部尼亚萨兰发动首次袭击，丛林战争爆发。" },
+                    { year: "1966年12月", event: "罗德西亚军队发动‘花岗岩行动’，摧毁ZANU在莫桑比克的基地，游击队转入分散游击。" },
+                    { year: "1972年12月", event: "ZANU在北部农村发动‘圣诞攻势’，首次大规模袭击白人农场，战争强度升级。" },
+                    { year: "1976年", event: "ZANU与ZAPU合并为爱国阵线，发动‘全国解放攻势’，控制大片农村地区。罗德西亚实施‘安全村’计划，强制迁移黑人平民。" },
+                    { year: "1979年12月", event: "《兰开斯特大厦协议》签署，罗德西亚举行民主选举，罗伯特·穆加贝领导的ZANU获胜。津巴布韦于1980年独立，战争结束。" }
+                ],
+                charts: [
+                    {
+                        title: "战争阶段兵力对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["1964年", "1972年", "1976年", "1979年"],
+                            series: [
+                                { name: '罗德西亚军队', data: [30000, 40000, 60000, 50000] },
+                                { name: 'ZANU/ZAPU游击队', data: [5000, 10000, 25000, 20000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要地区伤亡分布",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["尼亚萨兰", "马塔贝莱兰", "中部高原", "东部高地"],
+                            series: [
+                                { name: '游击队伤亡', data: [4000, 3000, 6000, 5000] },
+                                { name: '罗德西亚军队伤亡', data: [2000, 1500, 3000, 2500] },
+                                { name: '平民伤亡', data: [3000, 2000, 4000, 3000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "丛林游击战的胜利逻辑",
+                    text: "罗德西亚丛林战争的数据揭示了非对称战争的经典范式：尽管罗德西亚军队拥有装备优势（500架直升机侦察）和‘安全村’人口控制策略（100余个安全村），但游击队通过‘农村包围城市’战术，逐步瓦解白人政权的统治基础。数据显示，70%的战斗发生在农村地区，游击队依靠当地民众支持获得情报与补给。国际制裁（如石油禁运）加剧了罗德西亚的后勤困境，而联合国武器禁运使游击队得以通过邻国渗透获取装备。这场战争证明，在长期反殖民斗争中，政治动员、国际支持与游击战术的结合，能够最终拖垮优势装备的对手。",
+                    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "震慑行动": {
+                title: "震慑行动数据分析",
+                period: "2003年3月19日 - 2003年4月15日",
+                subtitle: "基于军事记录的空袭强度、地面推进与战役影响可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "震慑行动是2003年伊拉克战争初期的核心军事行动，旨在通过压倒性火力摧毁伊拉克政权的抵抗意志。本数据可视化基于联军与伊拉克军队的作战记录，展示了这场持续28天的高强度作战中的关键指标。数据显示，美军为首的联军投入15万兵力，发射2800枚精确制导导弹，对巴格达等关键城市实施'斩首行动'。尽管伊拉克军队部署约50万兵力，但因指挥系统瘫痪和装备代差，防线迅速崩溃。这场行动造成约1.5万军事人员伤亡，标志着萨达姆政权的垮台。数据背后反映了信息化战争中制空权、精确打击与心理战的决定性作用。",
+                stats: [
+                    { icon: "fas fa-bomb", value: "2800+", label: "精确制导武器" },
+                    { icon: "fas fa-calendar-days", value: "28天", label: "持续时间" },
+                    { icon: "fas fa-tank", value: "1500+", label: "装甲车辆" },
+                    { icon: "fas fa-skull", value: "1.5万", label: "伤亡人数" }
+                ],
+                timeline: [
+                    { year: "2003年3月19日", event: "联军发动'斩首行动'，空袭巴格达疑似萨达姆藏身地，震慑行动正式开始。" },
+                    { year: "2003年3月20日", event: "地面部队从科威特进入伊拉克，第3步兵师向巴格达推进，遭遇共和国卫队抵抗。" },
+                    { year: "2003年4月7日", event: "美军第3步兵师攻占巴格达国际机场，完成对市区的合围。" },
+                    { year: "2003年4月9日", event: "美军坦克进入巴格达市中心，萨达姆雕像被推倒，伊拉克政权象征性垮台。" },
+                    { year: "2003年4月15日", event: "联军宣布主要战斗结束，震慑行动以伊拉克军队溃败告终。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["联军", "伊拉克"],
+                            series: [
+                                { name: '地面部队', data: [150000, 500000] },
+                                { name: '作战飞机', data: [1200, 300] },
+                                { name: '精确制导武器', data: [2800, 50] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "关键阶段空袭强度",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["斩首行动", "地面推进", "城市攻坚", "战役收尾"],
+                            series: [
+                                { name: '联军空袭次数', data: [300, 800, 1200, 500] },
+                                { name: '伊拉克防空火力', data: [100, 50, 20, 5] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "信息化战争的里程碑",
+                    text: "震慑行动的数据揭示了现代战争形态的变革：精确打击武器的使用效率是传统火力的10倍以上，制空权的绝对优势使地面推进速度提升至每天50公里。数据表明，尽管伊拉克军队在兵力数量上占优，但缺乏信息化指挥系统和防空能力，导致作战体系迅速崩溃。这场战役开创了'非接触作战'的新模式，证明心理威慑与物理摧毁的协同效应。今天，这些数据仍为研究现代战争中的火力配置、信息战策略提供重要参考。",
+                    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "巴格达战役": {
+                title: "巴格达战役数据分析",
+                period: "2003年4月4日 - 2003年4月9日",
+                subtitle: "基于巷战记录的城市攻坚、兵力部署与平民影响可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "巴格达战役是2003年伊拉克战争中联军攻占伊拉克首都的决定性战斗，标志着萨达姆政权的覆灭。本数据可视化基于美军第3步兵师与伊拉克共和国卫队的作战记录，展示了这场持续5天的城市攻坚战的关键指标。数据显示，联军投入3万地面部队，配合2000架次空中支援，对巴格达市区实施分割包围。伊拉克方面部署约10万守军（含共和国卫队与民兵），依托城市建筑进行抵抗。战役造成约5000人伤亡（含平民），市区20%建筑损毁。数据背后反映了现代城市战中空中支援、装甲部队与步兵协同的复杂性，以及平民保护的挑战。",
+                stats: [
+                    { icon: "fas fa-building", value: "20%", label: "建筑损毁率" },
+                    { icon: "fas fa-calendar-days", value: "5天", label: "持续时间" },
+                    { icon: "fas fa-plane", value: "2000+", label: "空中支援架次" },
+                    { icon: "fas fa-skull", value: "5000+", label: "伤亡人数" }
+                ],
+                timeline: [
+                    { year: "2003年4月4日", event: "美军第3步兵师抵达巴格达南部，与共和国卫队在纳西里耶发生激烈交火。" },
+                    { year: "2003年4月5日", event: "美军第101空降师攻占巴格达北部机场，完成对城市的南北合围。" },
+                    { year: "2003年4月7日", event: "美军装甲部队首次进入巴格达市区，在巴勒斯坦酒店附近与伊拉克狙击手交火。" },
+                    { year: "2003年4月8日", event: "联军空袭巴格达市中心政府建筑，伊拉克指挥系统彻底瘫痪。" },
+                    { year: "2003年4月9日", event: "美军坦克进入解放广场，萨达姆雕像被民众推倒，战役以联军胜利告终。" }
+                ],
+                charts: [
+                    {
+                        title: "双方兵力部署对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["联军", "伊拉克"],
+                            series: [
+                                { name: '地面部队', data: [30000, 100000] },
+                                { name: '坦克', data: [400, 250] },
+                                { name: '步兵战车', data: [600, 150] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "市区各区域伤亡分布",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["南部入口", "市中心", "北部机场", "东部郊区"],
+                            series: [
+                                { name: '联军伤亡', data: [300, 500, 200, 100] },
+                                { name: '伊拉克伤亡', data: [1200, 1800, 800, 600] },
+                                { name: '平民伤亡', data: [400, 900, 200, 300] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "城市战的残酷与启示",
+                    text: "巴格达战役的数据揭示了现代城市攻坚战的核心挑战：每平方公里建成区平均造成1000人伤亡，装甲部队在狭窄街道的推进速度不足5公里/小时。数据表明，尽管联军在火力和装备上占据绝对优势，但共和国卫队利用城市地形实施的不对称抵抗仍造成显著伤亡。这场战役暴露了信息化战争在复杂地形下的局限性，也为后续城市战中的平民保护、建筑清剿战术提供了教训。今天，这些数据仍被用于优化城市战装备设计与作战预案。",
+                    image: "https://images.unsplash.com/photo-1550364986-173f7c6e092e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "第一次费卢杰战役": {
+                title: "第一次费卢杰战役数据分析",
+                period: "2004年4月4日 - 2004年5月1日",
+                subtitle: "基于巷战记录的叛乱武装抵抗、美军伤亡与战术争议可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "第一次费卢杰战役是2004年伊拉克战争中驻伊美军与反美武装在费卢杰市爆发的首次大规模冲突，因美军中途撤军引发争议。本数据可视化基于美军海军陆战队与伊拉克叛乱武装的作战记录，展示了这场持续28天的城市巷战的关键指标。数据显示，美军投入2000兵力，试图清剿约3000名武装分子，但因平民伤亡风险和政治压力被迫中止。战役造成约800人伤亡（含大量平民），市区30%建筑损毁。数据背后反映了反叛乱战争中军事目标与政治考量的矛盾，以及非正规武装在城市环境中的抵抗效能。",
+                stats: [
+                    { icon: "fas fa-building", value: "30%", label: "建筑损毁率" },
+                    { icon: "fas fa-calendar-days", value: "28天", label: "持续时间" },
+                    { icon: "fas fa-tank", value: "50+", label: "装甲车辆", },
+                    { icon: "fas fa-skull", value: "800+", label: "伤亡人数" }
+                ],
+                timeline: [
+                    { year: "2004年4月4日", event: "美军海军陆战队进入费卢杰，清剿杀害4名黑水公司承包商的武装分子，战役爆发。" },
+                    { year: "2004年4月10日", event: "武装分子利用诡雷和狙击手伏击美军，造成陆战队第1团重大伤亡。" },
+                    { year: "2004年4月15日", event: "伊拉克临时政府抗议美军行动造成平民伤亡，要求暂停进攻。" },
+                    { year: "2004年4月28日", event: "联合国安理会谴责费卢杰平民伤亡事件，美军宣布中止军事行动。" },
+                    { year: "2004年5月1日", event: "美军与伊拉克武装达成停火协议，全部撤出费卢杰，战役结束。" }
+                ],
+                charts: [
+                    {
+                        title: "双方力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["美军", "叛乱武装"],
+                            series: [
+                                { name: '正规军', data: [2000, 0] },
+                                { name: '非正规武装', data: [0, 3000] },
+                                { name: '重武器', data: [50, 10] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "战役各周伤亡趋势",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["第一周", "第二周", "第三周", "第四周"],
+                            series: [
+                                { name: '美军伤亡', data: [100, 150, 50, 20] },
+                                { name: '武装分子伤亡', data: [200, 150, 100, 30] },
+                                { name: '平民伤亡', data: [150, 200, 100, 50] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "反叛乱战争的困境",
+                    text: "第一次费卢杰战役的数据揭示了现代非对称战争的核心矛盾：美军每推进1公里平均造成30人伤亡，而武装分子利用平民混居环境将美军拖入道德困境。数据表明，传统军事优势在城市游击战中受到极大制约，政治考量往往优先于军事胜利。这场战役成为伊拉克战争的转折点，促使美军调整反叛乱策略，也暴露了占领军在处理平民保护与军事清剿关系上的短板。今天，这些数据仍为研究非正规战争中的规则制定与舆论战提供重要参考。",
+                    image: "https://images.unsplash.com/photo-1582906152981-01e781d66b30?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "幻影狂怒行动": {
+                title: "幻影狂怒行动数据分析",
+                period: "2004年11月7日 - 2004年12月23日",
+                subtitle: "基于军事记录的城市围剿、兵力投入与叛乱武装溃败可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "幻影狂怒行动（第二次费卢杰战役）是2004年伊拉克战争中美军对费卢杰市发动的决定性围剿行动，旨在彻底清除反美武装据点。本数据可视化基于美军第1海军陆战师与伊拉克叛乱武装的作战记录，展示了这场持续46天的高强度城市战的关键指标。数据显示，美军投入1.2万兵力，配合装甲部队与空中支援，对费卢杰实施全面封锁与清剿。叛乱武装约2000人依托预设工事抵抗，但因孤立无援最终溃败。战役造成约2000人伤亡（含平民），市区60%建筑损毁。数据背后反映了充分准备的城市攻坚战术对非正规武装的压制效果，以及火力优势在巷战中的决定性作用。",
+                stats: [
+                    { icon: "fas fa-building", value: "60%", label: "建筑损毁率" },
+                    { icon: "fas fa-calendar-days", value: "46天", label: "持续时间" },
+                    { icon: "fas fa-people-arrows", value: "1.2万", label: "美军投入兵力" },
+                    { icon: "fas fa-skull", value: "2000+", label: "伤亡人数" }
+                ],
+                timeline: [
+                    { year: "2004年11月7日", event: "美军完成对费卢杰的合围，疏散平民后发起全面进攻，幻影狂怒行动开始。" },
+                    { year: "2004年11月10日", event: "海军陆战队第1师突破城东防线，与武装分子展开逐屋争夺。" },
+                    { year: "2004年11月20日", event: "美军攻占费卢杰市政厅，建立前线指挥部，分割包围市中心武装分子。" },
+                    { year: "2004年12月5日", event: "空中支援摧毁武装分子最后据点，叛乱武装抵抗力度显著下降。" },
+                    { year: "2004年12月23日", event: "美军宣布控制费卢杰全境，战役以联军胜利告终，约1200名武装分子被俘。" }
+                ],
+                charts: [
+                    {
+                        title: "双方战术力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["美军", "叛乱武装"],
+                            series: [
+                                { name: '地面部队', data: [12000, 2000] },
+                                { name: '坦克/装甲车', data: [300, 5] },
+                                { name: '空中支援架次', data: [1500, 0] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "建筑损毁与伤亡关联",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["11月上旬", "11月中旬", "11月下旬", "12月上旬"],
+                            series: [
+                                { name: '建筑损毁率', data: [10, 30, 50, 60] },
+                                { name: '美军伤亡', data: [200, 300, 250, 100] },
+                                { name: '武装分子伤亡', data: [300, 500, 400, 200] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "城市攻坚的战术革新",
+                    text: "幻影狂怒行动的数据揭示了现代城市战的高效攻坚模式：美军通过提前疏散平民、分割包围战术，将每平方公里伤亡率控制在300人以内，较第一次费卢杰战役降低50%。数据表明，充分的情报准备（战前绘制1.2万栋建筑地图）、多军种协同（海军陆战队与空军实时联动）和心理战（投下20万份传单）是胜利的关键。这场战役成为美军反叛乱作战的典范，展示了如何在复杂城市环境中发挥正规军的体系优势。今天，这些数据仍被用于全球城市战训练与装备研发。",
+                    image: "https://images.unsplash.com/photo-1579043926626-11e7-80e3-9f4a7a7703b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "增兵行动": {
+                title: "增兵行动数据分析",
+                period: "2007年1月 - 2008年7月",
+                subtitle: "基于战略数据的兵力部署、安全指标与叛乱衰减可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "增兵行动是2007-2008年美军在伊拉克实施的战略调整，通过增派兵力与调整战术遏制日益恶化的安全局势。本数据可视化基于驻伊美军与伊拉克安全部队的行动记录，展示了这场持续18个月的战略转型的关键指标。数据显示，美军向伊拉克增派3. surge万人，与伊拉克部队协同实施'清剿-控制-建设'策略，在巴格达等热点地区建立联合安全区。行动期间，伊拉克暴力事件从每月1.2万起降至3000起，平民伤亡减少60%。数据背后反映了反叛乱战争中兵力密度、社区 engagement与政治和解的协同效应，以及短期军事增兵对长期安全局势的影响。",
+                stats: [
+                    { icon: "fas fa-people-arrows", value: "3. surge万", label: "增派兵力" },
+                    { icon: "fas fa-calendar-days", value: "18个月", label: "持续时间" },
+                    { icon: "fas fa-bell", value: "75%", label: "暴力事件下降" },
+                    { icon: "fas fa-building", value: "1000+", label: "安全区建立" }
+                ],
+                timeline: [
+                    { year: "2007年1月", event: "布什总统宣布向伊拉克增派2.1万美军，增兵行动正式启动。" },
+                    { year: "2007年3月", event: "首批增派部队抵达巴格达，开始与伊拉克军队联合清剿市区叛乱武装。" },
+                    { year: "2007年6月", event: "美军在安巴尔省与当地部落达成和解协议，'觉醒运动'开始兴起。" },
+                    { year: "2007年12月", event: "伊拉克暴力事件较年初下降50%，增兵效果初步显现。" },
+                    { year: "2008年7月", event: "最后一批增派部队撤离伊拉克，增兵行动结束，安全局势维持改善趋势。" }
+                ],
+                charts: [
+                    {
+                        title: "增兵期间关键指标变化",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["2007年1月", "2007年6月", "2007年12月", "2008年7月"],
+                            series: [
+                                { name: '美军兵力', data: [130000, 160000, 160000, 130000] },
+                                { name: '暴力事件/月', data: [12000, 8000, 4000, 3000] },
+                                { name: '平民伤亡/月', data: [3000, 2000, 1200, 1000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "各地区安全改善幅度",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["巴格达", "安巴尔", "巴士拉", "摩苏尔"],
+                            series: [
+                                { name: '暴力事件下降率', data: [70, 85, 50, 40] },
+                                { name: '美军巡逻密度', data: [60, 75, 40, 50] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "反叛乱战略的实践与争议",
+                    text: "增兵行动的数据揭示了现代反叛乱战争的核心逻辑：每增加1000名美军士兵，控制区域内暴力事件下降约15%，但增兵成本高达每月20亿美元。数据表明，安巴尔省的'部落和解'策略较巴格达的军事清剿更具成本效益，反映出政治手段在反叛乱中的决定性作用。这场行动虽然短期内改善了安全局势，但未能解决伊拉克深层的教派矛盾，为2014年ISIS崛起埋下隐患。今天，这些数据仍被用于辩论军事增兵在非传统安全威胁中的实际价值。",
+                    image: "https://images.unsplash.com/photo-1558863344-178062939244?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "巴士拉战役": {
+                title: "巴士拉战役数据分析",
+                period: "2008年3月25日 - 2008年4月8日",
+                subtitle: "基于地面战记录的伊拉克政府军攻坚、民兵抵抗与政治博弈可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "巴士拉战役是2008年伊拉克战争中伊拉克政府军对巴士拉市什叶派民兵发动的大规模清剿行动，旨在恢复政府控制权。本数据可视化基于伊拉克安全部队与'迈赫迪军'的作战记录，展示了这场持续14天的城市战的关键指标。数据显示，伊拉克政府投入3万兵力，在美军空中支援下进攻盘踞巴士拉的1.2万民兵。战役初期因指挥混乱与装备不足进展缓慢，后经调整战术于第10天控制市区。行动造成约1500人伤亡，市区基础设施损毁率达15%。数据背后反映了伊拉克军队在独立作战中的局限性，以及民兵组织在城市环境中的动员能力与政治影响力。",
+                stats: [
+                    { icon: "fas fa-building", value: "15%", label: "基础设施损毁率" },
+                    { icon: "fas fa-calendar-days", value: "14天", label: "持续时间" },
+                    { icon: "fas fa-people-arrows", value: "3万", label: "伊军投入兵力" },
+                    { icon: "fas fa-skull", value: "1500+", label: "伤亡人数" }
+                ],
+                timeline: [
+                    { year: "2008年3月25日", event: "伊拉克政府军发起'骑士冲锋'行动，从三个方向进攻巴士拉，战役爆发。" },
+                    { year: "2008年3月28日", event: "民兵利用巷战和诡雷阻滞伊军推进，政府军第6师遭遇重大伤亡。" },
+                    { year: "2008年4月1日", event: "美军出动阿帕奇直升机支援伊军，对民兵据点实施精确打击。" },
+                    { year: "2008年4月5日", event: "伊拉克政府与民兵达成停火协议，部分武装分子撤离巴士拉。" },
+                    { year: "2008年4月8日", event: "伊军宣布控制巴士拉全境，战役结束，但部分地区仍存在零星抵抗。" }
+                ],
+                charts: [
+                    {
+                        title: "双方力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["伊政府军", "迈赫迪军"],
+                            series: [
+                                { name: '正规军', data: [30000, 0] },
+                                { name: '民兵武装', data: [0, 12000] },
+                                { name: '重武器', data: [100, 20] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "战役阶段进展效率",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["第一阶段", "第二阶段", "第三阶段", "第四阶段"],
+                            series: [
+                                { name: '伊军推进速度(公里/天)', data: [1, 0.5, 1.5, 2] },
+                                { name: '日均伤亡', data: [200, 300, 150, 50] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "主权国家军队的能力考验",
+                    text: "巴士拉战役的数据揭示了新兴国家军队在城市战中的典型困境：伊军士兵人均训练时间不足3个月，导致第一阶段推进速度仅1公里/天，伤亡率是美军同期的2倍。数据表明，尽管拥有兵力和装备优势，但缺乏实战经验与高效指挥系统，使正规军在面对有组织民兵时难以快速取胜。这场战役暴露了伊拉克安全部队的建设短板，也凸显了外部支援（如美军空中打击）在提升本土军队作战效能中的关键作用。今天，这些数据仍为研究发展中国家军队现代化提供参考案例。",
+                    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "撤军阶段": {
+                title: "撤军阶段数据分析",
+                period: "2011年1月 - 2011年12月18日",
+                subtitle: "基于军事物流数据的装备回撤、兵力缩减与安全真空可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "撤军阶段是2011年美军从伊拉克全面撤离的过程，标志着持续8年的伊拉克战争正式结束。本数据可视化基于美军后勤记录与伊拉克安全局势报告，展示了这场持续11个月的战略撤军的关键指标。数据显示，美军从伊拉克回撤6000辆装甲车辆、1.2万件重型装备，遣散10万驻军。撤军后，伊拉克安全部队接管防务，但因准备不足导致暴力事件较2010年上升40%。数据背后反映了大规模军事撤离中的物流挑战、安全责任移交的风险，以及撤军决策与地区稳定的复杂关系。",
+                stats: [
+                    { icon: "fas fa-truck", value: "6000+", label: "装甲车辆回撤" },
+                    { icon: "fas fa-calendar-days", value: "11个月", label: "持续时间" },
+                    { icon: "fas fa-people-arrow-left", value: "10万", label: "撤军人数" },
+                    { icon: "fas fa-bell", value: "40%", label: "暴力事件上升" }
+                ],
+                timeline: [
+                    { year: "2011年1月", event: "美军开始从伊拉克北部撤军，首批2万兵力撤离至科威特。" },
+                    { year: "2011年6月", event: "美军完成驻巴格达大使馆以外的所有市区撤军，将安全责任移交伊军。" },
+                    { year: "2011年10月", event: "美军在伊拉克仅剩3.5万兵力，主要负责装备回撤与训练伊军。" },
+                    { year: "2011年11月", event: "奥巴马政府宣布12月底前完成全部撤军，伊拉克战争正式结束。" },
+                    { year: "2011年12月18日", event: "最后一支美军车队穿越伊科边境，标志着撤军阶段结束。" }
+                ],
+                charts: [
+                    {
+                        title: "撤军阶段关键指标",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["2011年1月", "2011年6月", "2011年10月", "2011年12月"],
+                            series: [
+                                { name: '驻伊美军', data: [100000, 50000, 35000, 0] },
+                                { name: '回撤装备(千件)', data: [0, 5, 10, 12] },
+                                { name: '伊拉克暴力事件/月', data: [2000, 2500, 2800, 2800] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "装备回撤物流数据",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["陆路运输", "铁路运输", "空中运输", "海运"],
+                            series: [
+                                { name: '装备数量', data: [3000, 1000, 500, 1500] },
+                                { name: '运输耗时(天)', data: [20, 30, 5, 45] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "战争终结与战略遗产",
+                    text: "撤军阶段的数据揭示了现代战争收尾的复杂挑战：美军通过'新黎明行动'完成史上规模最大的军事回撤，平均每天运输300件装备，但仍有10%装备因运输困难被遗留。数据表明，撤军后伊拉克安全部队的薄弱（仅40%部队具备独立作战能力）直接导致安全真空，为极端组织崛起创造条件。这场撤军不仅标志着伊拉克战争的结束，也留下深远的战略影响——如何在军事撤离后维持地区稳定，仍是现代国家面临的重要课题。今天，这些数据为研究战争善后与和平建设提供了关键参考。",
+                    image: "https://images.unsplash.com/photo-1562331940-9b0e939dba49?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "持久自由行动": {
+                title: "持久自由行动数据分析",
+                period: "2001年10月7日 - 2021年8月30日",
+                subtitle: "基于反恐战争数据的军事行动、伤亡与战略影响可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "持久自由行动是美国及其盟友在9·11事件后发起的反恐战争，主要目标是推翻塔利班政权和摧毁基地组织。本数据可视化基于20年冲突中的军事记录，展示了这场现代持久战的关键指标。数据显示，盟军投入超过130万兵力，进行了超20万次军事行动，消耗物资超6000亿美元。尽管初期迅速推翻塔利班，但后续游击战导致战争长期化。这场战争造成约37万人死亡，包括大量平民，是21世纪持续时间最长的武装冲突之一。数据背后反映了非对称战争、无人机战术和跨国反恐合作在现代战争中的挑战与影响。",
+                stats: [
+                    { icon: "fas fa-skull", value: "37万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "19年10个月", label: "持续时间" },
+                    { icon: "fas fa-dollar-sign", value: "6000亿美元", label: "军费消耗" },
+                    { icon: "fas fa-military-plane", value: "4.7万架", label: "无人机行动" }
+                ],
+                timeline: [
+                    { year: "2001年10月", event: "美军发起空袭，持久自由行动开始。塔利班政权迅速溃败，喀布尔于11月陷落。" },
+                    { year: "2002年3月", event: "蟒蛇行动展开，美军在加兹尼省与塔利班激战，首次大规模使用无人机战术。" },
+                    { year: "2006年", event: "赫尔曼德战役爆发，英军主导的行动陷入塔利班游击战陷阱，伤亡持续攀升。" },
+                    { year: "2011年5月", event: "海神之矛行动，美军海豹突击队突袭 Abbottabad  compound，击毙本·拉登。" },
+                    { year: "2021年8月", event: "喀布尔陷落，塔利班重新掌权，美军完成撤离，标志行动正式结束。" }
+                ],
+                charts: [
+                    {
+                        title: "历年军事行动频次",
+                        id: "operation-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["2001-2005", "2006-2010", "2011-2015", "2016-2020", "2021"],
+                            series: [
+                                { name: '联军行动', data: [30000, 60000, 50000, 40000, 5000] },
+                                { name: '塔利班袭击', data: [10000, 30000, 40000, 50000, 15000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "年度伤亡趋势",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["2001-2005", "2006-2010", "2011-2015", "2016-2020", "2021"],
+                            series: [
+                                { name: '联军伤亡', data: [5000, 12000, 8000, 4000, 200] },
+                                { name: '平民伤亡', data: [8000, 25000, 30000, 20000, 5000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "反恐战争的历史启示",
+                    text: "持久自由行动的数据揭示了现代非对称战争的复杂性：先进军事技术与游击战术的对抗、长期后勤保障的压力、以及战争目标与现实的落差。数据表明，尽管联军在装备和技术上占据绝对优势，但塔利班凭借本土作战优势和民众支持长期周旋。无人机作战的普及虽然减少了联军伤亡，却也因误炸平民加剧了反美情绪。这场战争的经验教训凸显了非传统安全威胁的长期性，以及军事手段与政治解决方案结合的重要性。20年的冲突代价提醒世人，现代战争的定义已超越传统战场，渗透到社会结构的深层。",
+                    image: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "托拉博拉战役": {
+                title: "托拉博拉战役数据分析",
+                period: "2001年12月1日 - 2001年12月17日",
+                subtitle: "阿富汗战争初期关键山地战的兵力部署与战术分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "托拉博拉战役是持久自由行动初期的关键山地战，目标是围剿据守兴都库什山脉洞穴群的基地组织与塔利班残余势力。本数据可视化基于美军特种部队与阿富汗北方联盟的作战记录，展示了这场持续17天的山地攻坚行动。数据显示，联军投入约1.2万兵力（含600名美军特种部队），面对约2000名武装分子的坚固防御。尽管联军拥有空中优势，但复杂地形导致地面推进缓慢。这场战役造成约800名武装分子死亡，12名美军阵亡，是本·拉登逃脱的关键转折点。数据背后反映了山地战中空中支援与地面协同的挑战，以及洞穴防御工事对现代军事技术的抵消作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "800+", label: "武装分子死亡" },
+                    { icon: "fas fa-calendar-days", value: "17天", label: "持续时间" },
+                    { icon: "fas fa-mountain", value: "1200米", label: "作战海拔" },
+                    { icon: "fas fa-bomb", value: "1500枚", label: "空袭弹药" }
+                ],
+                timeline: [
+                    { year: "2001年12月1日", event: "美军开始空袭托拉博拉山区，为北方联盟地面进攻开辟道路。" },
+                    { year: "2001年12月5日", event: "美军特种部队与北方联盟部队抵达山区边缘，遭遇洞穴群火力阻击。" },
+                    { year: "2001年12月10日", event: "联军发动首次大规模进攻，因地形复杂遭伏击，被迫撤退。" },
+                    { year: "2001年12月14日", event: "美军使用GBU-28钻地弹轰炸洞穴系统，但部分武装分子已通过隧道撤离。" },
+                    { year: "2001年12月17日", event: "联军控制托拉博拉主峰，但确认本·拉登已成功逃脱，战役结束。" }
+                ],
+                charts: [
+                    {
+                        title: "双方兵力对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["联军", "武装分子"],
+                            series: [
+                                { name: '地面部队', data: [12000, 2000] },
+                                { name: '空中支援', data: [150, 0] },
+                                { name: '重型武器', data: [50, 20] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "每日伤亡统计",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["第1-5天", "第6-10天", "第11-15天", "第16-17天"],
+                            series: [
+                                { name: '联军伤亡', data: [3, 5, 3, 1] },
+                                { name: '武装分子伤亡', data: [200, 300, 250, 50] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "山地洞穴战的战术教训",
+                    text: "托拉博拉战役的数据揭示了现代山地战的独特挑战：1200米的高海拔作战环境、洞穴防御工事的天然屏障、以及隧道网络带来的机动优势。尽管联军在兵力和火力上占据绝对优势（1500枚空袭弹药 vs 20门迫击炮），但复杂地形使得兵力优势难以转化为战场控制力。本·拉登的逃脱暴露了联军情报与地面协同的漏洞——特种部队与北方联盟的配合存在语言障碍和战术分歧，而钻地弹的使用虽摧毁地表工事，却未能完全封锁地下通道。这场战役成为反恐战争中的关键转折点，其教训直接影响了后续美军对特种作战与精确打击的战术调整。",
+                    image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "蟒蛇行动": {
+                title: "蟒蛇行动数据分析",
+                period: "2002年3月2日 - 2002年3月13日",
+                subtitle: "阿富汗战争中首次大规模联合特种作战的兵力部署与伤亡可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "蟒蛇行动是阿富汗战争中首次大规模联合特种作战，目标是清剿加兹尼省沙希科特山谷的塔利班与基地组织武装。本数据可视化基于美军、加拿大、澳大利亚特种部队及阿富汗政府军的作战记录，展示了这场持续11天的山地围剿行动。数据显示，联军投入约2000名特种部队与3000名阿富汗士兵，面对约1000名武装分子的预设阵地。战役中首次大规模使用无人机引导空袭，MQ-1捕食者首次执行击杀任务。这场战役造成约500名武装分子死亡，48名联军阵亡（含23名美军），是无人机战术在实战中的里程碑案例。数据背后反映了现代特种作战中多军种协同、无人机侦察与精确打击的整合模式。",
+                stats: [
+                    { icon: "fas fa-skull", value: "500+", label: "武装分子死亡" },
+                    { icon: "fas fa-calendar-days", value: "11天", label: "持续时间" },
+                    { icon: "fas fa-drone", value: "12架", label: "无人机投入" },
+                    { icon: "fas fa-bolt", value: "3小时", label: "平均空袭响应时间" }
+                ],
+                timeline: [
+                    { year: "2002年3月2日", event: "联军直升机机降特种部队至沙希科特山谷，遭遇武装分子伏击。" },
+                    { year: "2002年3月4日", event: "MQ-1捕食者首次在实战中发射地狱火导弹，击杀一名高级指挥官。" },
+                    { year: "2002年3月6日", event: "武装分子利用山洞和峡谷地形反击，联军陷入近战，伤亡攀升。" },
+                    { year: "2002年3月9日", event: "B-52轰炸机对山谷进行地毯式轰炸，为地面部队解围。" },
+                    { year: "2002年3月13日", event: "联军控制山谷核心区域，宣布行动结束，但部分武装分子已突围。" }
+                ],
+                charts: [
+                    {
+                        title: "各军种兵力占比",
+                        id: "military-chart",
+                        type: "pie",
+                        data: {
+                            categories: ["美军特种部队", "加澳特种部队", "阿富汗政府军", "武装分子"],
+                            series: [40, 20, 40, 100]
+                        }
+                    },
+                    {
+                        title: "无人机作战效能",
+                        id: "drone-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["侦察架次", "打击架次", "目标确认率", "误伤率"],
+                            series: [36, 12, 85, 15]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "无人机战争的里程碑",
+                    text: "蟒蛇行动的数据标志着无人机从侦察平台向攻击武器的转变：12架无人机执行了12次打击任务，目标确认率达85%，但15%的误伤率也暴露了技术局限。战役中，3小时的平均空袭响应时间体现了空地协同的效率，但特种部队与阿富汗政府军的配合仍存在漏洞——40%的联军伤亡发生在友军误伤或通讯延迟场景。沙希科特山谷的复杂地形（海拔2500米的峡谷）再次证明，即使拥有制空权，山地近战仍依赖地面部队的战术素养。这场战役为后续'猎杀-摧毁'作战模式奠定了基础，推动了无人机在反恐战争中的大规模应用。",
+                    image: "https://images.unsplash.com/photo-1573206598828-82c4e927e1f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "坎大哈围攻战": {
+                title: "坎大哈围攻战数据分析",
+                period: "2001年11月16日 - 2001年12月7日",
+                subtitle: "阿富汗战争初期首都攻坚战役的兵力部署与城市战分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "坎大哈围攻战是持久自由行动中夺取塔利班政权首都的关键战役，标志着塔利班统治的终结。本数据可视化基于美军第10山地师、海军陆战队与阿富汗北方联盟的作战记录，展示了这场持续21天的城市攻坚行动。数据显示，联军投入约1.5万兵力，面对约5000名塔利班守军的巷战防御。战役中，美军首次在城市环境中大规模使用AC-130炮艇机与精确制导炸弹，配合北方联盟的地面推进。这场战役造成约2000名塔利班士兵死亡，150名联军阵亡，成功占领坎大哈国际机场与市中心。数据背后反映了现代城市战中空中火力支援与地面清剿的协同模式，以及非正规军在城市防御中的战术特点。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2000+", label: "塔利班死亡" },
+                    { icon: "fas fa-calendar-days", value: "21天", label: "持续时间" },
+                    { icon: "fas fa-building", value: "30%", label: "城市损毁率" },
+                    { icon: "fas fa-plane", value: "500架次", label: "空袭架次" }
+                ],
+                timeline: [
+                    { year: "2001年11月16日", event: "联军完成对坎大哈的合围，开始外围清剿行动。" },
+                    { year: "2001年11月20日", event: "AC-130炮艇机首次对城市边缘据点进行夜间轰炸。" },
+                    { year: "2001年11月25日", event: "塔利班发动自杀式袭击，联军伤亡上升，暂停正面进攻。" },
+                    { year: "2001年12月1日", event: "联军改变战术，通过地道渗透至市中心，与塔利班展开巷战。" },
+                    { year: "2001年12月7日", event: "塔利班最高领导人奥马尔逃离坎大哈，联军宣布控制全城。" }
+                ],
+                charts: [
+                    {
+                        title: "城市战阶段伤亡分布",
+                        id: "casualty-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["外围战", "空袭阶段", "巷战", "清剿"],
+                            series: [
+                                { name: '联军伤亡', data: [30, 20, 90, 10] },
+                                { name: '塔利班伤亡', data: [500, 700, 600, 200] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "武器使用占比",
+                        id: "weapon-chart",
+                        type: "pie",
+                        data: {
+                            categories: ["精确制导炸弹", "炮艇机火力", "地面炮火", "轻武器"],
+                            series: [40, 30, 20, 10]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "现代城市战的血与火",
+                    text: "坎大哈围攻战的数据揭示了城市环境对现代战争的重塑：30%的城市损毁率背后，是精确制导武器与巷战残酷性的矛盾——AC-130的夜间轰炸虽压制了塔利班据点，却也导致大量平民流离失所。战役中，90%的联军伤亡发生在巷战阶段，暴露了正规军在复杂建筑环境中的战术短板。塔利班利用地道网络和自杀式袭击，以5000兵力拖延1.5万联军21天，证明非正规军在城市防御中的韧性。这场战役为后续伊拉克费卢杰战役提供了教训，推动了美军城市战手册的修订，强调'非对称巷战'中情报整合与平民保护的重要性。",
+                    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "赫尔曼德战役": {
+                title: "赫尔曼德战役数据分析",
+                period: "2006年5月 - 2014年10月",
+                subtitle: "阿富汗战争中最漫长山地游击战的兵力轮换与伤亡趋势可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "赫尔曼德战役是阿富汗战争中持续时间最长、最残酷的山地游击战，主战场位于赫尔曼德省的河谷与山区。本数据可视化基于英军、美军及阿富汗国民军的年度作战记录，展示了这场持续8年5个月的消耗战。数据显示，联军累计投入20万兵力（含10万英军），面对约3万塔利班游击队员的袭扰战术。战役中，塔利班利用IED（简易爆炸装置）造成联军70%的伤亡，而联军则依靠空中支援和火力覆盖进行反制。这场战争造成约2.5万联军伤亡（含453名英军、2220名美军），10万阿富汗平民流离失所，是典型的'治安战'消耗模式。数据背后反映了现代低强度冲突中后勤补给、心理战与民众支持的决定性作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "2.5万+", label: "联军伤亡" },
+                    { icon: "fas fa-calendar-days", value: "8年5个月", label: "持续时间" },
+                    { icon: "fas fa-bomb", value: "10万+", label: "IED袭击" },
+                    { icon: "fas fa-truck", value: "500万吨", label: "物资运输" }
+                ],
+                timeline: [
+                    { year: "2006年5月", event: "英军第16空中突击旅进驻赫尔曼德，战役开始，遭遇首次大规模伏击。" },
+                    { year: "2008年", event: "塔利班加强IED战术，联军伤亡同比上升40%，开始修建防御工事。" },
+                    { year: "2010年", event: "美军增兵3万至赫尔曼德，发起'Moshtarak行动'，试图清剿塔利班据点。" },
+                    { year: "2012年", event: "联军开始向阿富汗国民军移交防务，但遇袭事件未见减少。" },
+                    { year: "2014年10月", event: "最后一支英军部队撤离赫尔曼德，战役以联军战略收缩告终。" }
+                ],
+                charts: [
+                    {
+                        title: "年度伤亡趋势",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["2006", "2008", "2010", "2012", "2014"],
+                            series: [
+                                { name: '联军伤亡', data: [2000, 5000, 8000, 6000, 4000] },
+                                { name: '塔利班伤亡', data: [3000, 6000, 9000, 7000, 5000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "武器杀伤占比",
+                        id: "weapon-chart",
+                        type: "pie",
+                        data: {
+                            categories: ["IED", "轻武器", "火箭弹", "空袭", "其他"],
+                            series: [70, 15, 10, 4, 1]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "治安战的泥潭与启示",
+                    text: "赫尔曼德战役的数据勾勒出现代治安战的典型困境：8年5个月的持续冲突中，70%的联军伤亡来自IED袭击，暴露了高科技装备在非对称战争中的局限性。500万吨物资运输量（相当于每天1700吨）的后勤压力，使得联军军费消耗呈指数级增长，而10万平民流离失所则加剧了当地反美情绪。战役后期，尽管联军向阿富汗国民军移交了防务，但缺乏民众支持的政府军难以有效控制局势。这场战役证明，在低强度冲突中，军事手段只能解决部分问题，而政治和解与民生改善才是破局关键——这一教训对后续全球反恐战略产生了深远影响。",
+                    image: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "海神之矛行动": {
+                title: "海神之矛行动数据分析",
+                period: "2011年5月1日 - 2011年5月2日",
+                subtitle: "斩首行动中的特种作战精度与情报整合可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "海神之矛行动是美军海豹突击队针对本·拉登的斩首行动，是现代特种作战的标志性案例。本数据可视化基于美军特种作战司令部的解密记录，展示了这场持续24小时的精确行动。数据显示，美军投入24名海豹六队队员，搭乘2架改进型黑鹰直升机，在CIA情报支持下突袭巴基斯坦 Abbottabad  compound。行动中，突击队仅用40分钟完成清场，击毙本·拉登及4名随从，自身无伤亡（1架直升机因机械故障坠毁，队员安全撤离）。这场行动的情报准备耗时6年，无人机侦察超300次，是情报、技术与战术完美结合的典范。数据背后反映了现代特种作战中跨部门协作、精确情报与隐形技术的决定性作用。",
+                stats: [
+                    { icon: "fas fa-user-shield", value: "24名", label: "突击队员" },
+                    { icon: "fas fa-clock", value: "40分钟", label: "行动耗时" },
+                    { icon: "fas fa-eye", value: "6年", label: "情报准备" },
+                    { icon: "fas fa-database", value: "1.5TB", label: "情报数据" }
+                ],
+                timeline: [
+                    { year: "2011年5月1日23:30", event: "2架黑鹰直升机从贾拉拉巴德基地起飞，潜入巴基斯坦领空。" },
+                    { year: "2011年5月2日00:02", event: "直升机因气流问题在院落墙外坠毁，队员紧急跳伞进入目标区域。" },
+                    { year: "2011年5月2日00:10", event: "突击队突破院落大门，逐层清剿，在三楼卧室击毙本·拉登。" },
+                    { year: "2011年5月2日00:40", event: "完成证据搜集，携带本·拉登尸体撤离，炸毁坠毁直升机。" },
+                    { year: "2011年5月2日01:30", event: "突击队返回基地，行动全程未遭巴基斯坦军方拦截。" }
+                ],
+                charts: [
+                    {
+                        title: "行动阶段时间分配",
+                        id: "time-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["渗透", "突入", "清剿", "撤离"],
+                            series: [32, 8, 22, 38]
+                        }
+                    },
+                    {
+                        title: "情报来源占比",
+                        id: "intel-chart",
+                        type: "pie",
+                        data: {
+                            categories: ["信号情报", "人力情报", "卫星侦察", "无人机监视"],
+                            series: [30, 20, 25, 25]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "斩首行动的技术革命",
+                    text: "海神之矛行动的数据刷新了现代特种作战的定义：40分钟完成斩首任务的背后，是6年情报积累（1.5TB数据）与跨部门协作的成果。改进型黑鹰直升机的隐形技术使其突破巴基斯坦雷达网，而CIA的'缄默圈'情报运作模式确保了行动保密。战役中，坠毁的直升机虽暴露技术细节，但队员的应急处理（炸毁残骸）与备用方案（第二架直升机接应）体现了预案的完整性。这场行动证明，在信息时代，精确情报与战术执行的结合能够以最小代价达成战略目标——其模式被后续针对巴格达迪的'伊德利卜行动'直接复制，成为反恐特种作战的标准范式。",
+                    image: "https://images.unsplash.com/photo-1501196381091-6a5e302763aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "喀布尔陷落": {
+                title: "喀布尔陷落数据分析",
+                period: "2021年8月13日 - 2021年8月15日",
+                subtitle: "阿富汗战争终结的权力真空与混乱撤离可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "喀布尔陷落是阿富汗战争的戏剧性终结，标志着塔利班政权的重新崛起与美军20年干预的失败。本数据可视化基于现场报道、美军撤离记录与塔利班行动日志，展示了这场持续72小时的权力真空事件。数据显示，美军在72小时内紧急撤离约12.4万人（含6万阿富汗盟友），动用C-17运输机执行600架次飞行，创下单机场撤离人数纪录。与此同时，塔利班武装以闪电攻势推进，未遇大规模抵抗即控制喀布尔，暴露了阿富汗政府军的崩溃速度。这场事件造成至少170人死亡（含13名美军士兵），超10万阿富汗人涌入机场寻求撤离，引发全球震惊。数据背后反映了现代战争中政权崩溃的突发性、大规模撤离的组织挑战，以及民心向背对战争结局的决定性影响。",
+                stats: [
+                    { icon: "fas fa-skull", value: "170+", label: "死亡人数" },
+                    { icon: "fas fa-clock", value: "72小时", label: "政权更迭" },
+                    { icon: "fas fa-plane", value: "600架次", label: "撤离飞行" },
+                    { icon: "fas fa-people-arrows", value: "12.4万", label: "撤离人数" }
+                ],
+                timeline: [
+                    { year: "2021年8月13日", event: "塔利班攻占喀布尔周边省份，阿富汗总统加尼逃离首都。" },
+                    { year: "2021年8月14日", event: "美军开始在喀布尔机场实施紧急撤离，民众冲破安检涌入跑道。" },
+                    { year: "2021年8月15日上午", event: "塔利班武装进入喀布尔市区，占领总统府，未遇抵抗。" },
+                    { year: "2021年8月15日下午", event: "美军增派5000兵力守卫机场，实施戒严并鸣枪示警。" },
+                    { year: "2021年8月15日夜间", event: "塔利班宣布成立临时政府，喀布尔全面陷落，撤离行动在混乱中持续。" }
+                ],
+                charts: [
+                    {
+                        title: "撤离阶段人数统计",
+                        id: "evac-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["8月13日", "8月14日", "8月15日"],
+                            series: [12000, 45000, 67000]
+                        }
+                    },
+                    {
+                        title: "权力真空期事件分布",
+                        id: "event-chart",
+                        type: "pie",
+                        data: {
+                            categories: ["撤离行动", "民众涌入", "塔利班推进", "暴力事件"],
+                            series: [40, 35, 20, 5]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "帝国坟场的再一次证明",
+                    text: "喀布尔陷落的数据揭示了现代战争中最残酷的真相：72小时的政权崩溃，暴露了20年军事干预在民心向背面前的脆弱性。12.4万人的紧急撤离创下历史纪录，而C-17运输机单次运载823人的超载案例（正常载重130人），凸显了撤离行动的绝望与混乱。阿富汗政府军的崩溃速度（塔利班推进日均150公里）远超美军预期，其背后是腐败、士气低落与民众疏离的长期积累。这场事件成为21世纪最具象征性的战略失败，印证了阿富汗'帝国坟场'的历史魔咒——无论军事技术多么先进，缺乏政治共识与民众支持的战争终将走向终结。",
+                    image: "https://images.unsplash.com/photo-1558857344-569995659591?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "太平洋战争": {
+                title: "太平洋战争数据分析",
+                period: "1941年12月7日 - 1945年9月2日",
+                subtitle: "基于历史数据的海战损失、岛屿作战与战略分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "太平洋战争是第二次世界大战中以太平洋地区为主要战场的大规模军事冲突，始于日本偷袭珍珠港。本数据可视化基于美日双方的军事记录，展示了这场持续近4年的战争中的关键指标。数据显示，双方在广阔的太平洋海域和岛屿上展开激烈争夺，美军凭借工业优势和岛链战术逐步推进。中途岛战役、瓜达尔卡纳尔战役等关键战役扭转了战局，最终以日本投降告终。这场战争造成了约1500万人伤亡，是海战与岛屿登陆战的经典案例。数据背后反映了海军力量、后勤补给和战略资源在远洋战争中的决定性作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "1500万", label: "伤亡人数" },
+                    { icon: "fas fa-calendar-days", value: "3年8个月", label: "持续时间" },
+                    { icon: "fas fa-ship", value: "1200+", label: "舰艇损失" },
+                    { icon: "fas fa-island", value: "500+", label: "岛屿争夺" }
+                ],
+                timeline: [
+                    { year: "1941年12月", event: "日本偷袭珍珠港，太平洋战争爆发。同时日军进攻菲律宾、关岛等太平洋岛屿，美军初期损失惨重。" },
+                    { year: "1942年6月", event: "中途岛战役，美军海军航空兵摧毁日本四艘航母，成为太平洋战争的转折点，日军丧失战略主动权。" },
+                    { year: "1942年8月", event: "瓜达尔卡纳尔战役开始，美日双方在岛屿展开长达半年的拉锯战，美军最终控制瓜岛，开启反攻序幕。" },
+                    { year: "1944年6月", event: "马里亚纳海战（菲律宾海海战），美军航母舰队重创日军，取得西太平洋制海权，为登陆菲律宾奠定基础。" },
+                    { year: "1945年8月", event: "美军在广岛、长崎投放原子弹，日本于9月2日签署投降书，太平洋战争结束。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["美国", "日本"],
+                            series: [
+                                { name: '航母', data: [150, 29] },
+                                { name: '战列舰', data: [102, 12] },
+                                { name: '海军兵力', data: [3500000, 1850000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战役伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["珍珠港事件", "中途岛战役", "瓜达尔卡纳尔战役", "冲绳战役"],
+                            series: [
+                                { name: '美军伤亡', data: [4200, 3070, 7100, 72000] },
+                                { name: '日军伤亡', data: [64, 30576, 31000, 117000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "远洋战争的历史意义",
+                    text: "太平洋战争的数据揭示了现代远洋战争的关键要素：航母战斗群的战略作用、岛屿后勤补给的复杂性、以及工业产能对战争持续力的影响。数据表明，尽管日军在战争初期凭借战术优势取得胜利，但美军通过庞大的工业生产能力和资源整合最终赢得战争。中途岛战役的胜利证明了情报工作与海军航空兵的决定性作用，而冲绳战役的惨烈则凸显了登陆作战的巨大代价。这场战争不仅重塑了太平洋地区的地缘政治格局，也为现代海战理论提供了宝贵的实践经验。",
+                    image: "zz/zz西班牙内战.jpg"
+                }
+            },
+            "大西洋海战": {
+                title: "大西洋海战数据分析",
+                period: "1939年9月3日 - 1945年5月8日",
+                subtitle: "基于历史数据的潜艇战、护航作战与海上霸权分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "大西洋海战是第二次世界大战中持续时间最长的海上战役，主要围绕盟军与轴心国在大西洋的航运控制权展开。本数据可视化基于双方的海战记录，展示了这场贯穿战争全程的战役中的关键指标。数据显示，德国U型潜艇部队初期凭借“狼群战术”重创盟军航运，但随着盟军反潜技术升级、护航体系完善及兵力投入增加，逐步掌握大西洋制海权。这场战争造成了约7万商船船员死亡，3500余艘商船被击沉，是海战史上规模最大的潜艇战与护航战。数据背后反映了反潜技术、情报破译和护航战略在现代海战中的重要作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "7万", label: "商船船员死亡" },
+                    { icon: "fas fa-calendar-days", value: "5年8个月", label: "持续时间" },
+                    { icon: "fas fa-submarine", value: "780", label: "U型潜艇损失" },
+                    { icon: "fas fa-ship", value: "3500+", label: "商船沉没" }
+                ],
+                timeline: [
+                    { year: "1939年9月", event: "德国U-30潜艇击沉英国商船“雅典娜”号，大西洋战役序幕拉开。德军初期采用单艇作战，重创盟军航运。" },
+                    { year: "1940年7月", event: "德军启用“狼群战术”，多艘潜艇协同攻击盟军护航船队，进入“第一段幸福时光”，每月击沉商船超50万吨。" },
+                    { year: "1941年12月", event: "美国参战，大西洋战场范围扩大。盟军开始建立跨大西洋护航体系，反潜兵力逐步增强。" },
+                    { year: "1943年5月", event: "盟军在“黑色五月”重创德国潜艇部队，单月击沉31艘U型潜艇，德军被迫暂停北大西洋狼群作战，战役转折点出现。" },
+                    { year: "1945年5月", event: "德国投降，大西洋战役结束。盟军最终确保了大西洋航运安全，为欧洲战场物资输送奠定基础。" }
+                ],
+                charts: [
+                    {
+                        title: "双方关键力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["盟军", "轴心国"],
+                            series: [
+                                { name: '反潜舰艇', data: [2800, 400] },
+                                { name: '护航飞机', data: [3000, 500] },
+                                { name: '潜艇', data: [200, 1162] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "年度商船损失量",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["1939年", "1940年", "1941年", "1942年", "1943年", "1944-1945年"],
+                            series: [
+                                { name: '盟军商船损失（万吨）', data: [400, 700, 400, 830, 260, 50] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "潜艇战与护航战的启示",
+                    text: "大西洋战役的数据揭示了现代海战中制海权与航运安全的核心逻辑：潜艇的隐蔽性与集群战术曾一度改变海战规则，但反潜技术（如雷达、声呐、刺猬炮）的进步与护航体系的完善最终扭转了战局。数据表明，恩尼格玛密码的破译（Ultra情报）对盟军掌握德军潜艇动向起到决定性作用，而护航航母与远程反潜飞机的投入则彻底瓦解了“狼群战术”。这场战役不仅保障了盟军的物资运输，也为后世海战提供了重要启示：现代海战是技术、情报、战略与后勤的综合较量，单一武器优势难以改变整体战局。",
+                    image: "zz/zz西班牙内战.jpg"
+                }
+            },
+            "缅甸战役": {
+                title: "缅甸战役数据分析",
+                period: "1941年12月23日 - 1945年3月30日",
+                subtitle: "基于历史数据的丛林战、跨国协同与后勤挑战分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "缅甸战役是第二次世界大战中盟军在东南亚战场的重要军事行动，旨在保卫英属缅甸、维持中国国际补给线（滇缅公路）并牵制日军。本数据可视化基于中、英、美盟军与日军的作战记录，展示了这场持续近4年的战役中的关键指标。数据显示，盟军在复杂的丛林地形中面临日军的顽强抵抗，初期因指挥混乱和装备劣势节节败退，1943年后通过跨国协同（中国远征军、英印军、美军特种部队）和后勤升级逐步反攻。这场战争造成了约180万人伤亡，是丛林战与跨国联合作战的典型案例。数据背后反映了地形环境、后勤补给和国际合作在现代战争中的重要影响。",
+                stats: [
+                    { icon: "fas fa-skull", value: "180万", label: "伤亡人数" },
+                    { icon: "fas fa-calendar-days", value: "3年3个月", label: "持续时间" },
+                    { icon: "fas fa-tree", value: "60万平方公里", label: "作战区域" },
+                    { icon: "fas fa-truck", value: "400万吨", label: "物资运输" }
+                ],
+                timeline: [
+                    { year: "1941年12月", event: "日军入侵缅甸，缅甸战役爆发。日军迅速占领仰光，切断滇缅公路，中国国际补给线受阻。" },
+                    { year: "1942年3月", event: "中国远征军首次入缅作战，在同古、仁安羌等地与日军激战，但因英军撤退陷入孤立，被迫撤回中国或印度。" },
+                    { year: "1943年10月", event: "盟军发动缅北反攻，中国驻印军从利多出发，在美军配合下进攻胡康河谷，拉开缅北滇西反攻序幕。" },
+                    { year: "1944年5月", event: "中国远征军从滇西发起反攻，强渡怒江，进攻松山、腾冲等日军据点，与缅北驻印军形成夹击之势。" },
+                    { year: "1945年3月", event: "盟军收复曼德勒，日军全面溃败。3月30日，中、英、美军队在乔梅会师，缅甸战役基本结束。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["盟军", "日军"],
+                            series: [
+                                { name: '陆军兵力', data: [1200000, 300000] },
+                                { name: '坦克', data: [800, 200] },
+                                { name: '飞机', data: [1500, 500] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战役伤亡人数",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["同古战役", "仁安羌战役", "缅北反攻", "滇西反攻", "曼德勒战役"],
+                            series: [
+                                { name: '盟军伤亡', data: [7000, 1500, 25000, 40000, 15000] },
+                                { name: '日军伤亡', data: [4500, 1200, 30000, 25000, 40000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "丛林战的挑战与跨国合作",
+                    text: "缅甸战役的数据揭示了热带丛林环境下战争的独特困难：茂密植被导致视野受限、疾病（疟疾、伤寒）造成非战斗减员、复杂地形严重制约后勤运输。数据表明，盟军初期失败的重要原因是缺乏丛林战经验与跨国指挥协调，而后期胜利则依赖于美军后勤支援（如“驼峰航线”物资输送）、中国远征军的战术升级（如步炮协同）以及英军的山地战经验。仁安羌解围战与缅北反攻战的数据显示，精锐部队（如中国驻印军新38师、美军“梅里尔掠夺者”）在丛林环境下的机动能力对战役结果至关重要。这场战役也凸显了国际合作的复杂性，为后世跨国联合作战提供了宝贵教训。",
+                    image: "zz/zz西班牙内战.jpg"
+                }
+            },
+            "法国战役": {
+                title: "法国战役数据分析",
+                period: "1940年5月10日 - 1940年6月22日",
+                subtitle: "基于历史数据的闪电战、装甲突破与西线崩溃分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "法国战役是第二次世界大战中德军在西线发动的大规模攻势，旨在征服法国、比利时、荷兰等西欧国家。本数据可视化基于德法双方的军事记录，展示了这场仅持续42天的战役中的关键指标。数据显示，德军采用“闪电战”战术，以装甲部队为先锋突破阿登森林，绕过马奇诺防线，迅速分割盟军防线。法军虽在兵力和装备上不占绝对劣势，但因指挥僵化、战术落后而节节败退。这场战争造成了约50万人伤亡，法国政府投降，西欧大陆基本落入德军之手。数据背后反映了装甲战术、空中支援和战略欺骗在现代战争中的决定性作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "50万", label: "伤亡人数" },
+                    { icon: "fas fa-calendar-days", value: "42天", label: "持续时间" },
+                    { icon: "fas fa-tank", value: "2400", label: "德军坦克投入" },
+                    { icon: "fas fa-flag", value: "3", label: "关键突破点" }
+                ],
+                timeline: [
+                    { year: "1940年5月10日", event: "德军发动“黄色方案”，同时入侵荷兰、比利时、卢森堡，法国战役爆发。德军空降部队抢占桥梁，装甲部队迅速推进。" },
+                    { year: "1940年5月12日", event: "德军装甲集群突破阿登森林，进入法国北部，盟军主力被吸引至比利时，德军形成“曼施坦因计划”的关键突破。" },
+                    { year: "1940年5月26日", event: "敦刻尔克大撤退开始，盟军约33.8万人从敦刻尔克撤回英国，丢弃大量装备，法国北部防线崩溃。" },
+                    { year: "1940年6月5日", event: "德军发动“红色方案”，全面进攻法国本土。法军依托索姆河防线抵抗，但无法阻挡德军装甲部队的迂回包抄。" },
+                    { year: "1940年6月22日", event: "法国政府在贡比涅森林签署投降书，法国战役结束。德军占领法国北部和西部，南部成立维希傀儡政府。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["德国", "法国+盟军"],
+                            series: [
+                                { name: '陆军师', data: [136, 142] },
+                                { name: '坦克', data: [2439, 3142] },
+                                { name: '飞机', data: [3824, 1400] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "战役各阶段德军推进速度",
+                        id: "casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["第一周", "第二周", "第三周", "第四周", "第五周", "第六周"],
+                            series: [
+                                { name: '日均推进距离（公里）', data: [50, 60, 40, 30, 25, 15] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "闪电战的经典与西线崩溃",
+                    text: "法国战役的数据揭示了现代装甲战争的革命性意义：德军通过集中使用坦克集群（古德里安第19装甲军等）与空军（戈林空军部队）协同，实现了战术突然性与战略突破。数据显示，尽管法军坦克数量更多，但分散配置与步兵协同战术落后于德军的“装甲矛头”理论，阿登森林的突破更是打破了盟军对地形屏障的依赖。敦刻尔克大撤退的成功虽保留了有生力量，但也暴露了盟军指挥系统的混乱。这场战役的速胜不仅改变了欧洲政治格局，也让“闪电战”成为现代战争的标志性战术，其经验深刻影响了后续战争的形态与军事理论的发展。",
+                    image: "zz/zz西班牙内战.jpg"
+                }
+            },
+            "朝鲜南侵": {
+                title: "朝鲜南侵数据分析",
+                period: "1950年6月25日",
+                subtitle: "基于历史数据的战争爆发与初期推进分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "1950年6月25日朝鲜军队越过三八线向南进攻，标志着朝鲜战争正式爆发。本可视化基于联合国军情报记录，展示战争初期的关键军事指标。朝鲜人民军投入13.5万兵力，配备T-34坦克和重型火炮，在战争爆发后72小时内突破韩军防线。数据显示朝鲜军队凭借突然袭击和装备优势，三周内占领汉城并控制朝鲜半岛90%领土。战争爆发后联合国安理会通过第82号决议，为后续国际干预奠定法律基础。",
+                stats: [
+                    { icon: "fas fa-skull", value: "11万", label: "首月伤亡" },
+                    { icon: "fas fa-tank", value: "150+", label: "坦克数量" },
+                    { icon: "fas fa-running", value: "72小时", label: "突破防线" },
+                    { icon: "fas fa-flag", value: "90%", label: "领土控制" }
+                ],
+                timeline: [
+                    { year: "1950年6月25日", event: "朝鲜军队在三八线多个地段发动全面进攻，使用重型火炮和坦克集群突破韩军防线" },
+                    { year: "1950年6月28日", event: "朝鲜军队攻占汉城，韩军主力遭受重创，开始向南溃退" },
+                    { year: "1950年7月5日", event: "美军史密斯特遣队在乌山首次接战，被朝鲜T-34坦克击溃" },
+                    { year: "1950年7月20日", event: "朝鲜军队占领大田，俘虏美军第24师师长迪安少将" },
+                    { year: "1950年8月初", event: "联合国军被压缩至釜山防御圈，仅控制朝鲜半岛东南部10%领土" }
+                ],
+                charts: [
+                    {
+                        title: "初期兵力对比",
+                        id: "initial-force-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["朝鲜", "韩国"],
+                            series: [
+                                { name: '陆军兵力', data: [135000, 98000] },
+                                { name: '坦克数量', data: [150, 0] },
+                                { name: '作战飞机', data: [180, 22] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "领土控制变化",
+                        id: "territory-chart",
+                        type: "line",
+                        data: {
+                            categories: ["开战日", "第3天", "第10天", "第30天"],
+                            series: [
+                                { name: '朝鲜控制区', data: [50, 70, 85, 90] },
+                                { name: '韩国控制区', data: [50, 30, 15, 10] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "闪电战的现代启示",
+                    text: "朝鲜南侵的数据展示了现代化装甲部队在突破作战中的决定性作用。尽管韩国军队数量相当，但在坦克和重炮方面的绝对劣势导致防线迅速崩溃。数据揭示突袭作战的关键要素：战前伪装达成战略突然性、装甲集群的集中使用、以及后续步兵的快速跟进。这场进攻也暴露了轻型步兵对抗装甲部队的无力，促使联合国军后续优先部署反坦克武器。朝鲜的初期成功最终因后勤线过长和联合国军介入而逆转，成为现代战争中'进攻顶点'理论的典型案例。",
+                    image: "https://images.unsplash.com/photo-1620476214170-1d8080f65cdb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "仁川登陆": {
+                title: "仁川登陆数据分析",
+                period: "1950年9月15日",
+                subtitle: "基于历史数据的两栖作战与战略逆转分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "1950年9月15日麦克阿瑟指挥联合国军在仁川实施两栖登陆，彻底扭转朝鲜战局。本可视化基于美军作战报告，展示这场高风险军事行动的决策与执行数据。联合国军投入261艘舰艇和7万兵力，在潮汐窗口仅3小时的极端条件下成功登陆。数据显示登陆部队12小时内建立滩头阵地，14天收复汉城，切断朝鲜军队主要补给线。这场战役将朝鲜军队主力包围在南方，使联合国军从釜山防御圈转入全面反攻。",
+                stats: [
+                    { icon: "fas fa-ship", value: "261艘", label: "登陆舰艇" },
+                    { icon: "fas fa-tachometer-alt", value: "3小时", label: "潮汐窗口" },
+                    { icon: "fas fa-arrows-alt-h", value: "72小时", label: "切断补给线" },
+                    { icon: "fas fa-calendar-check", value: "14天", label: "收复汉城" }
+                ],
+                timeline: [
+                    { year: "1950年9月15日", event: "联合国军舰队在月尾岛实施炮火准备，陆战队员乘登陆艇冲击泥滩" },
+                    { year: "1950年9月15日", event: "首批部队6:30登陆绿滩，遭遇顽强抵抗但成功建立滩头阵地" },
+                    { year: "1950年9月16日", event: "登陆部队占领金浦机场，获得空中补给能力" },
+                    { year: "1950年9月22日", event: "美军第1陆战师和第7步兵师完成会师，形成完整战线" },
+                    { year: "1950年9月28日", event: "联合国军收复汉城，朝鲜军队主力补给线被完全切断" }
+                ],
+                charts: [
+                    {
+                        title: "登陆部队构成",
+                        id: "landing-force-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["海军陆战队", "陆军部队", "韩国部队"],
+                            series: [
+                                { name: '作战人员', data: [23000, 40000, 7000] },
+                                { name: '坦克车辆', data: [87, 120, 15] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "战役成果对比",
+                        id: "result-chart",
+                        type: "line",
+                        data: {
+                            categories: ["登陆日", "第3天", "第7天", "第14天"],
+                            series: [
+                                { name: '控制区域(平方公里)', data: [15, 85, 350, 1200] },
+                                { name: '歼灭敌军', data: [500, 3500, 12000, 28000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "战略冒险的军事艺术",
+                    text: "仁川登陆的数据展示了两栖作战的精密计算与高风险决策。潮汐数据揭示行动窗口期每天仅3小时，登陆艇必须在狭窄航道穿越布满水雷的海域。成功的关键在于精确的潮汐预测、充分的火力准备和快速的纵深突破。这场战役成为现代战争史上最成功的战略迂回行动，数据显示联合国军以伤亡1200人的代价歼灭2.8万敌军。更重要的是，它彻底切断了朝鲜军队的补给动脉，使南方战线的朝鲜主力部队陷入绝境。仁川登陆证明了在充分情报支持下，高风险作战可以带来战略级回报，至今仍是军事院校研究的经典案例。",
+                    image: "https://images.unsplash.com/photo-1561983777-0e0f0b6b454b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "长津湖战役": {
+                title: "长津湖战役数据分析",
+                period: "1950年11月27日-12月13日",
+                subtitle: "基于历史数据的极端环境作战分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "长津湖战役是朝鲜战争中最惨烈的山地作战，中国人民志愿军第9兵团与美军第10军在零下40度严寒中展开生死对决。本可视化基于战场气象记录和参战方报告，展示极端环境下的作战数据。战役期间气温骤降至-40°C，志愿军投入15万兵力实施分割包围，美军陆战1师在航空火力支援下突围。数据显示双方非战斗减员超过战斗伤亡，严寒成为比敌军更致命的杀手。这场战役彻底改变了联合国军的进攻计划，迫使全线后撤。",
+                stats: [
+                    { icon: "fas fa-thermometer-empty", value: "-40°C", label: "最低气温" },
+                    { icon: "fas fa-snowflake", value: "70%", label: "冻伤减员" },
+                    { icon: "fas fa-mountain", value: "1200米", label: "平均海拔" },
+                    { icon: "fas fa-skull", value: "4.8万", label: "总伤亡" }
+                ],
+                timeline: [
+                    { year: "1950年11月27日", event: "志愿军第9兵团夜间突袭，将美军陆战1师分割包围在长津湖地区" },
+                    { year: "1950年11月28日", event: "柳潭里、新兴里、下碣隅里三个包围圈形成，美军依靠空中补给维持" },
+                    { year: "1950年12月1日", event: "志愿军全歼新兴里美军第31团级战斗队（北极熊团）" },
+                    { year: "1950年12月6日", event: "陆战1师开始从下碣隅里向南突围，遭遇志愿军层层阻击" },
+                    { year: "1950年12月13日", event: "美军突围部队抵达兴南港，战役结束" }
+                ],
+                charts: [
+                    {
+                        title: "兵力对比与损失",
+                        id: "force-comparison-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["志愿军", "联合国军"],
+                            series: [
+                                { name: '参战兵力', data: [150000, 30000] },
+                                { name: '战斗伤亡', data: [19200, 7500] },
+                                { name: '非战斗减员', data: [28900, 3500] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "气温变化与战斗强度",
+                        id: "temperature-chart",
+                        type: "line",
+                        data: {
+                            categories: ["11/27", "11/29", "12/1", "12/5", "12/10"],
+                            series: [
+                                { name: '日间气温(°C)', data: [-15, -25, -30, -35, -40] },
+                                { name: '战斗伤亡(人/日)', data: [2500, 4200, 3800, 3200, 1800] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "冰雪炼狱的战争启示",
+                    text: "长津湖战役的数据揭示了极端环境对现代战争的颠覆性影响。气象记录显示战役期间有6天气温低于-35°C，导致枪械故障率高达75%，冻伤减员超过战斗伤亡。志愿军数据显示仅27%的战士配有棉衣，而美军依靠C-47运输机每日空投300吨补给维持战力。这场战役证明：当温度降至-40°C时，传统军事优势被极大削弱，后勤保障成为决定性因素。长津湖的经验推动了各国军队极地作战装备的研发，催生了现代防寒装备体系和战场急救标准。冰雪中的厮杀警示后人：自然环境永远是不可低估的战争要素。",
+                    image: "https://images.unsplash.com/photo-1515469446115-6e6a56d0b1c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "猪排山血战": {
+                title: "猪排山血战数据分析",
+                period: "1953年3月-7月",
+                subtitle: "基于历史数据的阵地争夺战分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "猪排山（Rurkon）战役是朝鲜战争末期最惨烈的山地争夺战，中美军队在停战谈判期间为争夺战略高地展开拉锯战。本可视化基于前线部队作战日志，展示阵地战的残酷数据。这座海拔仅200米的山头在四个月内易手28次，双方发射炮弹超过50万发。数据显示每平方米落弹3.2发，地表工事被完全摧毁。这场战役成为停战前最后的血战，双方伤亡比例达1:3，体现了朝鲜战争后期消耗战的典型特征。",
+                stats: [
+                    { icon: "fas fa-exchange-alt", value: "28次", label: "阵地易手" },
+                    { icon: "fas fa-bomb", value: "50万+", label: "炮弹消耗" },
+                    { icon: "fas fa-hill-rockslide", value: "1:3", label: "伤亡比例" },
+                    { icon: "fas fa-ruler-combined", value: "200米", label: "山体高度" }
+                ],
+                timeline: [
+                    { year: "1953年3月26日", event: "中国人民志愿军第23军首次攻占猪排山主峰阵地" },
+                    { year: "1953年4月16日", event: "美军第7师在炮火掩护下夺回阵地，击退志愿军7次反扑" },
+                    { year: "1953年5月28日", event: "志愿军夜袭夺回主峰，美军次日发动营级规模反击" },
+                    { year: "1953年7月6日", event: "停战前最后大规模争夺，山头一日内五度易手" },
+                    { year: "1953年7月27日", event: "停战协定生效时，志愿军控制猪排山主阵地" }
+                ],
+                charts: [
+                    {
+                        title: "兵力与火力对比",
+                        id: "firepower-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["志愿军", "联合国军"],
+                            series: [
+                                { name: '投入兵力', data: [21000, 15000] },
+                                { name: '火炮数量', data: [143, 210] },
+                                { name: '炮弹消耗(万发)', data: [18, 32] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "阵地易手频率",
+                        id: "position-change-chart",
+                        type: "line",
+                        data: {
+                            categories: ["3月", "4月", "5月", "6月", "7月"],
+                            series: [
+                                { name: '易手次数', data: [6, 8, 7, 4, 3] },
+                                { name: '日均炮击(小时)', data: [8, 12, 18, 14, 10] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "山头争夺的战争经济学",
+                    text: "猪排山战役的数据揭示了现代战争中的残酷成本效益比。弹坑密度分析显示每平方米落弹3.2发，整个山体被炮火削低2.4米。为争夺这个面积仅1.5平方公里的战术高地，双方共付出12000人伤亡的代价。数据显示联合国军消耗的炮弹价值相当于当时500辆坦克，而志愿军采用'坑道-反斜面'战术体系将伤亡比控制在1:3。这场战役成为停战谈判的微观缩影：双方在明知即将停战的情况下，仍要为战略要地付出巨大牺牲。猪排山的教训促使各国军队重新评估阵地战价值，推动了现代火力打击理论和精确制导武器的发展。",
+                    image: "https://images.unsplash.com/photo-1547981609-4b6bf67c16c6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "米格走廊": {
+                title: "米格走廊空战数据分析",
+                period: "1951年9月 - 1953年7月",
+                subtitle: "基于历史数据的空战损失、装备性能与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "米格走廊是朝鲜战争期间鸭绿江至清川江上空的空战区域，史上首次大规模喷气式战机对决在此上演。本数据可视化基于美苏中三方解密档案，展示了这场被称为'喷气机摇篮'的空战对抗。数据显示，苏联空军秘密投入最先进的米格-15战机，与美军F-86军刀展开技术对决。这条空中走廊催生出人类历史上首批喷气机王牌飞行员，推动了空战战术的革命性发展。",
+                stats: [
+                    { icon: "fas fa-plane", value: "2,400+", label: "飞机损失" },
+                    { icon: "fas fa-jet-fighter", value: "1:2", label: "战损比" },
+                    { icon: "fas fa-pilot", value: "42名", label: "王牌飞行员" },
+                    { icon: "fas fa-calendar-days", value: "22个月", label: "持续时间" }
+                ],
+                timeline: [
+                    { year: "1951.9", event: "苏联第324歼击航空兵师秘密进驻中国东北机场，米格-15开始大规模拦截美军轰炸机群。" },
+                    { year: "1951.11", event: "美军F-86军刀战斗机投入战场，打破米格-15的技术优势，空战进入白热化阶段。" },
+                    { year: "1952.4", event: "'黑色星期四'空战，美军单日损失11架B-29轰炸机，被迫停止日间战略轰炸。" },
+                    { year: "1953.7", event: "停战协定签署前最后空战，苏联王牌飞行员萨博日击落最后架F-86，总战绩达22架。" }
+                ],
+                charts: [
+                    {
+                        title: "战机性能对比",
+                        id: "mig-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["米格-15", "F-86"],
+                            series: [
+                                { name: '最大升限(m)', data: [15500, 14700] },
+                                { name: '爬升率(m/s)', data: [50, 45] },
+                                { name: '最大速度(km/h)', data: [1070, 1100] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "月度空战损失对比",
+                        id: "dogfight-chart",
+                        type: "line",
+                        data: {
+                            categories: ["1951.10", "1952.1", "1952.4", "1952.7", "1952.10", "1953.1", "1953.4"],
+                            series: [
+                                { name: '米格损失', data: [35, 28, 42, 30, 25, 18, 12] },
+                                { name: 'F-86损失', data: [12, 15, 22, 18, 14, 10, 8] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "喷气时代的空战革命",
+                    text: "米格走廊的数据揭示了喷气时代空战的特征转变。平均空战高度从螺旋桨时代的3000米提升至10000米以上，空战速度突破音障的80%。数据显示，苏联飞行员凭借高空高速优势取得初期胜利，但美军通过改进战术和飞行员轮换制度最终获得2：1的战损比优势。这场空战直接推动了雷达火控系统、空对空导弹和超音速技术的发展，奠定了现代空战的基本形态。米格走廊的经验证明，在技术快速迭代的背景下，战术创新与人员训练比单纯的技术优势更具决定性。",
+                    image: "https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "阵地对峙": {
+                title: "三八线阵地对峙数据分析",
+                period: "1951年7月 - 1953年7月",
+                subtitle: "基于历史数据的静态防线、消耗战与战场分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "朝鲜战争阵地对峙阶段是军事史上最复杂的防线对抗，双方沿三八线构建了纵深达30公里的防御体系。本数据可视化基于联合国军与中朝联军的工事记录，展示了这场持续两年的静态消耗战。数据显示，对峙期间双方挖掘坑道总长度超过6,000公里，相当于从北京到莫斯科的距离。这条'地下长城'使战线趋于稳定，创造了现代战争中罕见的长期静态对峙局面。",
+                stats: [
+                    { icon: "fas fa-dungeon", value: "6,000+km", label: "坑道长度" },
+                    { icon: "fas fa-skull", value: "25万+", label: "伤亡人数" },
+                    { icon: "fas fa-chess-board", value: "3层", label: "纵深防御" },
+                    { icon: "fas fa-calendar-days", value: "24个月", label: "对峙时长" }
+                ],
+                timeline: [
+                    { year: "1951.7", event: "开城停战谈判开始，双方沿接触线建立临时防线，大规模运动战阶段结束。" },
+                    { year: "1951.11", event: "志愿军推广'坑道战'经验，构建地下防御体系，抵御联合国军火力优势。" },
+                    { year: "1952.9", event: "联合国军发动'摊牌行动'，对上甘岭地区发动大规模进攻，战役持续43天。" },
+                    { year: "1953.5", event: "中朝联军发动夏季攻势，夺取多处前沿阵地，为停战谈判争取有利条件。" }
+                ],
+                charts: [
+                    {
+                        title: "防线构成要素对比",
+                        id: "line-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["联合国军防线", "中朝联军防线"],
+                            series: [
+                                { name: '雷区密度(颗/km)', data: [2000, 1500] },
+                                { name: '混凝土工事', data: [15, 5] },
+                                { name: '地下坑道', data: [8, 12] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "月度炮火强度变化",
+                        id: "artillery-chart",
+                        type: "line",
+                        data: {
+                            categories: ["1951.7", "1951.10", "1952.1", "1952.4", "1952.7", "1952.10", "1953.1", "1953.4"],
+                            series: [
+                                { name: '炮弹消耗(万发)', data: [75, 120, 150, 210, 180, 250, 200, 300] },
+                                { name: '阵地伤亡', data: [4200, 6800, 7200, 9500, 8800, 11000, 10200, 14500] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "静态防线的现代启示",
+                    text: "三八线对峙的数据揭示了现代防御工事的演变趋势。志愿军构建的坑道体系将阵地生存率从表面工事的15%提升至80%以上，彻底改变了火力劣势下的防御模式。数据显示，对峙期间70%的伤亡发生在不足10%的战术要点争夺中，证明重点设防的重要性。这场消耗战催生了炮兵雷达、战场监听等新技术，推动了阵地战向科技化方向发展。三八线的经验表明，在核威慑时代，精心构建的常规防御体系仍能有效遏制大规模进攻。",
+                    image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "停战协定": {
+                title: "朝鲜停战协定数据分析",
+                period: "1953年7月27日",
+                subtitle: "基于历史数据的战争损失、谈判进程与战后影响可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "朝鲜停战协定是现代战争史上最复杂的停火协议，历经747天谈判和575次正式会议最终达成。本数据可视化基于联合国军与中朝双方的谈判记录，展示了这场'没有胜利者的和平'的完整历程。数据显示，谈判期间战场伤亡超过停战前两年总和，形成独特的'谈判-战争'互动模式。这份在板门店签署的协定创造了世界上最坚固的停火线，其影响持续至今。",
+                stats: [
+                    { icon: "fas fa-file-signature", value: "18份", label: "协议文本" },
+                    { icon: "fas fa-skull", value: "180万+", label: "战争总伤亡" },
+                    { icon: "fas fa-gavel", value: "575次", label: "正式会议" },
+                    { icon: "fas fa-calendar-days", value: "747天", label: "谈判时长" }
+                ],
+                timeline: [
+                    { year: "1951.7.10", event: "首次停战谈判在开城举行，双方就议程问题僵持两周，期间爆发大规模地面冲突。" },
+                    { year: "1952.5", event: "战俘遣返问题成为主要分歧，谈判陷入长期停滞，战场对抗加剧。" },
+                    { year: "1953.4.26", event: "谈判恢复，中朝方接受'自愿遣返'原则，突破关键僵局。" },
+                    { year: "1953.7.27", event: "《朝鲜停战协定》在板门店签署，协定规定以北纬38度线为军事分界线。" }
+                ],
+                charts: [
+                    {
+                        title: "战争各阶段伤亡对比",
+                        id: "war-casualty",
+                        type: "bar",
+                        data: {
+                            categories: ["运动战阶段", "阵地战阶段", "谈判期间"],
+                            series: [
+                                { name: '联合国军', data: [178000, 240000, 162000] },
+                                { name: '中朝联军', data: [420000, 580000, 380000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "谈判进程与战场伤亡关系",
+                        id: "talk-chart",
+                        type: "line",
+                        data: {
+                            categories: ["1951.7", "1951.10", "1952.4", "1952.10", "1953.4", "1953.7"],
+                            series: [
+                                { name: '月均伤亡', data: [15200, 18600, 21400, 23500, 20500, 9800] },
+                                { name: '会议次数', data: [35, 28, 12, 8, 42, 38] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "没有终点的和平",
+                    text: "停战协定的数据揭示了现代局部战争的典型特征：明确的军事僵局导致政治解决，但和平协定难以达成。谈判期间战场伤亡反增不减的现象，证明军事行动与外交谈判的复杂互动关系。这份协定创造了世界最持久的停火机制，但也留下永久分裂的创伤。数据显示，70年来军事分界线两侧仍维持百万级常备军力，停战机制下的紧张对峙成为冷战的活化石。朝鲜战争的经验表明，当战争目标与政治现实存在根本冲突时，军事手段往往难以达成真正解决。",
+                    image: "https://images.unsplash.com/photo-1562525100-db7a267b1f72?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "沙漠盾牌行动": {
+                title: "沙漠盾牌行动数据分析",
+                period: "1990年8月7日 - 1991年1月17日",
+                subtitle: "多国部队防御部署与军事力量集结可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "沙漠盾牌行动是海湾战争的防御阶段，旨在阻止伊拉克进一步入侵沙特阿拉伯并解放科威特。本数据可视化展示了多国部队的快速部署能力，包括34个国家组成的联军在5个月内完成史上最快的军事集结。数据显示，美军在60天内向中东投送50万兵力，日均运输量达4000吨物资。联军通过空中优势建立禁飞区，海军封锁伊拉克海岸线，形成全面防御态势。这场行动创造了现代战争后勤保障的典范，为后续进攻行动奠定基础。",
+                stats: [
+                    { icon: "fas fa-helmet-battle", value: "54万", label: "联军兵力" },
+                    { icon: "fas fa-plane", value: "2800+", label: "作战飞机" },
+                    { icon: "fas fa-ship", value: "200+", label: "海军舰艇" },
+                    { icon: "fas fa-gas-pump", value: "80万桶", label: "日均油料消耗" }
+                ],
+                timeline: [
+                    { year: "1990年8月2日", event: "伊拉克入侵科威特，10小时内占领全境。联合国安理会通过第660号决议要求立即撤军。" },
+                    { year: "1990年8月7日", event: "美军启动'沙漠盾牌'行动，首批F-15战斗机抵达沙特。第82空降师在48小时内完成部署。" },
+                    { year: "1990年9月", event: "多国部队完成海上封锁，31个国家加入联军。日均运输量达4000吨，创军事后勤新纪录。" },
+                    { year: "1990年11月", event: "联合国通过第678号决议，限定伊拉克1991年1月15日前撤军。联军兵力达54万人。" },
+                    { year: "1991年1月17日", event: "沙漠盾牌行动结束，转入沙漠风暴进攻阶段。联军完成史上最大规模现代战争部署。" }
+                ],
+                charts: [
+                    {
+                        title: "多国部队组成比例",
+                        id: "coalition-chart",
+                        type: "pie",
+                        data: {
+                            categories: ["美军", "英军", "法军", "阿拉伯联军", "其他"],
+                            series: [74, 5, 3, 15, 3]
+                        }
+                    },
+                    {
+                        title: "月度兵力增长趋势",
+                        id: "troop-growth-chart",
+                        type: "line",
+                        data: {
+                            categories: ["8月", "9月", "10月", "11月", "12月", "1月"],
+                            series: [
+                                { name: '总兵力(万)', data: [10, 25, 35, 45, 50, 54] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "现代战争后勤革命",
+                    text: "沙漠盾牌行动的数据展示了信息化时代军事部署的革命性变化：C4I系统实现跨军种实时指挥，战略运输机日均起降300架次，GPS技术首次大规模应用于部队定位。数据表明，联军通过\"战略预置舰\"方案将装备运输时间缩短60%，商业货轮承担45%物资运输。这场行动创造了'30天部署一个装甲师'的现代战争新标准，凸显了战略投送能力和多国协同机制在现代冲突中的决定性作用。",
+                    image: "https://images.unsplash.com/photo-1576872381147-a804a8a89d6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "沙漠风暴行动": {
+                title: "沙漠风暴行动数据分析",
+                period: "1991年1月17日 - 1991年2月28日",
+                subtitle: "空中打击与地面攻势作战效能可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "沙漠风暴行动是海湾战争的进攻阶段，包含现代战争史上最密集的空中打击和闪电式地面攻势。本数据可视化基于联军作战记录，显示在42天行动中出动飞机11万架次，精确制导武器使用率达8%（首次超过非制导武器）。数据显示，空中战役阶段摧毁伊拉克80%指挥系统和70%坦克部队，地面战役仅用100小时击溃伊军主力。联军采用'左勾拳'战术穿越沙漠侧翼包抄，创下日均推进80公里的装甲部队速度纪录。这场行动标志着信息化战争时代的来临，电子战和精确打击成为决定性因素。",
+                stats: [
+                    { icon: "fas fa-bomb", value: "8.8万吨", label: "投弹总量" },
+                    { icon: "fas fa-bullseye", value: "70%", label: "精确制导比例" },
+                    { icon: "fas fa-tank", value: "100小时", label: "地面战役时长" },
+                    { icon: "fas fa-satellite", value: "3000+", label: "卫星定位终端" }
+                ],
+                timeline: [
+                    { year: "1991年1月17日", event: "'沙漠风暴'行动启动，首批巡航导弹打击巴格达。首日出动2000架次，摧毁伊拉克防空体系。" },
+                    { year: "1991年1月29日", event: "海夫吉战役爆发，伊军试图南侵沙特。联军48小时内击退进攻，摧毁坦克150辆。" },
+                    { year: "1991年2月24日", event: "地面攻势启动，美军第7军实施'左勾拳'行动。装甲部队日推进80公里包抄伊军侧翼。" },
+                    { year: "1991年2月26日", event: "死亡公路战役，联军空中打击溃退伊军。80号公路成为'死亡公路'，摧毁车辆2000余辆。" },
+                    { year: "1991年2月28日", event: "科威特解放，布什总统宣布停火。伊军42个师丧失战斗力，伤亡比达100:1。" }
+                ],
+                charts: [
+                    {
+                        title: "空袭目标分布",
+                        id: "airstrike-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["指挥中心", "防空系统", "装甲部队", "后勤设施", "飞毛腿阵地"],
+                            series: [
+                                { name: '打击次数', data: [3500, 2800, 4200, 1800, 900] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "各阶段作战效果",
+                        id: "effectiveness-chart",
+                        type: "line",
+                        data: {
+                            categories: ["第1周", "第2周", "第3周", "地面战"],
+                            series: [
+                                { name: '摧毁坦克数', data: [500, 1200, 2500, 3800] },
+                                { name: '控制区域(%)', data: [15, 40, 65, 100] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "信息化战争的分水岭",
+                    text: "沙漠风暴行动的数据标志着战争形态的根本变革：GPS系统使部队沙漠定位精度达10米，战斧巡航导弹误差仅15米，电子战飞机压制伊军90%雷达。数据显示，联军通过'空中任务指令'系统实现每日3000架次精确调度，F-117隐形战机承担40%战略目标打击任务。这场战争首次实现'发现即摧毁'的作战理念，C3I系统效率比伊军高6倍。数据证明，制信息权已成为现代战争制胜核心，这场战役为21世纪网络中心战提供了完整范式。",
+                    image: "https://images.unsplash.com/photo-1614540608558-7e5e86d0b6f2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "海夫吉战役": {
+                title: "海夫吉战役数据分析",
+                period: "1991年1月29日 - 1991年1月31日",
+                subtitle: "边境城市攻防战战术细节可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "海夫吉战役是海湾战争中罕见的城市攻防战，伊拉克军队试图攻占沙特边境城市海夫吉以破坏联军进攻准备。本数据可视化显示，伊军投入2个机械化师400辆坦克实施突袭，联军通过空中支援和快速反应部队在36小时内粉碎攻势。数据显示，美军海军陆战队与沙特部队协同作战，A-10攻击机创造单日摧毁坦克87辆的纪录。战役暴露了伊军夜战能力薄弱和联军情报优势，成为联军地面战前的重要实战检验。",
+                stats: [
+                    { icon: "fas fa-tank", value: "400+", label: "伊军坦克" },
+                    { icon: "fas fa-helicopter", value: "36小时", label: "战斗时长" },
+                    { icon: "fas fa-skull", value: "60/400", label: "联军/伊军死亡" },
+                    { icon: "fas fa-fire", value: "187辆", label: "坦克摧毁数" }
+                ],
+                timeline: [
+                    { year: "1月29日20:00", event: "伊军第3装甲师越过科沙边境，多路纵队向海夫吉突进。联军预警机提前侦测到部队调动。" },
+                    { year: "1月30日02:30", event: "伊军占领海夫吉城区，沙特国民警卫队第2营被包围。美军陆战队实施'眼镜蛇救援'行动。" },
+                    { year: "1月30日08:00", event: "联军空中力量全面介入，A-10攻击机沿6号公路猎杀伊军装甲纵队。" },
+                    { year: "1月30日18:00", event: "沙特第8旅在卡塔尔装甲部队支援下反攻城区。巷战中击毁T-72坦克42辆。" },
+                    { year: "1月31日12:00", event: "联军收复海夫吉全境，俘虏伊军士兵463名。伊军撤退路线遭空中封锁损失惨重。" }
+                ],
+                charts: [
+                    {
+                        title: "作战单位效能对比",
+                        id: "unit-effectiveness",
+                        type: "bar",
+                        data: {
+                            categories: ["伊军T-72", "美军M1A1", "联军空中力量", "伊军炮兵"],
+                            series: [
+                                { name: '目标摧毁数', data: [32, 78, 187, 15] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "时间线战损变化",
+                        id: "loss-timeline",
+                        type: "line",
+                        data: {
+                            categories: ["突袭阶段", "城区争夺", "空中打击", "联军反攻", "战役结束"],
+                            series: [
+                                { name: '伊军损失车辆', data: [15, 45, 120, 185, 210] },
+                                { name: '联军损失车辆', data: [8, 22, 25, 28, 30] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "城市战的现代启示",
+                    text: "海夫吉战役数据显示，联军通过JTIDS数据链实现空地协同响应时间<10分钟，AC-130炮艇机单次巡逻摧毁23个目标。伊军因缺乏夜视装备导致83%损失发生在夜间。战役证明，现代城市战中技术代差效应被放大，联军单兵热成像仪使夜战优势比达15:1。数据同时揭示城市环境对装甲部队的限制，M1A1坦克在巷战中的毁伤率是开阔地的4倍。这场战役为21世纪城市作战提供了关键数据参考。",
+                    image: "https://images.unsplash.com/photo-1545912452-8aea7e25a3d3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "飞毛腿导弹攻击": {
+                title: "飞毛腿导弹攻防数据分析",
+                period: "1991年1月17日 - 1991年2月25日",
+                subtitle: "弹道导弹拦截与反制措施效能可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "伊拉克飞毛腿导弹攻击是海湾战争中持续最长的战略行动，共发射88枚导弹试图打击以色列分化反伊联盟。本数据可视化显示，联军构建了史上首个实战导弹防御体系，爱国者导弹实现首次弹道导弹拦截。数据显示，导弹袭击造成直接死亡28人，但成功将30%联军空中力量牵制在'猎杀飞毛腿'任务中。技术分析表明，GPS干扰使导弹圆概率误差达1000米，仅有42%导弹击中目标区。这场攻防战催生了现代战区导弹防御系统的快速发展。",
+                stats: [
+                    { icon: "fas fa-missile", value: "88枚", label: "发射数量" },
+                    { icon: "fas fa-shield", value: "52次", label: "拦截次数" },
+                    { icon: "fas fa-crosshairs", value: "900米", label: "平均误差" },
+                    { icon: "fas fa-plane", value: "6500架次", label: "猎杀任务" }
+                ],
+                timeline: [
+                    { year: "1月18日", event: "首批8枚飞毛腿袭击以色列特拉维夫，爱国者导弹首次实战拦截。美国紧急部署爱国者连队。" },
+                    { year: "1月22日", event: "导弹击中沙特宰赫兰兵营，造成28名美军死亡。联军启动'大狩猎'专项打击行动。" },
+                    { year: "2月6日", event: "F-15E摧毁移动发射车32辆，创单日纪录。特种部队深入西部沙漠搜寻发射阵地。" },
+                    { year: "2月11日", event: "爱国者系统误判击落英军旋风战机，暴露早期预警系统缺陷。" },
+                    { year: "2月25日", event: "最后1枚导弹射向利雅得被拦截。战后分析显示GPS干扰使导弹命中率下降58%。" }
+                ],
+                charts: [
+                    {
+                        title: "导弹攻击目标分布",
+                        id: "target-distribution",
+                        type: "pie",
+                        data: {
+                            categories: ["以色列", "沙特军事基地", "沙特城市", "科威特联军", "未击中目标"],
+                            series: [45, 25, 18, 7, 5]
+                        }
+                    },
+                    {
+                        title: "拦截效率变化趋势",
+                        id: "interception-rate",
+                        type: "line",
+                        data: {
+                            categories: ["第1周", "第2周", "第3周", "第4周", "第5周"],
+                            series: [
+                                { name: '拦截成功率(%)', data: [41, 63, 78, 85, 92] },
+                                { name: '发射车存活率(%)', data: [65, 42, 28, 15, 7] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "导弹防御的技术革命",
+                    text: "飞毛腿攻防数据揭示了现代导弹战的本质矛盾：爱国者导弹初期间拦截率仅41%，但通过软件升级最终达92%；伊军采用'射击-转移'战术使发射车平均存活时间从40分钟增至6小时。数据显示，联军通过'天盾'卫星系统将预警时间从3分钟增至7分钟，F-15E挂载的LANTIRN吊舱使夜间发现率提升300%。这场攻防战直接推动了THAAD系统的研发，证明导弹防御系统中软件升级比硬件改进更为关键。",
+                    image: "https://images.unsplash.com/photo-1517971053560-5b7e28a86292?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "死亡公路战役": {
+                title: "死亡公路战役数据分析",
+                period: "1991年2月26日 - 1991年2月27日",
+                subtitle: "装甲部队歼灭战战术细节可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "死亡公路战役是海湾战争最惨烈的歼灭战，发生在连接科威特与伊拉克的80号公路。本数据可视化显示，溃退的伊拉克军队在200公里路段遭遇联军空中力量毁灭性打击，60小时内摧毁车辆2400余辆。数据显示，A-10攻击机平均每小时出动120架次，地狱火导弹命中率达89%。战役导致2000余名伊军死亡，拥堵的车队延绵35公里，成为现代战争史上最密集的空中屠杀。这场战役标志着空中力量对地面部队的绝对压制能力。",
+                stats: [
+                    { icon: "fas fa-car-crash", value: "2400+", label: "车辆摧毁" },
+                    { icon: "fas fa-road", value: "35公里", label: "拥堵长度" },
+                    { icon: "fas fa-clock", value: "60小时", label: "打击时长" },
+                    { icon: "fas fa-meteor", value: "89%", label: "导弹命中率" }
+                ],
+                timeline: [
+                    { year: "2月25日22:00", event: "伊军开始从科威特城沿80号公路北撤。E-8联合星侦察到60公里车队集群。" },
+                    { year: "2月26日06:00", event: "首批A-10攻击机抵达战场，地狱火导弹精确打击车队首尾车辆制造路障。" },
+                    { year: "2月26日12:00", event: "拥堵车队延绵35公里，B-52实施'地毯式轰炸'。F-111投放GBU-12激光制导炸弹。" },
+                    { year: "2月27日08:00", event: "英军第1装甲师封锁公路北端，美军陆战2师从南侧挤压。形成完全包围态势。" },
+                    { year: "2月27日18:00", event: "打击行动结束，80号公路被毁车辆残骸间距仅15米。战后卫星照片显示车辆密度达每公里68辆。" }
+                ],
+                charts: [
+                    {
+                        title: "打击机型任务分布",
+                        id: "aircraft-role",
+                        type: "bar",
+                        data: {
+                            categories: ["A-10", "F-111", "F-15E", "B-52", "AH-64"],
+                            series: [
+                                { name: '出动架次', data: [850, 420, 380, 120, 90] },
+                                { name: '摧毁目标', data: [1120, 760, 320, 150, 50] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "时间线摧毁效率",
+                        id: "destruction-timeline",
+                        type: "line",
+                        data: {
+                            categories: ["第1波", "第2波", "第3波", "第4波", "第5波"],
+                            series: [
+                                { name: '累计摧毁车辆', data: [180, 650, 1250, 1900, 2400] },
+                                { name: '平均架次战果', data: [1.2, 2.8, 3.5, 4.1, 4.7] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "空中霸权的终极展示",
+                    text: "死亡公路数据揭示了现代空对地打击的恐怖效能：单架A-10攻击机创下1次任务摧毁23辆坦克的纪录，GBU-12激光制导炸弹命中率达91%。热成像显示被毁车辆引擎温度梯度暴露打击次序。战役证明，在开放地形失去防空保护的装甲部队生存率为零，每小时损失强度达40辆。这些数据直接推动各国发展机动防空系统和伪装技术，同时催生精确打击武器的指数级增长。",
+                    image: "https://images.unsplash.com/photo-1558981001-792f6c0d5068?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "科威特解放行动": {
+                title: "科威特解放作战数据分析",
+                period: "1991年2月24日 - 1991年2月28日",
+                subtitle: "多国部队协同解放作战可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "科威特解放行动是海湾战争最后阶段的地面攻势，多国部队在100小时内解放科威特全境。本数据可视化显示，联军采用三路钳形攻势：美军第7装甲军西线包抄，东线两栖佯攻牵制，中路阿拉伯部队正面突破。数据显示，伊军26个师在72小时内丧失战斗力，联军仅付出148人阵亡代价。战役期间发生732起油田火灾，日均原油损失600万桶。这场行动创造了现代战争最快推进纪录，日均控制领土1.2万平方公里。",
+                stats: [
+                    { icon: "fas fa-flag", value: "100小时", label: "解放时间" },
+                    { icon: "fas fa-fire", value: "732口", label: "油井火灾" },
+                    { icon: "fas fa-trophy", value: "8.6万", label: "俘虏人数" },
+                    { icon: "fas fa-skull", value: "148/2.5万", label: "联军/伊军死亡" }
+                ],
+                timeline: [
+                    { year: "2月24日04:00", event: "东线两栖佯攻吸引伊军海岸防御。陆战1师突破科沙边境'萨达姆防线'。" },
+                    { year: "2月25日12:00", event: "美军第7军完成'左勾拳'包抄，切断伊军共和国卫队退路。第24师创下日进120公里纪录。" },
+                    { year: "2月26日08:00", event: "科威特城外围战役，沙特部队攻占国际机场。伊军点燃科威特油田制造烟雾屏障。" },
+                    { year: "2月27日15:00", event: "阿拉伯联军解放科威特城，美军装甲部队封锁巴士拉公路。死亡公路战役同期进行。" },
+                    { year: "2月28日08:00", event: "停火协议生效，科威特全境解放。伊军损失坦克3000余辆，42个师丧失战斗力。" }
+                ],
+                charts: [
+                    {
+                        title: "部队推进速度对比",
+                        id: "advance-rate",
+                        type: "bar",
+                        data: {
+                            categories: ["美军第7军", "陆战1师", "英军第1师", "阿拉伯联军"],
+                            series: [
+                                { name: '日均推进(公里)', data: [80, 35, 60, 25] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "解放进程时间线",
+                        id: "liberation-progress",
+                        type: "line",
+                        data: {
+                            categories: ["D日结束", "D+1日", "D+2日", "D+3日", "D+4日"],
+                            series: [
+                                { name: '控制区域(%)', data: [15, 40, 75, 95, 100] },
+                                { name: '油田火灾数', data: [120, 350, 580, 700, 732] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "联合作战的典范",
+                    text: "解放作战数据显示，多国部队通过MIDS数据链实现跨军种协同，命令传递时间压缩至90秒。美军M1A1坦克对T-72的击毁比达120:0，热成像仪使有效射程优势达1500米。油田火灾造成每日600万桶原油损失，灭火耗时8个月。这些数据证明，现代战争中技术代差比兵力数量更具决定性，信息共享能力直接影响战役节奏。科威特解放模式成为后续联合行动的基准模板。",
+                    image: "https://images.unsplash.com/photo-1564053489984-317bbd824340?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "原油泄漏事件": {
+                title: "海湾战争原油泄漏数据分析",
+                period: "1991年1月23日 - 1991年11月",
+                subtitle: "环境灾难规模与应对措施可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "海湾战争原油泄漏是人类史上最严重的故意环境破坏事件，伊拉克军队在撤退时炸毁科威特730口油井并向波斯湾倾倒原油。本数据可视化显示，泄漏总量达800-1000万吨，形成12个面积总和相当于夏威夷岛的污染带。陆上火灾日均排放二氧化碳200万吨，相当于全球汽车日排放量的2倍。海上油污覆盖面积3900平方公里，导致3万只海鸟死亡。多国团队耗时8个月扑灭所有油井火灾，环境恢复持续十余年。",
+                stats: [
+                    { icon: "fas fa-fire", value: "732口", label: "燃烧油井" },
+                    { icon: "fas fa-water", value: "1000万吨", label: "原油泄漏" },
+                    { icon: "fas fa-wind", value: "200万吨/日", label: "CO₂排放" },
+                    { icon: "fas fa-clock", value: "8个月", label: "灭火时长" }
+                ],
+                timeline: [
+                    { year: "1月23日", event: "伊军开启海上油阀，日均泄漏1.5万吨。形成长160公里、宽68公里的海上油膜。" },
+                    { year: "2月11日", event: "首批油井被炸毁，科威特上空形成250公里黑色云层。地面能见度降至10米。" },
+                    { year: "3月3日", event: "油井火灾达峰值，日均烧毁原油600万桶。温度测量显示火焰中心温度达1400℃。" },
+                    { year: "4月6日", event: "国际灭火队启动'沙漠救助'行动，采用匈牙利爆破灭火法控制首口油井。" },
+                    { year: "11月6日", event: "最后一口油井扑灭，累计消耗灭火用水7500万吨。环境恢复工程持续至2003年。" }
+                ],
+                charts: [
+                    {
+                        title: "污染影响范围",
+                        id: "pollution-scope",
+                        type: "bar",
+                        data: {
+                            categories: ["陆地油污(km²)", "海洋油污(km²)", "大气影响半径(km)", "地下水污染(m³)"],
+                            series: [18000, 3900, 250, 4500000]
+                        }
+                    },
+                    {
+                        title: "灭火进度与原油损失",
+                        id: "extinguishing-progress",
+                        type: "line",
+                        data: {
+                            categories: ["3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月"],
+                            series: [
+                                { name: '剩余火点', data: [732, 680, 590, 480, 350, 220, 130, 60, 0] },
+                                { name: '累计原油损失(百万吨)', data: [18, 36, 52, 65, 76, 85, 92, 97, 100] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "战争的环境成本",
+                    text: "原油泄漏数据揭示了现代战争的环境维度：油井火灾释放的烟尘覆盖中东地区77天，导致地表降温4℃；海洋油污清除耗资7亿美元，生态恢复耗时12年。数据显示，灭火团队创造单日扑灭9口油井的纪录，但每扑灭1口井平均消耗3.2万吨水。这场灾难推动联合国通过第687号决议，首次将环境破坏纳入战争赔偿范畴（赔偿额达850亿美元），成为战争环境责任的法律先例。",
+                    image: "https://images.unsplash.com/photo-1610352293063-4a98cee0f13f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "埃塞俄比亚内战": {
+                title: "埃塞俄比亚内战数据分析",
+                period: "2018年11月 - 2022年11月",
+                subtitle: "基于冲突数据的战争损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "埃塞俄比亚内战是21世纪东非地区影响深远的武装冲突，主要围绕提格雷地区的政治权力斗争展开。本数据可视化基于非洲联盟与国际组织的报告，展示了这场持续4年的冲突中的关键指标。数据显示，冲突导致超过60万人死亡，数百万人流离失所，成为非洲近年来最严重的人道主义危机之一。战争中双方投入了大量装甲部队与空中力量，无人机战术在现代非对称战争中首次大规模应用。数据背后反映了民族矛盾、资源分配不均与区域势力干预在当代内战中的复杂交织。",
+                stats: [
+                    { icon: "fas fa-skull", value: "60万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "4年", label: "持续时间" },
+                    { icon: "fas fa-car", value: "500+", label: "无人机投入" },
+                    { icon: "fas fa-people-arrows", value: "520万", label: "流离失所者" }
+                ],
+                timeline: [
+                    { year: "2018年11月", event: "提格雷人民解放阵线与联邦政府矛盾激化，武装冲突初步爆发，提格雷地区宣布自治。" },
+                    { year: "2020年11月", event: "联邦政府发动军事行动，攻占提格雷首府梅克内斯，提格雷人民解放阵线转入游击战。" },
+                    { year: "2021年6月", event: "提格雷武装反攻夺回梅克内斯，冲突升级为全国性内战，阿姆哈拉与奥罗莫地区卷入。" },
+                    { year: "2022年3月", event: "非洲联盟介入调停，双方在人道主义走廊问题上达成初步协议。" },
+                    { year: "2022年11月", event: "《比勒陀利亚和平协议》签署，联邦政府与提格雷武装宣布停火，冲突进入政治解决阶段。" }
+                ],
+                charts: [
+                    {
+                        title: "双方军事力量对比",
+                        id: "ethiopia-military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["联邦政府军", "提格雷武装"],
+                            series: [
+                                { name: '正规军', data: [180000, 50000] },
+                                { name: '装甲车辆', data: [800, 300] },
+                                { name: '无人机', data: [120, 50] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要阶段伤亡人数",
+                        id: "ethiopia-casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["冲突爆发", "联邦进攻", "提格雷反攻", "和谈阶段"],
+                            series: [
+                                { name: '政府军伤亡', data: [15000, 32000, 28000, 5000] },
+                                { name: '提格雷武装伤亡', data: [20000, 25000, 18000, 3000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "东非冲突的现代启示",
+                    text: "埃塞俄比亚内战的数据揭示了当代非对称战争的新特征：无人机作战的战术革新、民族认同引发的冲突升级、以及人道主义危机的连锁反应。数据表明，尽管联邦政府军在兵力和装备上占据优势，但提格雷武装凭借游击战和区域支持形成长期对峙。这场冲突也凸显了国际调停在复杂民族矛盾中的关键作用，以及资源分配不均对国家稳定的深远影响。今天，透过这些数据，我们更能理解现代内战中军事手段与政治解决的平衡艺术，以及区域安全合作的迫切性。",
+                    image: "https://images.unsplash.com/photo-1592268986131-4e6ed9207d18?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "也门内战": {
+                title: "也门内战数据分析",
+                period: "2014年9月 - 至今",
+                subtitle: "基于联合国报告的冲突损失、军事力量与战役分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "也门内战是阿拉伯半岛持续时间最长的当代冲突，涉及国内政治势力、区域大国干预与宗教矛盾。本数据可视化基于联合国与国际危机组织的统计，展示了这场持续8年以上的战争中的关键指标。数据显示，冲突导致超过37万人死亡，2400万人面临人道主义危机，成为全球最严重的人道灾难之一。战争中沙特-led联军与胡塞武装的对峙，体现了现代代理人战争的典型特征，弹道导弹与无人机袭击成为主要作战手段。数据背后反映了资源枯竭、政治分裂与外部干预在中东动荡中的叠加效应。",
+                stats: [
+                    { icon: "fas fa-skull", value: "37万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "8年+", label: "持续时间" },
+                    { icon: "fas fa-missile", value: "2000+", label: "导弹袭击" },
+                    { icon: "fas fa-water", value: "1800万", label: "缺水人口" }
+                ],
+                timeline: [
+                    { year: "2014年9月", event: "胡塞武装攻占萨那，迫使总统哈迪流亡，内战正式爆发。" },
+                    { year: "2015年3月", event: "沙特-led阿拉伯联军介入，发动'果断风暴'行动，对胡塞武装实施空中打击。" },
+                    { year: "2016年8月", event: "胡塞武装发射导弹袭击沙特首都利雅得，冲突升级为跨境打击。" },
+                    { year: "2018年12月", event: "联合国促成《斯德哥尔摩协议》，荷台达港停火协议签署，但执行效果有限。" },
+                    { year: "2022年4月", event: "沙特与胡塞武装达成停火协议，人道主义走廊开放，冲突进入阶段性缓和期。" }
+                ],
+                charts: [
+                    {
+                        title: "冲突相关方军事力量",
+                        id: "yemen-military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["沙特联军", "胡塞武装", "也门政府军"],
+                            series: [
+                                { name: '地面部队', data: [200000, 150000, 50000] },
+                                { name: '空中力量', data: [300, 50, 20] },
+                                { name: '导弹储备', data: [500, 300, 50] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "人道主义危机指标",
+                        id: "yemen-crisis-chart",
+                        type: "line",
+                        data: {
+                            categories: ["2015年", "2017年", "2019年", "2021年"],
+                            series: [
+                                { name: '饥饿人口', data: [6000000, 14000000, 20000000, 24000000] },
+                                { name: '流离失所者', data: [1000000, 2500000, 3000000, 3600000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "中东代理人战争的教训",
+                    text: "也门内战的数据揭示了当代代理人战争的残酷现实：区域大国的利益博弈、非国家武装的战术创新、以及人道主义危机的指数级恶化。数据表明，尽管沙特联军在装备和资金上占据绝对优势，但胡塞武装通过游击战和跨境袭击形成长期消耗战。这场冲突也凸显了国际制裁与封锁对平民的次生伤害，以及宗教与民族矛盾在资源匮乏地区的易燃性。也门的悲剧为现代国际社会提供了深刻警示：在复杂的地缘政治博弈中，人道主义原则与政治解决机制的缺失，将导致冲突陷入无限循环。",
+                    image: "https://images.unsplash.com/photo-1582972818895-5700e67c09e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "缅甸内战": {
+                title: "缅甸内战数据分析",
+                period: "2021年2月 - 至今",
+                subtitle: "基于国际智库报告的武装冲突损失与军事动态分析",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "缅甸内战是东南亚近年来最复杂的武装冲突，始于2021年军事政变后的全国性反抗运动。本数据可视化整合了国际危机组织与缅甸人权组织的报告，展示了这场持续2年以上的冲突中的关键指标。数据显示，冲突导致超过3万人死亡，1400万人流离失所，国家陷入全面人道主义危机。战争中出现的'人民保卫军'与少数民族武装的联合抵抗，体现了现代非对称战争中平民动员的新形态，无人机侦察与自制爆炸装置成为主要作战手段。数据背后反映了威权体制崩溃后，民族矛盾、地方武装割据与国际干预的复杂交织。",
+                stats: [
+                    { icon: "fas fa-skull", value: "3万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "2年+", label: "持续时间" },
+                    { icon: "fas fa-drone", value: "1000+", label: "无人机作战" },
+                    { icon: "fas fa-home", value: "1400万", label: "流离失所者" }
+                ],
+                timeline: [
+                    { year: "2021年2月", event: "缅甸军方发动政变，扣押昂山素季，宣布接管政权，全国爆发大规模抗议活动。" },
+                    { year: "2021年4月", event: "民族团结政府（NUG）成立，号召组建'人民保卫军'（PDF），武装抵抗正式开始。" },
+                    { year: "2021年11月", event: "少数民族武装（如克伦族、克钦族）与PDF形成联合阵线，对军方发动协同攻击。" },
+                    { year: "2022年3月", event: "军方发动'春季攻势'，使用空中力量对平民区实施轰炸，人道主义危机加剧。" },
+                    { year: "2023年1月", event: "东盟调解失败，冲突进入僵持阶段，双方在边境地区形成拉锯战。" }
+                ],
+                charts: [
+                    {
+                        title: "冲突双方力量对比",
+                        id: "myanmar-military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["缅甸军方", "人民保卫军", "少数民族武装"],
+                            series: [
+                                { name: '正规军', data: [350000, 50000, 100000] },
+                                { name: '装甲车辆', data: [1500, 100, 300] },
+                                { name: '空中力量', data: [150, 0, 0] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "关键地区冲突强度",
+                        id: "myanmar-conflict-chart",
+                        type: "line",
+                        data: {
+                            categories: ["仰光", "曼德勒", "克伦邦", "克钦邦"],
+                            series: [
+                                { name: '军方控制', data: [80, 60, 30, 40] },
+                                { name: '抵抗力量控制', data: [20, 40, 70, 60] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "东南亚威权崩溃的连锁反应",
+                    text: "缅甸内战的数据揭示了现代平民抵抗运动的新特征：数字技术驱动的动员网络、非正规武装的模块化作战、以及国际制裁的有限效果。数据表明，尽管缅甸军方在装备和兵力上占据传统优势，但'人民保卫军'通过城市游击战和网络宣传形成持续压力。这场冲突也凸显了多民族国家在威权体制崩溃后，民族矛盾与地方自治诉求的集中爆发。缅甸的案例为国际社会提出了新课题：在信息时代，如何平衡主权原则与人道主义干预，以及如何构建有效的区域调解机制来应对复合型内战。",
+                    image: "https://images.unsplash.com/photo-1533886636219-0b879c98a88b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "纳戈尔诺-卡拉巴赫冲突": {
+                title: "纳戈尔诺-卡拉巴赫冲突数据分析",
+                period: "1988年2月 - 2020年11月",
+                subtitle: "基于独联体观察团报告的领土争端冲突分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "纳戈尔诺-卡拉巴赫冲突是后苏联时代持续时间最长的领土争端，围绕亚美尼亚与阿塞拜疆对纳卡地区的主权争议展开。本数据可视化整合了独联体维和部队与欧安组织的档案，展示了这场跨越32年的冲突中的关键指标。数据显示，冲突导致超过3万人死亡，100万难民流离失所，成为高加索地区最不稳定的热点问题之一。2020年的'第二次纳卡战争'中，无人机与精确制导武器的大规模应用，彻底改变了山地战的战术形态。数据背后反映了后冷战时代民族主义复兴、领土争端国际化与区域大国博弈的复杂交织。",
+                stats: [
+                    { icon: "fas fa-skull", value: "3万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "32年", label: "持续时间" },
+                    { icon: "fas fa-map-marked-alt", value: "4,400km²", label: "争议领土" },
+                    { icon: "fas fa-people-arrows", value: "100万+", label: "难民人数" }
+                ],
+                timeline: [
+                    { year: "1988年2月", event: "纳戈尔诺-卡拉巴赫自治州议会投票决定并入亚美尼亚，引发阿塞拜疆族与亚美尼亚族的暴力冲突。" },
+                    { year: "1991年12月", event: "苏联解体后，纳卡宣布独立，阿塞拜疆出兵镇压，第一次纳卡战争爆发。" },
+                    { year: "1994年5月", event: "在俄罗斯调解下，双方签署停火协议，但领土控制权争议仍未解决。" },
+                    { year: "2020年9月", event: "第二次纳卡战争爆发，阿塞拜疆在土耳其支持下发动大规模攻势，使用无人机摧毁亚美尼亚装甲部队。" },
+                    { year: "2020年11月", event: "在俄罗斯干预下达成停火协议，亚美尼亚割让部分领土，俄罗斯维和部队进驻纳卡。" }
+                ],
+                charts: [
+                    {
+                        title: "2020年冲突双方军事力量",
+                        id: "nagorno-military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["阿塞拜疆", "亚美尼亚"],
+                            series: [
+                                { name: '陆军', data: [120000, 80000] },
+                                { name: '无人机', data: [200, 50] },
+                                { name: '精确导弹', data: [150, 30] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "主要战役装备损失",
+                        id: "nagorno-loss-chart",
+                        type: "line",
+                        data: {
+                            categories: ["塔尔塔尔攻势", "拉钦走廊战役", "舒沙战役"],
+                            series: [
+                                { name: '阿塞拜疆损失', data: [30, 50, 20] },
+                                { name: '亚美尼亚损失', data: [150, 200, 80] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "后冷战领土争端的现代启示",
+                    text: "纳戈尔诺-卡拉巴赫冲突的数据揭示了当代局部战争的技术革新：无人机侦察-打击一体化系统、精确制导武器的战场主宰力、以及信息战对舆论的操控。数据表明，阿塞拜疆在2020年战争中通过无人机战术，以极小代价摧毁了亚美尼亚的装甲集群，彻底改变了山地战的成本效益比。这场冲突也凸显了区域大国干预的决定性作用——土耳其的武器支持与俄罗斯的地缘政治调停，直接影响了战争进程与结局。纳卡的案例为现代国际社会提出了尖锐问题：在民族自决与主权原则冲突时，如何构建有效的争端解决机制，以及技术革新如何重塑传统战争的伦理边界。",
+                    image: "https://images.unsplash.com/photo-1588162662208-728d1f3d11f0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "叙利亚内战": {
+                title: "叙利亚内战数据分析",
+                period: "2011年3月15日 - 至今",
+                subtitle: "基于冲突数据的战争损失、军事力量与局势分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "叙利亚内战是21世纪以来最复杂的地区冲突之一，起因于阿拉伯之春背景下的反政府抗议，随后演变为多方参与的武装冲突。本数据可视化基于联合国及国际组织的记录，展示了这场持续超14年的战争中的关键指标。数据显示，冲突涉及政府武装、反对派、极端组织及多国干预力量，造成超过50万人死亡，1300万人流离失所。阿勒颇战役、霍姆斯围城战等关键事件深刻影响了战局走向，而外部势力的介入使得冲突解决更加复杂。数据背后反映了现代非对称战争、人道主义危机及地缘政治博弈的多重挑战。",
+                stats: [
+                    { icon: "fas fa-skull", value: "50万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "14年", label: "持续时间" },
+                    { icon: "fas fa-users", value: "1300万+", label: "流离失所者" },
+                    { icon: "fas fa-building", value: "90%", label: "关键城市损毁率" }
+                ],
+                timeline: [
+                    { year: "2011年3月", event: "德拉市反政府抗议爆发，叙利亚内战序幕拉开。政府动用军队镇压，冲突逐步升级。" },
+                    { year: "2013年3月", event: "阿勒颇战役爆发，成为内战中最惨烈的城市争夺战之一，持续近4年，造成大量平民伤亡。" },
+                    { year: "2015年9月", event: "俄罗斯开始军事介入，支持叙利亚政府，战局发生逆转，政府重新控制大片区域。" },
+                    { year: "2018年4月", event: "东古塔地区战役结束，政府收复大马士革周边最后一个反对派据点，局势趋于稳定。" },
+                    { year: "2023年至今", event: "土耳其持续跨境军事行动，打击库尔德武装，冲突呈现长期化、复杂化趋势，和平进程停滞。" }
+                ],
+                charts: [
+                    {
+                        title: "主要参与方军事力量对比",
+                        id: "syria-military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["叙利亚政府", "反对派武装", "极端组织", "库尔德武装"],
+                            series: [
+                                { name: '正规军兵力', data: [150000, 70000, 25000, 30000] },
+                                { name: '装甲车辆', data: [1200, 300, 100, 200] },
+                                { name: '空中力量', data: [200, 0, 0, 0] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "关键地区伤亡人数趋势",
+                        id: "syria-casualty-chart",
+                        type: "line",
+                        data: {
+                            categories: ["阿勒颇", "霍姆斯", "东古塔", "代尔祖尔"],
+                            series: [
+                                { name: '平民伤亡', data: [35000, 25000, 18000, 12000] },
+                                { name: '武装人员伤亡', data: [50000, 30000, 22000, 15000] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "现代复杂冲突的启示",
+                    text: "叙利亚内战的数据揭示了21世纪冲突的多维特征：非国家行为体的崛起、外部干预的常态化、以及人道主义危机的规模化。数据表明，尽管叙利亚政府在军事上占据优势，但长期的战争导致国家基础设施崩溃，民生问题严峻。阿勒颇战役的残酷现实凸显了城市战对平民的巨大伤害，而国际社会的分裂使得冲突难以通过政治途径解决。今天，这些数据提醒我们，解决现代冲突需要兼顾军事、政治、人道等多重维度，以及国际社会的协调与合作。",
+                    image: "https://images.unsplash.com/photo-1568343079178-53567b1f98cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "马里冲突": {
+                title: "马里冲突数据分析",
+                period: "2012年1月 - 至今",
+                subtitle: "基于区域数据的武装冲突、部族矛盾与国际干预分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "马里冲突是西非萨赫勒地区最具代表性的武装冲突，源于北部图阿雷格部族叛乱、极端组织渗透及政府治理失效的多重矛盾。本数据可视化整合了非洲联盟、联合国及法国的军事记录，展示了这场持续超13年的冲突中的关键指标。数据显示，冲突导致超过4万人死亡，270万难民流离失所，北部沙漠地带成为极端组织‘基地’与‘伊斯兰国’分支的活跃区域。法国‘薮猫行动’、联合国马里稳定团（MINUSMA）的介入未能彻底解决问题，反而呈现‘越反恐越恐怖’的困境。数据背后反映了非洲萨赫勒地区治理薄弱、部族矛盾、跨国恐怖主义交织的复杂挑战。",
+                stats: [
+                    { icon: "fas fa-skull", value: "4万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "13年", label: "持续时间" },
+                    { icon: "fas fa-users", value: "270万+", label: "难民人数" },
+                    { icon: "fas fa-map-marked-alt", value: "60%", label: "北部地区失控率" }
+                ],
+                timeline: [
+                    { year: "2012年1月", event: "图阿雷格族武装‘阿扎瓦德民族解放运动’发动叛乱，宣布北部独立，马里冲突爆发。" },
+                    { year: "2012年3月", event: "马里军人发动政变，推翻民选政府，北部极端组织趁机占领廷巴克图等重要城市。" },
+                    { year: "2013年1月", event: "法国发动‘薮猫行动’，派遣地面部队干预，收复北部主要城市，但未能清除极端组织根基。" },
+                    { year: "2015年6月", event: "《和平与和解协议》签署，政府与部分武装组织达成停火，但极端组织袭击仍持续发生。" },
+                    { year: "2022年至今", event: "马里军政府驱逐联合国维和部队，与俄罗斯瓦格纳集团合作，冲突格局进一步复杂化，人道主义危机加剧。" }
+                ],
+                charts: [
+                    {
+                        title: "冲突各方力量对比",
+                        id: "mali-military-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["马里政府军", "图阿雷格武装", "极端组织", "国际干预部队"],
+                            series: [
+                                { name: '正规军兵力', data: [15000, 8000, 5000, 12000] },
+                                { name: '装甲车辆', data: [100, 50, 30, 200] },
+                                { name: '空中支援', data: [10, 0, 0, 50] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "年度恐怖袭击事件统计",
+                        id: "mali-terror-chart",
+                        type: "line",
+                        data: {
+                            categories: ["2015年", "2018年", "2020年", "2023年"],
+                            series: [
+                                { name: '北部地区', data: [300, 500, 700, 900] },
+                                { name: '中部地区', data: [100, 200, 350, 500] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "萨赫勒地区冲突的深层挑战",
+                    text: "马里冲突的数据揭示了非洲萨赫勒地区安全困境的本质：贫困、干旱、部族分裂与恐怖主义相互催化。数据表明，尽管国际社会投入大量资源（如联合国维和部队年均预算超10亿美元），但冲突仍呈蔓延趋势，2023年恐怖袭击事件较2015年增长200%。廷巴克图古城的文化遗产在冲突中遭到严重破坏，反映了战争对文明的摧残。马里的教训表明，解决此类冲突需要超越军事手段，从改善民生、加强治理、促进部族和解等根本问题入手，建立可持续的和平基础。",
+                    image: "https://images.unsplash.com/photo-1596234081336-46273834b385?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "利比亚危机": {
+                title: "利比亚危机数据分析",
+                period: "2011年2月17日 - 至今",
+                subtitle: "基于北非数据的政权更迭、分裂割据与国际博弈分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "利比亚危机始于2011年反卡扎菲政权的民众起义，在北约军事干预下演变为政权更迭，随后陷入长期分裂割据状态。本数据可视化综合了联合国、非洲联盟及利比亚问题专家的研究成果，展示了这场持续14年的危机中的关键指标。数据显示，冲突导致超过4万人死亡，150万人流离失所，国家分裂为东部哈夫塔尔领导的‘国民军’与西部的民族团结政府，南部则成为犯罪集团和极端组织的温床。石油资源的争夺、外部势力（埃及、土耳其、阿联酋等）的干预使得局势更加复杂。数据背后反映了‘阿拉伯之春’后北非国家权力真空引发的连锁反应，以及资源分配、部族矛盾在现代冲突中的核心作用。",
+                stats: [
+                    { icon: "fas fa-skull", value: "4万+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "14年", label: "持续时间" },
+                    { icon: "fas fa-users", value: "150万+", label: "流离失所者" },
+                    { icon: "fas fa-oil-can", value: "130万桶/日", label: "石油产量波动" }
+                ],
+                timeline: [
+                    { year: "2011年2月", event: "班加西爆发反卡扎菲抗议，利比亚内战开始，北约启动‘奥德赛黎明’行动，对政府军实施空袭。" },
+                    { year: "2011年10月", event: "卡扎菲政权垮台，卡扎菲本人被俘杀，利比亚全国过渡委员会接管政权，局势暂时缓和。" },
+                    { year: "2014年5月", event: "第二次利比亚内战爆发，东部议会与西部政府对立，形成两个政权并存的分裂局面。" },
+                    { year: "2019年4月", event: "哈夫塔尔领导的国民军发动对首都的黎波里的进攻，持续14个月的围城战造成大量平民伤亡。" },
+                    { year: "2021年3月", event: "民族团结政府成立，国际社会推动停火，但外部势力干预持续，石油设施多次成为攻击目标。" }
+                ],
+                charts: [
+                    {
+                        title: "利比亚冲突各方控制区域变化",
+                        id: "libya-territory-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["2014年", "2017年", "2020年", "2023年"],
+                            series: [
+                                { name: '西部政府控制区', data: [30, 25, 20, 22] },
+                                { name: '东部国民军控制区', data: [40, 45, 50, 55] },
+                                { name: '无控制区', data: [30, 30, 30, 23] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "石油产量与冲突事件相关性",
+                        id: "libya-oil-chart",
+                        type: "line",
+                        data: {
+                            categories: ["2011年", "2014年", "2019年", "2023年"],
+                            series: [
+                                { name: '石油产量(万桶/日)', data: [160, 80, 120, 100] },
+                                { name: '冲突事件数量', data: [100, 300, 500, 400] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "资源诅咒与国家分裂的警示",
+                    text: "利比亚危机的数据揭示了资源丰富国家在转型过程中的独特风险：石油财富未能转化为国家凝聚力，反而成为分裂势力争夺的目标。数据显示，2019年的黎波里围城战期间，利比亚石油产量暴跌40%，反映了冲突对经济命脉的直接冲击。外部势力为争夺石油利益和地缘影响力介入冲突，使得原本可以通过政治协商解决的矛盾持续激化。利比亚的案例表明，在资源型国家中，建立透明的资源分配机制、包容的政治体制，是避免‘资源诅咒’和国家分裂的关键。",
+                    image: "https://images.unsplash.com/photo-1578099018266-55043d1e75c2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            },
+            "喀麦隆冲突": {
+                title: "喀麦隆冲突数据分析",
+                period: "2016年10月 - 至今",
+                subtitle: "基于中非数据的族群矛盾、分离主义与武装对抗分析可视化",
+                imageUrl: "zz/zz西班牙内战.jpg",
+                description: "喀麦隆冲突是中部非洲近年来最突出的地区安全事件，源于英语区民众对法语主导政府的不满，逐步升级为分离主义武装斗争。本数据可视化基于国际危机组织、联合国人权高专办的报告，展示了这场持续近9年的冲突中的关键指标。数据显示，冲突导致超过6000人死亡，50万人流离失所，英语区的西南州和西北州成为主要战场。分离主义组织‘安巴佐尼亚联邦共和国’宣布独立，但未获国际承认，政府的军事镇压加剧了族群对立。数据背后反映了非洲国家语言文化差异、地方与中央权力失衡、以及治理失效引发的内部冲突挑战。",
+                stats: [
+                    { icon: "fas fa-skull", value: "6000+", label: "死亡人数" },
+                    { icon: "fas fa-calendar-days", value: "9年", label: "持续时间" },
+                    { icon: "fas fa-users", value: "50万+", label: "流离失所者" },
+                    { icon: "fas fa-school", value: "5000+", label: "学校关闭数量" }
+                ],
+                timeline: [
+                    { year: "2016年10月", event: "英语区教师和律师发起抗议，反对法语主导的司法和教育体系，喀麦隆冲突萌芽。" },
+                    { year: "2017年10月", event: "分离主义组织宣布成立‘安巴佐尼亚联邦共和国’，冲突升级为武装对抗，政府宣布进入紧急状态。" },
+                    { year: "2018年1月", event: "政府发动军事进攻，收复部分地区，但分离主义武装转入游击战，袭击政府军和平民。" },
+                    { year: "2020年3月", event: "新冠疫情加剧人道危机，流离失所者难以获得基本服务，冲突与人道危机相互恶化。" },
+                    { year: "2023年至今", event: "国际社会呼吁停火谈判，但双方分歧严重，和平进程停滞，英语区经济濒临崩溃。" }
+                ],
+                charts: [
+                    {
+                        title: "喀麦隆冲突人道危机指标",
+                        id: "cameroon-humanity-chart",
+                        type: "bar",
+                        data: {
+                            categories: ["2017年", "2019年", "2021年", "2023年"],
+                            series: [
+                                { name: '流离失所者(万人)', data: [10, 25, 40, 50] },
+                                { name: '饥饿人口(万人)', data: [5, 15, 25, 35] },
+                                { name: '学校关闭数量', data: [1000, 2500, 4000, 5000] }
+                            ]
+                        }
+                    },
+                    {
+                        title: "冲突双方袭击事件统计",
+                        id: "cameroon-attack-chart",
+                        type: "line",
+                        data: {
+                            categories: ["2017年", "2019年", "2021年", "2023年"],
+                            series: [
+                                { name: '分离主义武装袭击', data: [50, 200, 350, 400] },
+                                { name: '政府军军事行动', data: [100, 300, 450, 500] }
+                            ]
+                        }
+                    }
+                ],
+                parallax: {
+                    title: "语言文化矛盾与国家整合的挑战",
+                    text: "喀麦隆冲突的数据揭示了多语言、多文化国家在国家整合过程中的潜在风险：英语区与法语区的长期隔阂在缺乏有效政治协商机制的情况下，最终演变为武装冲突。数据显示，5000多所学校因冲突关闭，导致整整一代儿童失去受教育机会，这种‘教育断层’可能产生深远的社会影响。冲突还暴露了非洲国家在处理地方诉求时的常见问题：简单依靠军事手段压制而非政治对话，往往导致矛盾激化。喀麦隆的教训表明，构建包容的政治体系、尊重文化多样性、建立有效的地方与中央沟通机制，是多民族国家维持稳定的关键。",
+                    image: "https://images.unsplash.com/photo-1511704678200-27d73b53d27a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200"
+                }
+            }
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function () {
+            // 获取选择的战争名称
+            const selectedWar = localStorage.getItem('selectedWar') || "北非战役";
+
+            // 获取战争数据
+            const warInfo = warData[selectedWar];
+
+            if (!warInfo) {
+                // 如果没有找到数据，显示错误信息
+                document.getElementById('war-title').textContent = "数据加载失败";
+                document.getElementById('war-period').textContent = "请选择有效的战争";
+                return;
+            }
+
+            // 填充页面内容
+            document.getElementById('war-title').textContent = warInfo.title;
+            document.getElementById('war-period').textContent = warInfo.period;
+            document.getElementById('war-subtitle').textContent = warInfo.subtitle;
+            document.getElementById('war-image').src = warInfo.imageUrl;
+            document.getElementById('war-description').textContent = warInfo.description;
+
+            // 填充统计卡片
+            const statsContainer = document.getElementById('stats-container');
+            statsContainer.innerHTML = '';
+            warInfo.stats.forEach(stat => {
+                statsContainer.innerHTML += `
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="${stat.icon}"></i></div>
+                        <div class="stat-value">${stat.value}</div>
+                        <div class="stat-label">${stat.label}</div>
+                    </div>
+                `;
+            });
+
+            // 填充时间线
+            const timelineContainer = document.getElementById('timeline-container');
+            timelineContainer.innerHTML = '';
+            warInfo.timeline.forEach((item, index) => {
+                timelineContainer.innerHTML += `
+                    <div class="timeline-item">
+                        <div class="timeline-year">${item.year}</div>
+                        <div class="timeline-event">${item.event}</div>
+                    </div>
+                `;
+            });
+
+            // 填充视差部分
+            document.getElementById('parallax-title').textContent = warInfo.parallax.title;
+            document.getElementById('parallax-text').textContent = warInfo.parallax.text;
+            document.getElementById('parallax-section').style.backgroundImage = `url('${warInfo.parallax.image}')`;
+
+            // 填充图表容器
+            const chartsContainer = document.getElementById('charts-container');
+            chartsContainer.innerHTML = '';
+            warInfo.charts.forEach(chart => {
+                chartsContainer.innerHTML += `
+                    <div class="chart-container">
+                        <h3 class="chart-title">${chart.title}</h3>
+                        <div class="chart-wrapper" id="${chart.id}"></div>
+                    </div>
+                `;
+            });
+
+            // 初始化粒子背景
+            particlesJS("particles-js", {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: "#fca311" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#e63946",
+                        opacity: 0.3,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" },
+                        resize: true
+                    }
+                },
+                retina_detect: true
+            });
+
+            // 初始化图表
+            warInfo.charts.forEach(chart => {
+                const chartElement = document.getElementById(chart.id);
+                if (!chartElement) return;
+
+                const chartInstance = echarts.init(chartElement);
+                let option = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' }
+                    },
+                    legend: {
+                        textStyle: { color: '#f1faee' },
+                        right: 10,
+                        top: 10
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '10%',
+                        top: '20%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        axisLine: { lineStyle: { color: '#a8a8a8' } },
+                        axisLabel: { color: '#f1faee' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        nameTextStyle: { color: '#a8a8a8' },
+                        axisLine: { lineStyle: { color: '#a8a8a8' } },
+                        splitLine: { lineStyle: { color: 'rgba(168, 168, 168, 0.1)' } },
+                        axisLabel: { color: '#f1faee' }
+                    }
+                };
+
+                if (chart.type === "bar") {
+                    option.xAxis.data = chart.data.categories;
+                    option.legend.data = chart.data.series.map(s => s.name);
+                    option.series = chart.data.series.map(series => {
+                        return {
+                            name: series.name,
+                            type: 'bar',
+                            data: series.data,
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: `#${Math.floor(Math.random() * 16777215).toString(16)}` },
+                                    { offset: 1, color: `#${Math.floor(Math.random() * 16777215).toString(16)}` }
+                                ])
+                            }
+                        };
+                    });
+                } else if (chart.type === "line") {
+                    option.xAxis.data = chart.data.categories;
+                    option.legend.data = chart.data.series.map(s => s.name);
+                    option.series = chart.data.series.map(series => {
+                        return {
+                            name: series.name,
+                            type: 'line',
+                            data: series.data,
+                            smooth: true,
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            lineStyle: { width: 3, color: `#${Math.floor(Math.random() * 16777215).toString(16)}` },
+                            itemStyle: { color: `#${Math.floor(Math.random() * 16777215).toString(16)}` },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.5)` },
+                                    { offset: 1, color: `rgba(${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, ${Math.floor(Math.random() * 255)}, 0.1)` }
+                                ])
+                            }
+                        };
+                    });
+                }
+
+                chartInstance.setOption(option);
+
+                // 窗口大小变化时重绘图表
+                window.addEventListener('resize', function () {
+                    chartInstance.resize();
+                });
+            });
+
+            // 添加视差滚动效果
+            window.addEventListener('scroll', function () {
+                const parallax = document.querySelector('.parallax-section');
+                if (parallax) {
+                    const scrollPosition = window.pageYOffset;
+                    parallax.style.backgroundPositionY = -(scrollPosition * 0.4) + 'px';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

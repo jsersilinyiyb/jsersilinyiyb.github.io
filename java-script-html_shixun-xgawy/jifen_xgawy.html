@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户积分系统 - 战争真相 & 和平页面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 固定按钮样式 */
+        
+        .fixed-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 999;
+        }
+        
+        .back-to-personal,
+        .back-to-top {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-top {
+            background: var(--accent-gold);
+            color: #000;
+        }
+        
+        .back-to-top:hover {
+            background: #e69500;
+            transform: translateY(-5px);
+        }
+        
+        .back-to-personal {
+            background: var(--accent-purple);
+            color: white;
+        }
+        
+        .back-to-personal:hover {
+            background: #8e44ad;
+            transform: translateY(-5px);
+        }
+        /* 确保链接不会影响样式 */
+        
+        .fixed-buttons a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+    <style>
+        /* 原有样式保持不变 */
+        /* 新增页脚优化样式 */
+        
+        #footer {
+            background: linear-gradient(135deg, #050508 0%, #0a0a0f 100%);
+            padding: 50px 0 20px;
+            border-top: 1px solid rgba(100, 100, 120, 0.3);
+            margin-top: 50px;
+        }
+        
+        .footer-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-section {
+            padding: 15px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent-gold);
+        }
+        
+        .footer-about {
+            grid-column: span 2;
+        }
+        
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(252, 163, 17, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background: var(--accent-gold);
+            color: #000;
+            transform: translateY(-3px);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-gold);
+            transform: translateX(5px);
+        }
+        
+        .footer-links a i {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+        }
+        
+        .contact-info {
+            list-style: none;
+        }
+        
+        .contact-info li {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .contact-info i {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            min-width: 24px;
+            margin-top: 3px;
+        }
+        
+        .friend-links {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .friend-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .friend-links a:hover {
+            color: var(--accent-gold);
+        }
+        
+        .friend-links a i {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+        }
+        
+        .copyright {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+        
+        .copyright strong {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 992px) {
+            .footer-about {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+            .footer-section h3 {
+                margin-bottom: 20px;
+            }
+            .copyright {
+                text-align: left;
+                padding: 20px;
+            }
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+         :root {
+            --dark-bg: #0a0a0f;
+            --darker-bg: #050508;
+            --accent-red: #e63946;
+            --accent-blue: #1d3557;
+            --accent-gold: #fca311;
+            --accent-green: #2ecc71;
+            --accent-purple: #9b59b6;
+            --light-text: #f1faee;
+            --gray-text: #a8a8a8;
+            --card-bg: rgba(30, 30, 40, 0.8);
+            --border-color: rgba(100, 100, 120, 0.3);
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker-bg) 0%, var(--dark-bg) 100%);
+            color: var(--light-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .analytics-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .user-bar {
+            background: rgba(20, 20, 30, 0.9);
+            padding: 10px 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .user-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #2a5a8c;
+            transform: translateY(-2px);
+        }
+        
+        .btn.delete {
+            background: var(--accent-red);
+        }
+        
+        .btn.delete:hover {
+            background: #c1121f;
+        }
+        
+        .btn.export {
+            background: #2a9d8f;
+        }
+        
+        .btn.export:hover {
+            background: #21867a;
+        }
+        
+        .btn.generate {
+            background: var(--accent-gold);
+            color: #000;
+        }
+        
+        .btn.generate:hover {
+            background: #e69500;
+        }
+        
+        .btn.peace {
+            background: var(--accent-green);
+            color: #000;
+        }
+        
+        .btn.peace:hover {
+            background: #27ae60;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 40px 20px;
+            background: var(--card-bg);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(230, 57, 70, 0.1) 0%, transparent 70%);
+            z-index: 0;
+        }
+        
+        .dashboard-title {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: var(--accent-gold);
+            text-shadow: 0 0 15px rgba(252, 163, 17, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 1.4rem;
+            max-width: 800px;
+            margin: 0 auto;
+            opacity: 0.85;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .points-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .analytics-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .analytics-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-gold);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .card-icon {
+            font-size: 1.8rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(252, 163, 17, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--accent-gold);
+        }
+        
+        .card-title {
+            font-size: 1.6rem;
+            color: var(--accent-gold);
+        }
+        
+        .points-display {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .total-points {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-gold);
+            text-shadow: 0 0 10px rgba(252, 163, 17, 0.5);
+        }
+        
+        .points-label {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .daily-points {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+            margin-top: 10px;
+        }
+        
+        .rank-badge {
+            background: rgba(230, 57, 70, 0.2);
+            border: 1px solid var(--accent-red);
+            border-radius: 20px;
+            padding: 5px 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .achievements-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .achievement {
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .achievement:hover {
+            transform: translateX(5px);
+            background: rgba(30, 30, 45, 0.7);
+        }
+        
+        .achievement-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(252, 163, 17, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-gold);
+            flex-shrink: 0;
+        }
+        
+        .achievement-info {
+            flex: 1;
+        }
+        
+        .achievement-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .achievement-progress {
+            height: 6px;
+            background: rgba(100, 100, 120, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #fca311, #e63946);
+            border-radius: 3px;
+        }
+        
+        .achievement-points {
+            font-weight: bold;
+            color: var(--accent-gold);
+        }
+        
+        .leaderboard {
+            margin-top: 20px;
+        }
+        
+        .leaderboard-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .leaderboard-title {
+            font-size: 1.2rem;
+            color: var(--accent-gold);
+        }
+        
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: rgba(20, 20, 30, 0.6);
+            border-radius: 8px;
+        }
+        
+        .leaderboard-rank {
+            width: 30px;
+            height: 30px;
+            background: var(--accent-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .rank-1 {
+            background: linear-gradient(135deg, #f6d365, #fda085);
+            color: #000;
+        }
+        
+        .rank-2 {
+            background: linear-gradient(135deg, #d7d2cc, #304352);
+        }
+        
+        .rank-3 {
+            background: linear-gradient(135deg, #8e9eab, #eef2f3);
+            color: #000;
+        }
+        
+        .leaderboard-user {
+            flex: 1;
+        }
+        
+        .leaderboard-points {
+            font-weight: bold;
+            color: var(--accent-gold);
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        .points-history {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding-right: 10px;
+        }
+        
+        .history-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(100, 100, 120, 0.2);
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-action {
+            flex: 1;
+        }
+        
+        .history-points {
+            color: var(--accent-gold);
+            font-weight: bold;
+            min-width: 60px;
+            text-align: right;
+        }
+        
+        .history-time {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            min-width: 80px;
+            text-align: right;
+        }
+        
+        .points-chart {
+            height: 250px;
+            margin-top: 20px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            opacity: 0.5;
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 20px;
+        }
+        
+        .resource-chart {
+            height: 200px;
+        }
+        
+        @media (max-width: 1200px) {
+            .analytics-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+            .points-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-title {
+                font-size: 2.2rem;
+            }
+            .dashboard-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+        /* 添加返回顶部按钮样式 */
+        
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--accent-gold);
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 15px rgba(252, 163, 17, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        #back-to-top:hover {
+            background: #e69500;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(252, 163, 17, 0.6);
+        }
+        
+        #back-to-top i {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        /* 移动端适配 */
+        
+        @media (max-width: 768px) {
+            #back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+    <style>
+        /* 固定按钮样式 */
+        
+        .fixed-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 999;
+        }
+        
+        .back-to-personal,
+        .back-to-top {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-top {
+            background: var(--accent-gold);
+            color: #000;
+        }
+        
+        .back-to-top:hover {
+            background: #e69500;
+            transform: translateY(-5px);
+        }
+        
+        .back-to-personal {
+            background: var(--accent-purple);
+            color: white;
+        }
+        
+        .back-to-personal:hover {
+            background: #8e44ad;
+            transform: translateY(-5px);
+        }
+        /* 确保链接不会影响样式 */
+        
+        .fixed-buttons a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fixed-buttons">
+        <a href="gerenzhongxin_xgawy.html" style="color:inherit;">
+            <div class="back-to-personal" id="backToPersonal" title="返回个人中心">
+                <i class="fas fa-user"></i>
+            </div>
+        </a>
+        <div class="back-to-top" id="backToTop" title="返回顶部">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const backToTop = document.getElementById('backToTop');
+
+            // 只需保留返回顶部功能
+            backToTop.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+    <div class="analytics-container">
+        <!-- 用户信息栏 -->
+        <div class="user-bar">
+            <div class="user-info">
+                <div class="user-avatar" id="user-avatar">U</div>
+                <div>
+                    <div id="username-display">未登录用户</div>
+                    <div class="user-email" id="user-email"></div>
+                </div>
+            </div>
+            <div class="user-actions">
+                <button class="btn" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </button>
+                <button class="btn delete" id="logout-btn" style="display: none;">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">用户积分系统</h1>
+            <p class="dashboard-subtitle">探索您的互动模式，获取积分，解锁成就</p>
+        </div>
+
+        <!-- 积分系统 -->
+        <div class="points-container">
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h2 class="card-title">探索积分系统</h2>
+                </div>
+
+                <div class="points-display">
+                    <div>
+                        <div class="total-points" id="total-points">0</div>
+                        <div class="points-label">总积分</div>
+                        <div class="daily-points" id="daily-points">今日 +0</div>
+                        <div class="rank-badge">
+                            <i class="fas fa-crown"></i>
+                            <span id="user-rank">探索者</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievements-container">
+                    <div class="achievement">
+                        <div class="achievement-icon">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="achievement-info">
+                            <div class="achievement-title">历史研究者</div>
+                            <div>阅读20个历史事件</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar" style="width: 0%" id="history-progress"></div>
+                            </div>
+                        </div>
+                        <div class="achievement-points">+50</div>
+                    </div>
+
+                    <div class="achievement">
+                        <div class="achievement-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="achievement-info">
+                            <div class="achievement-title">情感共鸣者</div>
+                            <div>阅读10个幸存者故事</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar" style="width: 0%" id="story-progress"></div>
+                            </div>
+                        </div>
+                        <div class="achievement-points">+30</div>
+                    </div>
+
+                    <div class="achievement">
+                        <div class="achievement-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <div class="achievement-info">
+                            <div class="achievement-title">地理探索者</div>
+                            <div>探索15个冲突地区</div>
+                            <div class="achievement-progress">
+                                <div class="progress-bar" style="width: 0%" id="map-progress"></div>
+                            </div>
+                        </div>
+                        <div class="achievement-points">+40</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="analytics-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h2 class="card-title">探索者排行榜</h2>
+                </div>
+
+                <div class="leaderboard">
+                    <div class="leaderboard-header">
+                        <div class="leaderboard-title">全球探索者排名</div>
+                        <div>积分</div>
+                    </div>
+
+                    <div id="leaderboard-container">
+                        <!-- 排行榜将由JS动态生成 -->
+                    </div>
+                </div>
+
+                <div class="points-chart" id="points-trend-chart"></div>
+            </div>
+        </div>
+
+        <!-- 积分历史记录 -->
+        <div class="analytics-card">
+            <div class="card-header">
+                <div class="card-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h2 class="card-title">积分历史记录</h2>
+            </div>
+
+            <div class="points-history" id="points-history-container">
+                <!-- 积分历史记录将动态添加 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 积分规则定义
+        const POINTS_RULES = {
+            // 核心内容交互行为
+            '时间轴事件点击': 5,
+            '事件详情面板查看': 8,
+            '同时期战争卡片探索': 6,
+            '图表数据探索': 5,
+            '全球冲突死亡实时计数器关注': 3,
+
+            // 情感化内容参与
+            '幸存者故事分类筛选': 4,
+            '音频内容播放请求': 10,
+            '幸存者故事阅读': 8,
+
+            // 资源获取行为
+            'PDF报告下载': 15,
+            '数据包下载': 15,
+            '教学PPT下载': 15,
+            '设计模板下载': 15,
+
+            // 地图与时空探索
+            '冲突标记点击': 5,
+
+            // 和平页面行为
+            '发布和平宣言': 20,
+            '添加和平之叶': 15,
+            '点赞和平宣言': 5
+        };
+
+        // 成就系统定义
+        const ACHIEVEMENTS = [{
+            id: 'novice',
+            name: '探索新手',
+            points: 50,
+            icon: 'fas fa-seedling'
+        }, {
+            id: 'historian',
+            name: '历史研究者',
+            points: 200,
+            icon: 'fas fa-book'
+        }, {
+            id: 'empath',
+            name: '情感共鸣者',
+            points: 150,
+            icon: 'fas fa-heart'
+        }, {
+            id: 'explorer',
+            name: '地理探索者',
+            points: 180,
+            icon: 'fas fa-map-marked-alt'
+        }, {
+            id: 'scholar',
+            name: '战争学者',
+            points: 300,
+            icon: 'fas fa-graduation-cap'
+        }, {
+            id: 'master',
+            name: '真相大师',
+            points: 500,
+            icon: 'fas fa-crown'
+        }];
+
+        // 用户行为数据
+        let userBehaviors = [];
+        let userPoints = {
+            total: 0,
+            today: 0
+        };
+
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            return user ? user.id : null;
+        }
+
+        // 从localStorage加载行为记录
+        function loadBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，不加载行为数据');
+                return;
+            }
+
+            const savedBehaviors = localStorage.getItem(`warTruthBehaviors_${userId}`);
+            if (savedBehaviors) {
+                userBehaviors = JSON.parse(savedBehaviors);
+            }
+        }
+
+        // 保存行为记录到localStorage
+        function saveBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，行为数据不保存');
+                return;
+            }
+
+            localStorage.setItem(`warTruthBehaviors_${userId}`, JSON.stringify(userBehaviors));
+        }
+
+        // 更新用户界面
+        function updateUserUI() {
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const usernameDisplay = document.getElementById('username-display');
+            const userAvatar = document.getElementById('user-avatar');
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+
+            if (user) {
+                usernameDisplay.textContent = user.username;
+                userAvatar.textContent = user.username.charAt(0).toUpperCase();
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                usernameDisplay.textContent = '未登录用户';
+                userAvatar.textContent = 'G';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        // 登录功能
+        function login() {
+            window.location.href = 'denglu_xgawy.html';
+        }
+
+        // 退出功能
+        function logout() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                localStorage.removeItem('currentUser');
+                alert('您已退出登录');
+            }
+            updateUserUI();
+            location.reload();
+        }
+
+        // 初始化积分系统
+        function initPointsSystem() {
+            // 计算积分
+            calculatePoints();
+
+            // 更新积分显示
+            updatePointsDisplay();
+
+            // 更新积分历史
+            updatePointsHistory();
+
+            // 更新成就进度
+            updateAchievementsProgress();
+
+            // 更新排行榜
+            updateLeaderboard();
+
+            // 更新积分图表
+            updatePointsChart();
+        }
+
+        // 计算用户积分
+        function calculatePoints() {
+            userPoints = {
+                total: 0,
+                today: 0,
+                byType: {
+                    '历史事件': 0,
+                    '情感内容': 0,
+                    '地图探索': 0,
+                    '资源获取': 0
+                }
+            };
+
+            const today = new Date().toDateString();
+
+            userBehaviors.forEach(behavior => {
+                const points = POINTS_RULES[behavior.type] || 0;
+                userPoints.total += points;
+
+                // 计算今日积分
+                const behaviorDate = new Date(behavior.timestamp).toDateString();
+                if (behaviorDate === today) {
+                    userPoints.today += points;
+                }
+
+                // 按类型分类
+                if (behavior.type.includes('时间轴') || behavior.type.includes('事件') || behavior.type.includes('图表')) {
+                    userPoints.byType['历史事件'] += points;
+                } else if (behavior.type.includes('故事') || behavior.type.includes('音频')) {
+                    userPoints.byType['情感内容'] += points;
+                } else if (behavior.type.includes('地图') || behavior.type.includes('冲突')) {
+                    userPoints.byType['地图探索'] += points;
+                } else if (behavior.type.includes('下载')) {
+                    userPoints.byType['资源获取'] += points;
+                }
+            });
+        }
+
+        // 更新积分显示
+        function updatePointsDisplay() {
+            if (!userPoints) return;
+
+            document.getElementById('total-points').textContent = userPoints.total;
+            document.getElementById('daily-points').textContent = `今日 +${userPoints.today}`;
+
+            // 根据积分设置用户等级
+            let rank = '探索者';
+            if (userPoints.total >= 500) rank = '真相大师';
+            else if (userPoints.total >= 300) rank = '战争学者';
+            else if (userPoints.total >= 200) rank = '高级研究员';
+            else if (userPoints.total >= 100) rank = '中级探索者';
+
+            document.getElementById('user-rank').textContent = rank;
+        }
+
+        // 更新成就进度
+        function updateAchievementsProgress() {
+            // 计算历史事件完成度
+            const historyEvents = userBehaviors.filter(b =>
+                b.type.includes('时间轴') || b.type.includes('事件')
+            ).length;
+            const historyProgress = Math.min(100, (historyEvents / 20) * 100);
+            document.getElementById('history-progress').style.width = `${historyProgress}%`;
+
+            // 计算故事完成度
+            const stories = userBehaviors.filter(b =>
+                b.type.includes('故事')
+            ).length;
+            const storyProgress = Math.min(100, (stories / 10) * 100);
+            document.getElementById('story-progress').style.width = `${storyProgress}%`;
+
+            // 计算地图完成度
+            const mapExplorations = userBehaviors.filter(b =>
+                b.type.includes('地图') || b.type.includes('冲突')
+            ).length;
+            const mapProgress = Math.min(100, (mapExplorations / 15) * 100);
+            document.getElementById('map-progress').style.width = `${mapProgress}%`;
+        }
+
+        // 更新排行榜
+        function updateLeaderboard() {
+            const container = document.getElementById('leaderboard-container');
+            container.innerHTML = '';
+
+            // 获取所有用户数据
+            const allUsers = [];
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+
+            // 收集所有用户的积分
+            registeredUsers.forEach(user => {
+                const savedBehaviors = localStorage.getItem(`warTruthBehaviors_${user.id}`);
+                let totalPoints = 0;
+
+                if (savedBehaviors) {
+                    const behaviors = JSON.parse(savedBehaviors);
+                    behaviors.forEach(behavior => {
+                        totalPoints += POINTS_RULES[behavior.type] || 0;
+                    });
+                }
+
+                allUsers.push({
+                    name: user.username,
+                    points: totalPoints,
+                    isCurrent: user.id === getCurrentUserId()
+                });
+            });
+
+            // 排序排行榜（降序）
+            const sortedLeaderboard = [...allUsers].sort((a, b) => b.points - a.points);
+
+            // 只取前10名
+            const top10 = sortedLeaderboard.slice(0, 10);
+
+            top10.forEach((user, index) => {
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+
+                const rankClass = index < 3 ? `rank-${index + 1}` : '';
+                const displayName = user.isCurrent ? `${user.name} (您)` : user.name;
+
+                item.innerHTML = `
+                    <div class="leaderboard-rank ${rankClass}">${index + 1}</div>
+                    <div class="leaderboard-user">${displayName}</div>
+                    <div class="leaderboard-points">${user.points}</div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // 更新积分历史
+        function updatePointsHistory() {
+            const container = document.getElementById('points-history-container');
+            container.innerHTML = '';
+
+            if (userBehaviors.length === 0) {
+                container.innerHTML = '<div class="no-data">暂无积分记录</div>';
+                return;
+            }
+
+            // 按时间倒序排列
+            const sortedBehaviors = [...userBehaviors].reverse();
+
+            sortedBehaviors.forEach(behavior => {
+                const points = POINTS_RULES[behavior.type] || 0;
+                if (points === 0) return;
+
+                const time = new Date(behavior.timestamp);
+                const timeString = time.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const dateString = time.toLocaleDateString([], {
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                const item = document.createElement('div');
+                item.className = 'history-item';
+
+                item.innerHTML = `
+                    <div class="history-action">${behavior.type}</div>
+                    <div class="history-points">+${points}</div>
+                    <div class="history-time">${dateString} ${timeString}</div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // 更新积分趋势图表
+        function updatePointsChart() {
+            const chartDom = document.getElementById('points-trend-chart');
+            const chart = echarts.init(chartDom);
+
+            // 模拟过去7天的积分数据
+            const dates = [];
+            const points = [];
+
+            // 生成最近7天的日期
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                dates.push(date.toLocaleDateString([], {
+                    month: 'short',
+                    day: 'numeric'
+                }));
+
+                // 计算当天的积分
+                let dailyPoints = 0;
+                userBehaviors.forEach(behavior => {
+                    const behaviorDate = new Date(behavior.timestamp).toDateString();
+                    if (behaviorDate === date.toDateString()) {
+                        dailyPoints += POINTS_RULES[behavior.type] || 0;
+                    }
+                });
+
+                points.push(dailyPoints);
+            }
+
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    formatter: '{b}: +{c} 分'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: dates,
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '积分',
+                    axisLine: {
+                        lineStyle: {
+                            color: '#a8a8a8'
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(168, 168, 168, 0.1)'
+                        }
+                    }
+                },
+                series: [{
+                    name: '每日积分',
+                    type: 'bar',
+                    data: points,
+                    itemStyle: {
+                        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                            offset: 0,
+                            color: '#fca311'
+                        }, {
+                            offset: 1,
+                            color: '#e63946'
+                        }])
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: '+{c}',
+                        color: '#f1faee'
+                    }
+                }]
+            };
+
+            chart.setOption(option);
+
+            // 响应窗口大小变化
+            window.addEventListener('resize', function() {
+                chart.resize();
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 更新用户界面
+            updateUserUI();
+
+            // 检查登录状态
+            const userId = getCurrentUserId();
+            if (!userId) {
+                alert('请先登录以查看积分系统');
+                window.location.href = 'denglu_xgawy.html';
+                return;
+            }
+
+            // 加载行为数据
+            loadBehaviors();
+
+            // 初始化积分系统
+            initPointsSystem();
+
+            // 绑定按钮事件
+            document.getElementById('login-btn').addEventListener('click', login);
+            document.getElementById('logout-btn').addEventListener('click', logout);
+
+            // 添加返回顶部功能
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            // 监听滚动事件
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+
+            // 添加点击事件
+            backToTopBtn.addEventListener('click', function() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+    <!-- 页脚版权声明 -->
+    <footer class="footer">
+        <div class="footer-container" id="footer">
+            <div class="footer-section">
+                <h3 id="footer-about-us">关于我们</h3>
+                <p id="footer-about-text">
+                    和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-links">快速链接</h3>
+                <ul class="footer-links">
+                    <li><a href="shouye2.0_xgawy.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-home">首页</span></a></li>
+                    <li><a href="guanyuwomen_xgawy.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-about">关于我们</span></a>
+                    </li>
+                    <li><a href="biaozhi_xgawy.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-logo">标志</span></a></li>
+                    <li><a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate"><i
+                                class="fa fa-chevron-right"></i> <span data-key="footer-donate">捐款</span></a>
+                    </li>
+                    <li><a href="shouye2.0_xgawy.html#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-war-peace">战争与和平</span></a></li>
+                    <li><a href="huodong_xgawy.html"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-events">活动</span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-contact">联系我们</h3>
+                <ul class="contact-info">
+                    <li>
+
+                        <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-phone">电话:12345678910举报热线:110</div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-wechat">微信:lllllll </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 id="footer-friend-links">友情链接</h3>
+                <div class="friend-links">
+                    <a href="https://www.unesco.org/zh" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-unesco">联合国教科文组织</span></a>
+                    <a href="https://www.icrc.org" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-red-cross">国际红十字会</span></a>
+                    <a href="https://www.tufts.edu/wpf" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-peace-foundation">世界和平基金会</span></a>
+                    <a href="https://www.unocha.org" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-aid-network">人道主义援助网</span></a>
+                    <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                        target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+                    <a href="https://www.tc.edu/peace-ed" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-education">和平教育中心</span></a>
+                    <a href="https://www.warmuseum.nl" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-history">战争历史档案馆</span></a>
+                    <a href="https://www.unhcr.org" target="_blank"><i class="fa fa-link"></i> <span
+                            data-key="footer-refugee">难民救助组织</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p id="footer-disclaimer">
+                <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+            </p>
+            <p id="footer-compliance">
+                本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+            </p>
+            <p id="footer-copyright">
+                © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+            </p>
+        </div>
+    </footer>
+</body>
+
+</html>

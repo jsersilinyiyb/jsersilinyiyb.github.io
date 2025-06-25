@@ -1,0 +1,1942 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平行动与留言互动平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="ico.png" type="image/png">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        /* 原有样式保持不变 */
+        /* 新增页脚优化样式 */
+        
+        #footer {
+            background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+            padding: 50px 0 20px;
+            border-top: 1px solid rgba(100, 100, 120, 0.3);
+            margin-top: 50px;
+        }
+        
+        .footer-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-section {
+            padding: 15px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--accent-gold);
+        }
+        
+        .footer-about {
+            grid-column: span 2;
+        }
+        
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(252, 163, 17, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background: var(--accent-gold);
+            color: #000;
+            transform: translateY(-3px);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-gold);
+            transform: translateX(5px);
+        }
+        
+        .footer-links a i {
+            color: var(--accent-gold);
+            font-size: 0.8rem;
+        }
+        
+        .contact-info {
+            list-style: none;
+        }
+        
+        .contact-info li {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .contact-info i {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            min-width: 24px;
+            margin-top: 3px;
+        }
+        
+        .friend-links {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .friend-links a {
+            color: var(--light-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .friend-links a:hover {
+            color: var(--accent-gold);
+        }
+        
+        .friend-links a i {
+            color: var(--accent-gold);
+            font-size: 0.9rem;
+        }
+        
+        .copyright {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+        
+        .copyright strong {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+        /* 响应式调整 */
+        
+        @media (max-width: 992px) {
+            .footer-about {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+            .footer-section h3 {
+                margin-bottom: 20px;
+            }
+            .copyright {
+                text-align: left;
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#36D399',
+                        accent: '#FF9F43',
+                        danger: '#F87272',
+                        neutral: {
+                            100: '#F5F7FA',
+                            200: '#E4E7ED',
+                            300: '#C0C6CF',
+                            400: '#909399',
+                            500: '#606266',
+                            600: '#303133',
+                            700: '#1E1E1E',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': {
+                                transform: 'translateY(0)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-10px)'
+                            },
+                        }
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities { .content-auto { content-visibility: auto; } .text-balance { text-wrap: balance; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; } .scrollbar-hide::-webkit-scrollbar { display: none; } .card-shadow { box-shadow:
+        0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02); } .card-hover { transition: all 0.3s ease; } .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0,
+        0, 0, 0.04); } .progress-ring-circle { transition: stroke-dashoffset 0.35s; transform: rotate(-90deg); transform-origin: 50% 50%; } /* 用户栏样式 */ .user-bar { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); padding: 5px 0;
+        position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,0,0,0.1); } .user-container { display: flex; justify-content: flex-end; align-items: center; padding: 0 20px; gap: 15px; } .user-info { display: flex; align-items: center;
+        gap: 8px; } .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: #165DFF; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; } .user-btn { padding: 6px 12px; border-radius:
+        20px; font-size: 14px; cursor: pointer; transition: all 0.2s ease; height: 28px;} .login-btn { background-color: #165DFF; color: white; border: none; } .login-btn:hover { background-color: #0d5bba; } .logout-btn { background-color: #F5F7FA; color:
+        #606266; border: 1px solid #E4E7ED; } .logout-btn:hover { background-color: #e0e0e0; } .delete-btn { background-color: #F87272; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-top: 8px;
+        } .delete-btn:hover { background-color: #e65c5c; } } @layer utilities { #map-container { position: relative; height: 100%; min-height: 400px; } #activity-container { overflow-y: auto; max-height: 600px; } @media (min-width: 1024px) { #activity-container
+        { position: sticky; top: 120px; } } } .like-btn { cursor: pointer; transition: color 0.2s ease; } .like-btn:hover { color: var(--primary); } .like-btn.text-primary { color: #165DFF; } .sticky.top-\[64px\] { top: 64px; position: sticky; z-index:
+        40; background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); padding-top: 1rem; } @layer utilities { @keyframes emergency-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } } .animate-emergency { animation: emergency-pulse
+        0.8s cubic-bezier(0.4, 0, 0.6, 1) infinite; background-color: #F87272; color: white; border-color: transparent; } @keyframes pulse-fast { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } } .animate-pulse-fast { animation: pulse-fast
+        0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; } } .image-preview { max-height: 200px; object-fit: cover; width: 100%; border-radius: 8px; margin-bottom: 12px; } .location-badge { background-color: #f0f7ff; border: 1px solid #d0e4ff; border-radius:
+        16px; padding: 4px 10px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 8px; } #map-container { height: 250px; border-radius: 8px; margin-top: 10px; } @media (max-width: 768px) { #map-container { height:
+        200px; } } .image-preview-container { position: relative; display: inline-block; margin-bottom: 12px; } .remove-image-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; border-radius: 50%; width: 24px; height:
+        24px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; } .filter-btn.active { background-color: #165DFF; color: white; border-color: #165DFF; } @layer utilities { :root { --peace-green: #2ECC71; } .button-peace
+        { background-color: var(--peace-green); color: white; } } .hero-section { background-image: url('peace/和平鸽.jpg'); background-size: cover; background-position: center; position: relative; overflow: hidden; } .hero-overlay { position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(22, 93, 255, 0.2) 0%, rgba(54, 211, 153, 0.2) 100%); backdrop-filter: blur(2px); z-index: 0; } .hero-content { position: relative; z-index: 10; text-shadow: 0 2px 10px
+        rgba(0, 0, 0, 0.3); } .floating-text { animation: float 6s ease-in-out infinite; } @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } } #message-board { background-image: url('peace/选择留言板背景图.png');
+        background-size: cover; background-position: right center; background-repeat: no-repeat; position: relative; } #message-board::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255,
+        0.7); z-index: 1; } #message-board .container { position: relative; z-index: 2; } @media (max-width: 768px) { #message-board { background-size: auto 100%; background-position: center; } } #message-board { background-attachment: fixed; background-position:
+        center; } /* 通知样式 */ .notification { position: fixed; top: 20px; right: 20px; background: rgba(41, 128, 185, 0.9); color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); z-index: 1000; animation: slideIn
+        0.3s, fadeOut 0.5s 2.5s; } @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+    </style>
+</head>
+
+<body class="font-inter bg-neutral-100 text-neutral-700 min-h-screen flex flex-col">
+    <!-- 用户信息栏 -->
+    <div class="user-bar sticky top-0 z-100 border-b border-neutral-200">
+        <div class="user-container mx-auto px-4 flex justify-end items-center py-2">
+
+            <div id="user-info" class="flex items-center gap-2">
+                <div class="user-info">
+                    <a id="profile-link" href="gerenzhongxin_xgawy.html" style="display: none; text-decoration: none; color: inherit;">
+                        <div id="user-avatar" class="user-avatar"></div>
+                        <span id="username-display"></span>
+                    </a>
+                </div>
+                <button id="login-btn" class="user-btn login-btn">登录</button>
+                <button id="logout-btn" class="user-btn logout-btn text-sm border border-neutral-300 px-3 py-1.5 rounded-full hover:bg-neutral-50 ml-2" style="display:none">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改后的导航栏 -->
+    <header class="sticky top-8 z-50 bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300">
+        <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+            <div class="flex flex-col md:flex-row justify-between items-center py-4">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <a href="#" class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+                            <img src="peace/和平纽带.png" alt="和平纽带图标" class="h-full w-full object-cover">
+                        </div>
+                        <span class="text-xl font-bold text-neutral-700">和平纽带</span>
+                    </a>
+                </div>
+
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="shouye2.0_xgawy.html" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">返回首页</a>
+                    <a href="#action-map" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">行动地图</a>
+                    <a href="#message-board" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">留言板</a>
+                    <a href="#toolkits" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">工具包</a>
+                    <a href="#peace-tree" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">和平之树</a>
+                    <a href="#footer" class="px-4 py-2 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">关于我们</a>
+                    <button id="nav-login-btn" class="px-4 py-2 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">登录</button>
+                </nav>
+
+                <button class="md:hidden text-neutral-600" id="mobile-menu-button">
+                    <i class="fa fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="md:hidden hidden bg-white border-t" id="mobile-menu">
+            <div class="container mx-auto px-4 py-3 space-y-2">
+                <a href="shouye2.0_xgawy.html" class="block px-4 py-3 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">返回首页</a>
+                <a href="#action-map" class="block px-4 py-3 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">行动地图</a>
+                <a href="#message-board" class="block px-4 py-3 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">留言板</a>
+                <a href="#toolkits" class="block px-4 py-3 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">工具包</a>
+                <a href="#peace-tree" class="block px-4-py-3 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">和平之树</a>
+                <a href="guanyuwomen_xgawy.html" class="block px-4 py-3 rounded-lg text-neutral-600 hover:bg-primary/10 hover:text-primary transition-colors font-medium">关于我们</a>
+                <button id="mobile-login-btn" class="block w-full px-4 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">登录</button>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow">
+        <!-- 英雄区域 -->
+        <section class="hero-section py-16 md:py-24">
+            <div class="hero-overlay"></div>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="max-w-3xl mx-auto text-center hero-content">
+                    <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-white leading-tight mb-6 floating-text">
+                        连接行动，<span class="text-yellow-300">传递和平</span>
+                    </h1>
+                    <p class="text-[clamp(1rem,2vw,1.25rem)] text-white mb-8 text-balance">
+                        加入全球行动社区，发现附近的和平活动，分享你的想法与愿景，共同创造更美好的世界
+                    </p>
+                    <div class="flex justify-center">
+                        <button class="bg-primary hover:bg-primary/90 text-white font-medium px-8 py-3 rounded-full shadow-lg transform transition-all hover:scale-105">
+                            <a href="#about-us">加入我们</a>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 行动区域模块（替换为旧页面版本） -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- 左侧：地图区域 -->
+            <div class="lg:col-span-2 bg-white rounded-xl overflow-hidden shadow-xl" id="action-map">
+                <div class="px-6 pt-6">
+                    <h2 class="text-2xl font-bold text-neutral-700 mb-4">行动区域</h2>
+                </div>
+                <div id="map" class="h-[400px] md:h-[600px] rounded-xl z-0"></div>
+            </div>
+
+            <!-- 右侧：活动内容区域 -->
+            <div class="lg:col-span-1" id="activity-container">
+                <!-- 活动内容将通过JS动态加载 -->
+                <div class="bg-white rounded-xl shadow-lg p-6 h-full" id="empty-state">
+                    <div class="flex flex-col items-center justify-center h-full">
+                        <i class="fa fa-map-o text-5xl text-neutral-300 mb-4"></i>
+                        <h3 class="text-xl font-medium text-neutral-700 mb-2">选择行动类型</h3>
+                        <p class="text-neutral-500 text-center">点击地图上的标记点或上方标签筛选活动，右侧将显示详细信息</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 行动分类标签区 - 修改后版本 -->
+        <section>
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- 新增时间滑块（固定在分类标签上方） -->
+                <div class="mb-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg shadow-sm border border-neutral-200">
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-sm font-medium text-neutral-600">活动时间范围：</span>
+                        <span id="time-slider-value" class="text-sm font-medium text-primary">未来30天</span>
+                    </div>
+                    <input type="range" min="7" max="180" value="30" class="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer" id="time-slider">
+                </div>
+
+                <!-- 原有的行动分类标签 -->
+                <div class="flex flex-wrap justify-center gap-4" id="action-tags">
+                    <a href="#" class="action-tag px-6 py-3 rounded-full bg-primary text-white font-medium" data-action="online">
+                        线上行动
+                    </a>
+                    <a href="#" class="action-tag px-6 py-3 rounded-full bg-white text-neutral-600 border border-neutral-200 font-medium hover:bg-neutral-50 transition-colors" data-action="offline">
+                        线下行动
+                    </a>
+                    <a href="#" class="action-tag px-6 py-3 rounded-full bg-white text-neutral-600 border border-neutral-200 font-medium hover:bg-neutral-50 transition-colors" data-action="education">
+                        教育行动
+                    </a>
+                    <a href="#" class="action-tag px-6 py-3 rounded-full bg-white text-neutral-600 border border-neutral-200 font-medium hover:bg-neutral-50 transition-colors animate-emergency" data-action="emergency">
+                        紧急响应 <i class="fa fa-exclamation-triangle text-danger ml-1 animate-pulse-fast"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 留言板区域 -->
+        <section id="message-board" class="py-16 md:py-24 bg-neutral-50 relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-2">
+                <div class="text-center mb-12">
+                    <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-neutral-700 mb-4">和平宣言留言板</h2>
+                    <p class="text-neutral-500 max-w-2xl mx-auto">分享你的和平愿景、行动故事或感悟思考，让更多人听到你的声音</p>
+                </div>
+                <!-- 创作面板 -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8 mb-12">
+                    <h3 class="text-xl font-bold text-neutral-700 mb-6">发表你的宣言</h3>
+                    <div class="space-y-6">
+                        <!-- 心情选择 -->
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-600 mb-2">选择你的心情</label>
+                            <div class="flex space-x-4">
+                                <button class="emotion-btn w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-2xl hover:bg-primary/10 hover:text-primary transition-colors" data-emotion="sad">
+                                    😢
+                                </button>
+                                <button class="emotion-btn w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-2xl hover:bg-primary/10 hover:text-primary transition-colors" data-emotion="angry">
+                                    😠
+                                </button>
+                                <button class="emotion-btn w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-2xl hover:bg-primary/10 hover:text-primary transition-colors" data-emotion="happy">
+                                    ✌
+                                </button>
+                                <button class="emotion-btn w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-2xl hover:bg-primary/10 hover:text-primary transition-colors" data-emotion="love">
+                                    ❤
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 修改文本输入区域的字符计数功能 -->
+                        <div>
+                            <label for="message-text" class="block text-sm font-medium text-neutral-600 mb-2">你的宣言
+                                (最多280字符)</label>
+                            <textarea id="message-text" rows="4" maxlength="280" class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="分享你的和平愿景、行动故事或感悟思考..."></textarea>
+                            <p id="char-count" class="text-sm text-neutral-500 mt-1">0/280 字符</p>
+                        </div>
+
+                        <!-- 图片预览区域 -->
+                        <div id="image-preview-container" class="hidden">
+                            <div class="image-preview-container">
+                                <img id="image-preview" class="image-preview" src="" alt="图片预览">
+                                <div class="remove-image-btn" id="remove-image">
+                                    <i class="fa fa-times text-xs"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 位置选择区域 -->
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-600 mb-2">选择位置</label>
+                            <div class="flex flex-wrap gap-4">
+                                <div class="flex items-center space-x-2 px-4 py-3 rounded-lg border border-neutral-300 hover:border-primary cursor-pointer transition-colors">
+                                    <input type="radio" name="location" id="location-global" class="hidden" value="全球">
+                                    <label for="location-global" class="cursor-pointer flex items-center">
+                                        <i class="fa fa-globe text-neutral-400 text-xl mr-2"></i>
+                                        <span class="text-neutral-600">全球</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-2 px-4 py-3 rounded-lg border border-neutral-300 hover:border-primary cursor-pointer transition-colors">
+                                    <input type="radio" name="location" id="location-asia" class="hidden" value="亚洲">
+                                    <label for="location-asia" class="cursor-pointer flex items-center">
+                                        <i class="fa fa-map-marker text-neutral-400 text-xl mr-2"></i>
+                                        <span class="text-neutral-600">亚洲</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-2 px-4 py-3 rounded-lg border border-neutral-300 hover:border-primary cursor-pointer transition-colors">
+                                    <input type="radio" name="location" id="location-europe" class="hidden" value="欧洲">
+                                    <label for="location-europe" class="cursor-pointer flex items-center">
+                                        <i class="fa fa-map-marker text-neutral-400 text-xl mr-2"></i>
+                                        <span class="text-neutral-600">欧洲</span>
+                                    </label>
+                                </div>
+                                <div class="flex items-center space-x-2 px-4 py-3 rounded-lg border border-neutral-300 hover:border-primary cursor-pointer transition-colors">
+                                    <input type="radio" name="location" id="location-na" class="hidden" value="北美">
+                                    <label for="location-na" class="cursor-pointer flex items-center">
+                                        <i class="fa fa-map-marker text-neutral-400 text-xl mr-2"></i>
+                                        <span class="text-neutral-600">北美</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 附加功能 -->
+                        <div class="flex flex-wrap gap-4">
+                            <label class="flex items-center space-x-2 px-4 py-3 rounded-lg border-2 border-dashed border-neutral-300 hover:border-primary cursor-pointer transition-colors">
+                                <input type="file" accept="image/*" class="hidden" id="message-image">
+                                <i class="fa fa-image text-neutral-400 text-xl"></i>
+                                <span class="text-neutral-600">添加照片</span>
+                            </label>
+                            <button id="post-message" class="ml-auto px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+                                发表宣言
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 宣言卡片区域 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="message-feed">
+                    <!-- 宣言卡片 1 (图文) -->
+                    <div class="message-card bg-white rounded-xl overflow-hidden shadow-lg card-hover" data-emotion="love" data-location="亚洲">
+                        <div class="relative">
+                            <img src="https://picsum.photos/id/1067/600/400" alt="和平抗议活动" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-1 rounded-full bg-love/90 text-white text-xs font-medium">❤
+                                    爱</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-semibold text-neutral-700 mb-2">我们一起创造和平</h4>
+                            <p class="text-neutral-500 text-sm mb-4">
+                                上周参加了社区和平游行，看到不同年龄、不同背景的人走到一起，让我相信改变是可能的。和平不是被动等待，而是主动创造。</p>
+                            <div class="location-badge mb-3">
+                                <i class="fa fa-map-marker text-primary"></i>
+                                <span>亚洲</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-1">
+                                    <img src="https://picsum.photos/id/1027/40/40" alt="用户头像" class="w-8 h-8 rounded-full">
+                                    <span class="text-xs text-neutral-500">李明 · 2天前</span>
+                                </div>
+                                <div class="flex space-x-4">
+                                    <button class="text-neutral-400 hover:text-primary transition-colors like-btn" data-message-id="1" data-likes="42">
+                                        <i class="fa fa-thumbs-up mr-1"></i> <span class="like-count">42</span>
+                                    </button>
+                                    <button class="text-neutral-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-comment mr-1"></i> 8
+                                    </button>
+                                    <button class="text-neutral-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-share-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 宣言卡片 2 (纯文本) -->
+                    <div class="message-card bg-white rounded-xl overflow-hidden shadow-lg card-hover" data-emotion="happy" data-location="欧洲">
+                        <div class="p-5 relative">
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-1 rounded-full bg-happy/90 text-white text-xs font-medium">✌
+                                    希望</span>
+                            </div>
+                            <h4 class="font-semibold text-neutral-700 mb-2">和平教育从家庭开始</h4>
+                            <p class="text-neutral-500 text-sm mb-4">
+                                作为一名教师，我相信和平教育要从家庭和学校开始。我们应该教导孩子们如何用非暴力方式解决冲突，培养同理心和理解他人的能力。这是创造和平社会的基础。</p>
+                            <div class="location-badge mb-3">
+                                <i class="fa fa-map-marker text-primary"></i>
+                                <span>欧洲</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-1">
+                                    <img src="https://picsum.photos/id/1012/40/40" alt="用户头像" class="w-8 h-8 rounded-full">
+                                    <span class="text-xs text-neutral-500">王芳 · 3天前</span>
+                                </div>
+                                <div class="flex space-x-4">
+                                    <button class="text-neutral-400 hover:text-primary transition-colors like-btn" data-message-id="2" data-likes="28">
+                                        <i class="fa fa-thumbs-up mr-1"></i> <span class="like-count">28</span>
+                                    </button>
+                                    <button class="text-neutral-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-comment mr-1"></i> 5
+                                    </button>
+                                    <button class="text-neutral-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-share-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 宣言卡片 3 (图文) -->
+                    <div class="message-card bg-white rounded-xl overflow-hidden shadow-lg card-hover" data-emotion="angry" data-location="北美">
+                        <div class="relative">
+                            <img src="https://picsum.photos/id/1033/600/400" alt="环境污染" class="w-full h-48 object-cover">
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-1 rounded-full bg-angry/90 text-white text-xs font-medium">😠
+                                    愤怒</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-semibold text-neutral-700 mb-2">我们不能再对环境问题视而不见</h4>
+                            <p class="text-neutral-500 text-sm mb-4">
+                                看到我们的地球遭受如此严重的破坏，我感到非常愤怒。气候变化、污染和生物多样性丧失正在威胁着我们的未来。我们必须采取行动，保护我们共同的家园。</p>
+                            <div class="location-badge mb-3">
+                                <i class="fa fa-map-marker text-primary"></i>
+                                <span>北美</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-1">
+                                    <img src="https://picsum.photos/id/1005/40/40" alt="用户头像" class="w-8 h-8 rounded-full">
+                                    <span class="text-xs text-neutral-500">张伟 · 5天前</span>
+                                </div>
+                                <div class="flex space-x-4">
+                                    <button class="text-neutral-400 hover:text-primary transition-colors like-btn" data-message-id="3" data-likes="67">
+                                        <i class="fa fa-thumbs-up mr-1"></i> <span class="like-count">67</span>
+                                    </button>
+                                    <button class="text-neutral-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-comment mr-1"></i> 12
+                                    </button>
+                                    <button class="text-neutral-400 hover:text-primary transition-colors">
+                                        <i class="fa fa-share-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </section>
+    </main>
+
+    <!-- 和平之树特别企划区 -->
+    <section class="py-16 bg-gradient-to-b from-secondary/10 to-primary/10" id="peace-tree">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.8rem,4vw,2.8rem)] font-bold text-neutral-700 mb-4">和平之树</h2>
+                <p class="text-neutral-500 max-w-3xl mx-auto">每一片叶子都代表一个和平宣言，让我们共同培育这棵象征和平的树</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- 树形可视化区域 - 修改为平视效果 -->
+                <div class="relative h-96 flex justify-center">
+                    <!-- 树干 -->
+                    <div class="absolute bottom-0 w-8 h-64 bg-amber-800 rounded-t-lg"></div>
+
+                    <!-- 树冠 - 改为平视效果的椭圆 -->
+                    <div class="absolute bottom-32 w-64 h-32 bg-green-600 rounded-full"></div>
+                    <div class="absolute bottom-48 w-80 h-40 bg-green-500 rounded-full"></div>
+                    <div class="absolute bottom-64 w-56 h-32 bg-green-400 rounded-full"></div>
+
+                    <div id="tree-leaves" class="absolute w-full h-full">
+                        <!-- 树叶将通过JS动态添加 -->
+                    </div>
+                </div>
+
+                <!-- 宣言生成表单 -->
+                <div class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
+                    <h3 class="text-xl font-bold text-neutral-700 mb-6">为和平之树添加你的叶子</h3>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="tree-message" class="block text-sm font-medium text-neutral-600 mb-2">你的和平宣言</label>
+                            <textarea id="tree-message" rows="3" class="w-full px-4 py-3 rounded-lg border border-neutral-300 focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" placeholder="写下你的和平愿望..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-600 mb-2">叶子颜色</label>
+                            <div class="flex flex-wrap gap-3">
+                                <button class="leaf-color w-8 h-8 rounded-full bg-green-500 border-2 border-transparent hover:border-neutral-300 transition-all" data-color="green-500"></button>
+                                <button class="leaf-color w-8 h-8 rounded-full bg-green-600 border-2 border-transparent hover:border-neutral-300 transition-all" data-color="green-600"></button>
+                                <button class="leaf-color w-8 h-8 rounded-full bg-yellow-400 border-2 border-transparent hover:border-neutral-300 transition-all" data-color="yellow-400"></button>
+                                <button class="leaf-color w-8 h-8 rounded-full bg-red-400 border-2 border-transparent hover:border-neutral-300 transition-all" data-color="red-400"></button>
+                                <button class="leaf-color w-8 h-8 rounded-full bg-orange-400 border-2 border-transparent hover:border-neutral-300 transition-all" data-color="orange-400"></button>
+                            </div>
+                        </div>
+                        <button id="add-leaf" class="w-full px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors shadow-md hover:shadow-lg">
+                            生成和平之叶
+                        </button>
+                    </div>
+
+                    <!-- 宣言统计 -->
+                    <div class="mt-8 pt-6 border-t border-neutral-200">
+                        <div class="grid grid-cols-3 gap-4 text-center">
+                            <div>
+                                <div id="total-leaves" class="text-2xl font-bold text-primary">1,248</div>
+                                <div class="text-sm text-neutral-500">总叶子数</div>
+                            </div>
+                            <div>
+                                <div class="text-2xl font-bold text-accent">42</div>
+                                <div class="text-sm text-neutral-500">国家地区</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="toolkits" class="py-16 md:py-24 relative min-h-[400px] flex flex-col justify-center items-center 
+                       bg-cover bg-center bg-no-repeat" style="background-image: url('peace/行动工具包.png'); background-attachment: fixed;">
+        <div class="relative z-10 w-full max-w-3xl px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">行动工具包</h2>
+            <p class="text-white text-lg md:text-xl mb-8">下载实用资源，帮助你更有效地组织和参与和平行动</p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="download-btn flex items-center space-x-2 px-5 py-2.5 rounded-lg bg-white text-blue-600 
+                       shadow-md hover:shadow-lg transition-all cursor-pointer" data-resource="protest-poster">
+                    <i class="fa fa-file-image-o text-xl"></i>
+                    <span class="text-base md:text-lg">抗议海报模板</span>
+                </button>
+                <button class="download-btn flex items-center space-x-2 px-5 py-2.5 rounded-lg bg-white text-blue-600 
+                       shadow-md hover:shadow-lg transition-all cursor-pointer" data-resource="community-guide">
+                    <i class="fa fa-book text-xl"></i>
+                    <span class="text-base md:text-lg">社区行动指南</span>
+                </button>
+                <button class="download-btn flex items-center space-x-2 px-5 py-2.5 rounded-lg bg-white text-blue-600 
+                       shadow-md hover:shadow-lg transition-all cursor-pointer" data-resource="promotion-example">
+                    <i class="fa fa-file-text-o text-xl"></i>
+                    <span class="text-base md:text-lg">宣传文案范例</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- 底部固定标签 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <div class="flex flex-col space-y-2">
+            <a href="#top" class="bg-blue-500 hover:bg-blue-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
+                <i class="fa fa-arrow-up"></i>
+            </a>
+        </div>
+    </div>
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-container" id="footer">
+            <div class="footer-section">
+                <h3 id="footer-about-us">关于我们</h3>
+                <p id="footer-about-text">
+                    和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-links">快速链接</h3>
+                <ul class="footer-links">
+                    <li><a href="shouye2.0_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-home">首页</span></a></li>
+                    <li><a href="guanyuwomen_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-about">关于我们</span></a>
+                    </li>
+                    <li><a href="biaozhi_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-logo">标志</span></a></li>
+                    <li><a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate"><i class="fa fa-chevron-right"></i> <span data-key="footer-donate">捐款</span></a>
+                    </li>
+                    <li><a href="shouye2.0_xgawy.html#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                    data-key="footer-war-peace">战争与和平</span></a></li>
+                    <li><a href="huodong_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-events">活动</span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-contact">联系我们</h3>
+                <ul class="contact-info">
+                    <li>
+
+                        <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-phone">电话:12345678910举报热线:110</div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                    </li>
+                    <li>
+
+                        <div data-key="footer-wechat">微信:lllllll </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 id="footer-friend-links">友情链接</h3>
+                <div class="friend-links">
+                    <a href="https://www.unesco.org/zh" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-unesco">联合国教科文组织</span></a>
+                    <a href="https://www.icrc.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-red-cross">国际红十字会</span></a>
+                    <a href="https://www.tufts.edu/wpf" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-peace-foundation">世界和平基金会</span></a>
+                    <a href="https://www.unocha.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-aid-network">人道主义援助网</span></a>
+                    <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                        target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+                    <a href="https://www.tc.edu/peace-ed" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-education">和平教育中心</span></a>
+                    <a href="https://www.warmuseum.nl" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-history">战争历史档案馆</span></a>
+                    <a href="https://www.unhcr.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-refugee">难民救助组织</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p id="footer-disclaimer">
+                <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+            </p>
+            <p id="footer-compliance">
+                本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+            </p>
+            <p id="footer-copyright">
+                © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 用户行为类型定义
+        const BEHAVIOR_TYPES = {
+            ACTION_TAG_CLICK: '行动标签点击',
+            MAP_TAG_CLICK: '地图标记点点击',
+            MESSAGE_POST: '发布和平宣言',
+            LIKE_MESSAGE: '留言点赞',
+            UNLIKE_MESSAGE: '取消留言点赞',
+            COMMENT_CLICK: '评论按钮点击',
+            SHARE_CLICK: '分享按钮点击',
+            GENERATE_LEAF: '添加和平之叶',
+            CLICK_LEAF: '查看叶子宣言',
+            DOWNLOAD_RESOURCE: '下载资源',
+            USER_LOGIN: '用户登录',
+            USER_LOGOUT: '用户退出',
+            MAP_FILTER: '地图时间筛选', // 新增
+            ACTIVITY_JOIN: '参与活动' // 新增
+        };
+
+        // 初始化行为记录数组
+        let userBehaviors = [];
+
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            return user ? user.id : null;
+        }
+
+        // 从localStorage加载行为记录
+        function loadBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，不加载行为数据');
+                return;
+            }
+
+            const savedBehaviors = localStorage.getItem(`warTruthBehaviors_${userId}`);
+            if (savedBehaviors) {
+                userBehaviors = JSON.parse(savedBehaviors);
+            }
+        }
+
+        // 保存行为记录到localStorage
+        function saveBehaviors() {
+            const userId = getCurrentUserId();
+            if (!userId) {
+                console.log('用户未登录，行为数据不保存');
+                return;
+            }
+
+            localStorage.setItem(`warTruthBehaviors_${userId}`, JSON.stringify(userBehaviors));
+        }
+
+        // 记录用户行为（增强版，增加长文本截断）
+        function recordBehavior(type, details = {}) {
+            // 截断长文本
+            if (details.content && details.content.length > 30) {
+                details.content = details.content.substring(0, 30) + "...";
+            }
+
+            const behavior = {
+                type,
+                details,
+                timestamp: new Date().toISOString()
+            };
+
+            userBehaviors.push(behavior);
+            saveBehaviors();
+            // showNotification(`已记录: ${type}`);
+        }
+
+        // 显示通知
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+
+        // 用户状态管理
+        function updateUserUI() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const usernameDisplay = document.getElementById('username-display');
+            const userAvatar = document.getElementById('user-avatar');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const navLoginBtn = document.getElementById('nav-login-btn');
+            const mobileLoginBtn = document.getElementById('mobile-login-btn');
+            const profileLink = document.getElementById('profile-link'); // 新增
+
+            if (user) {
+                usernameDisplay.textContent = `欢迎，${user.username}`;
+                userAvatar.textContent = user.username.charAt(0).toUpperCase();
+
+                // 显示个人中心链接
+                profileLink.style.display = 'flex'; // 新增
+                profileLink.style.alignItems = 'center'; // 新增
+                profileLink.style.gap = '8px'; // 新增
+
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                if (navLoginBtn) navLoginBtn.style.display = 'none';
+                if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+            } else {
+                usernameDisplay.textContent = '';
+                userAvatar.textContent = '';
+                profileLink.style.display = 'none'; // 新增
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                if (navLoginBtn) navLoginBtn.style.display = 'block';
+                if (mobileLoginBtn) mobileLoginBtn.style.display = 'block';
+            }
+        }
+
+        // 登录按钮事件
+        function handleLogin() {
+            window.location.href = 'denglu_xgawy.html';
+        }
+
+        // 页面加载时初始化用户界面
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserUI();
+
+            // 移动端菜单切换
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // 加载行为数据
+            loadBehaviors();
+
+        });
+
+        // 登录按钮事件绑定
+        document.getElementById('login-btn').addEventListener('click', handleLogin);
+        document.getElementById('nav-login-btn').addEventListener('click', handleLogin);
+        document.getElementById('mobile-login-btn').addEventListener('click', handleLogin);
+
+        // 退出按钮事件
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                recordBehavior(BEHAVIOR_TYPES.USER_LOGOUT, {
+                    username: user.username
+                });
+            }
+
+            localStorage.removeItem('currentUser');
+            userBehaviors = [];
+            updateUserUI();
+            alert('您已退出登录');
+            location.reload();
+        });
+
+        // 数据存储和管理
+        function getMessages() {
+            return JSON.parse(localStorage.getItem('messages')) || [];
+        }
+
+        function saveMessages(messages) {
+            localStorage.setItem('messages', JSON.stringify(messages));
+        }
+
+        function getLeaves() {
+            return JSON.parse(localStorage.getItem('peaceTreeLeaves')) || [];
+        }
+
+        function saveLeaves(leaves) {
+            localStorage.setItem('peaceTreeLeaves', JSON.stringify(leaves));
+        }
+
+        // 留言板功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化留言板
+            renderMessages();
+
+            // 图片上传预览功能
+            const imageInput = document.getElementById('message-image');
+            const imagePreview = document.getElementById('image-preview');
+            const imagePreviewContainer = document.getElementById('image-preview-container');
+            const removeImageBtn = document.getElementById('remove-image');
+            const postMessageBtn = document.getElementById('post-message');
+            const messageText = document.getElementById('message-text');
+            const messageFeed = document.getElementById('message-feed');
+            const emotionButtons = document.querySelectorAll('.emotion-btn');
+            const charCountElement = document.getElementById('char-count');
+            const locationRadios = document.querySelectorAll('input[name="location"]');
+
+            let selectedEmotion = 'happy';
+            let uploadedImage = null;
+
+            // 字符计数
+            messageText.addEventListener('input', function() {
+                const charCount = this.value.length;
+                charCountElement.textContent = `${charCount}/280 字符`;
+
+                if (charCount > 250) {
+                    charCountElement.classList.add('text-danger');
+                    charCountElement.classList.remove('text-neutral-500');
+                } else {
+                    charCountElement.classList.remove('text-danger');
+                    charCountElement.classList.add('text-neutral-500');
+                }
+            });
+
+            // 心情选择
+            emotionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    emotionButtons.forEach(btn => {
+                        btn.classList.remove('bg-primary/20', 'text-primary');
+                    });
+                    this.classList.add('bg-primary/20', 'text-primary');
+                    selectedEmotion = this.getAttribute('data-emotion');
+
+                    // 记录心情选择行为
+                    recordBehavior(BEHAVIOR_TYPES.COMMENT_CLICK, {
+                        emotion: selectedEmotion
+                    });
+                });
+            });
+
+            // 图片上传预览
+            imageInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreviewContainer.classList.remove('hidden');
+                        uploadedImage = e.target.result;
+                    }
+
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // 移除图片
+            removeImageBtn.addEventListener('click', function() {
+                imagePreviewContainer.classList.add('hidden');
+                imageInput.value = '';
+                uploadedImage = null;
+            });
+
+            // 发表留言
+            postMessageBtn.addEventListener('click', function() {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) {
+                    alert('请先登录后再发表宣言');
+                    window.location.href = 'denglu_xgawy.html';
+                    return;
+                }
+
+                const text = messageText.value.trim();
+                if (text === '') {
+                    alert('请输入留言内容');
+                    return;
+                }
+
+                // 获取选择的位置
+                let selectedLocation = '';
+                locationRadios.forEach(radio => {
+                    if (radio.checked) {
+                        selectedLocation = radio.value;
+                    }
+                });
+
+                // 创建留言对象
+                const message = {
+                    id: 'msg_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    userId: user.id,
+                    username: user.username,
+                    emotion: selectedEmotion,
+                    content: text,
+                    image: uploadedImage,
+                    location: selectedLocation || '全球',
+                    timestamp: new Date().toISOString(),
+                    likes: 0,
+                    comments: 0
+                };
+
+                // 保存留言
+                const messages = getMessages();
+                messages.unshift(message);
+                saveMessages(messages);
+
+                // 记录宣言发布行为（增强版）
+                recordBehavior(BEHAVIOR_TYPES.MESSAGE_POST, {
+                    content: text,
+                    emotion: selectedEmotion,
+                    location: selectedLocation || '全球',
+                    length: text.length
+                });
+
+                // 重新渲染留言板
+                renderMessages();
+
+                // 重置表单
+                messageText.value = '';
+                charCountElement.textContent = '0/280 字符';
+                charCountElement.classList.remove('text-danger');
+                charCountElement.classList.add('text-neutral-500');
+
+                if (imagePreviewContainer.classList.contains('hidden') === false) {
+                    imagePreviewContainer.classList.add('hidden');
+                    imageInput.value = '';
+                    uploadedImage = null;
+                }
+
+                // 重置位置选择
+                locationRadios.forEach(radio => {
+                    radio.checked = false;
+                });
+            });
+
+            // 使用事件委托处理所有点赞按钮
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.like-btn')) {
+                    const button = e.target.closest('.like-btn');
+                    handleLikeButtonClick(button);
+                }
+
+                // 处理删除按钮点击
+                if (e.target.closest('.delete-btn')) {
+                    const button = e.target.closest('.delete-btn');
+                    const messageId = button.dataset.messageId;
+                    deleteMessage(messageId);
+                }
+            });
+
+            // 通用的点赞功能处理函数
+            function handleLikeButtonClick(button) {
+                const messageId = button.dataset.messageId;
+                const messages = getMessages();
+                const messageIndex = messages.findIndex(m => m.id === messageId);
+
+                if (messageIndex !== -1) {
+                    messages[messageIndex].likes += 1;
+                    saveMessages(messages);
+
+                    // 记录点赞行为（增强版）
+                    const messageCard = button.closest('.message-card');
+                    const messageContent = messageCard.querySelector('.message-content').textContent;
+                    recordBehavior(BEHAVIOR_TYPES.LIKE_MESSAGE, {
+                        messageId: messageId,
+                        content: messageContent,
+                        likes: messages[messageIndex].likes
+                    });
+
+                    renderMessages();
+                }
+            }
+
+            // 删除留言
+            function deleteMessage(messageId) {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) return;
+
+                const messages = getMessages();
+                const messageIndex = messages.findIndex(m => m.id === messageId);
+
+                if (messageIndex !== -1 && messages[messageIndex].userId === user.id) {
+                    messages.splice(messageIndex, 1);
+                    saveMessages(messages);
+                    renderMessages();
+                    alert('宣言已删除');
+                }
+            }
+
+            // 渲染留言板
+            function renderMessages() {
+                const messages = getMessages();
+                const messageFeed = document.getElementById('message-feed');
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+
+                messageFeed.innerHTML = '';
+
+                messages.forEach(message => {
+                    const isCurrentUser = user && user.id === message.userId;
+                    const emotionLabel = getEmotionLabel(message.emotion);
+
+                    const messageCard = document.createElement('div');
+                    messageCard.className = 'message-card bg-white rounded-xl overflow-hidden shadow-lg card-hover';
+                    messageCard.dataset.emotion = message.emotion;
+                    messageCard.dataset.location = message.location;
+                    messageCard.dataset.messageId = message.id; // 添加消息ID属性
+
+                    let cardContent = `
+                        <div class="p-5 relative">
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-1 rounded-full ${emotionLabel.color} text-white text-xs font-medium">
+                                    ${emotionLabel.text}
+                                </span>
+                            </div>
+                    `;
+
+                    if (message.image) {
+                        cardContent = `
+                            <div class="relative">
+                                <img src="${message.image}" alt="用户上传图片" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="px-2 py-1 rounded-full ${emotionLabel.color} text-white text-xs font-medium">
+                                        ${emotionLabel.text}
+                                    </span>
+                                </div>
+                            </div>
+                        ` + cardContent;
+                    }
+
+                    cardContent += `
+                        <h4 class="font-semibold text-neutral-700 mb-2">${message.content.substring(0, 20)}${message.content.length > 20 ? '...' : ''}</h4>
+                        <p class="text-neutral-500 text-sm mb-4 message-content">${message.content}</p>
+                        <div class="location-badge mb-3">
+                            <i class="fa fa-map-marker text-primary"></i>
+                            <span>${message.location}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-1">
+                                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white">
+                                    ${message.username.charAt(0).toUpperCase()}
+                                </div>
+                                <span class="text-xs text-neutral-500">${message.username} · ${formatTime(message.timestamp)}</span>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button class="text-neutral-400 hover:text-primary transition-colors like-btn" data-message-id="${message.id}">
+                                    <i class="fa fa-thumbs-up mr-1"></i> <span class="like-count">${message.likes}</span>
+                                </button>
+                                <button class="text-neutral-400 hover:text-primary transition-colors comment-btn" data-message-id="${message.id}">
+                                    <i class="fa fa-comment mr-1"></i> ${message.comments}
+                                </button>
+                                <button class="text-neutral-400 hover:text-primary transition-colors share-btn" data-message-id="${message.id}">
+                                    <i class="fa fa-share-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+
+                    if (isCurrentUser) {
+                        cardContent += `
+                            <div class="p-3 border-t border-neutral-100 text-center">
+                                <button class="delete-btn" data-message-id="${message.id}">
+                                    撤回宣言
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    messageCard.innerHTML = cardContent;
+                    messageFeed.appendChild(messageCard);
+                });
+
+                // 为评论和分享按钮添加事件监听器
+                document.querySelectorAll('.comment-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const messageId = this.getAttribute('data-message-id');
+                        recordBehavior(BEHAVIOR_TYPES.COMMENT_CLICK, {
+                            messageId
+                        });
+                        alert('评论功能即将开放');
+                    });
+                });
+
+                document.querySelectorAll('.share-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const messageId = this.getAttribute('data-message-id');
+                        recordBehavior(BEHAVIOR_TYPES.SHARE_CLICK, {
+                            messageId
+                        });
+                        alert('分享功能即将开放');
+                    });
+                });
+            }
+
+            function getEmotionLabel(emotion) {
+                switch (emotion) {
+                    case 'sad':
+                        return {
+                            text: '😢 悲伤',
+                            color: 'bg-blue-500'
+                        };
+                    case 'angry':
+                        return {
+                            text: '😠 愤怒',
+                            color: 'bg-red-500'
+                        };
+                    case 'happy':
+                        return {
+                            text: '✌ 希望',
+                            color: 'bg-green-500'
+                        };
+                    case 'love':
+                        return {
+                            text: '❤ 爱',
+                            color: 'bg-pink-500'
+                        };
+                    default:
+                        return {
+                            text: '✌ 希望',
+                            color: 'bg-green-500'
+                        };
+                }
+            }
+
+            function formatTime(timestamp) {
+                const now = new Date();
+                const msgDate = new Date(timestamp);
+                const diff = Math.floor((now - msgDate) / 1000); // 秒数差
+
+                if (diff < 60) return '刚刚';
+                if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
+                if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`;
+                if (diff < 604800) return `${Math.floor(diff / 86400)}天前`;
+
+                return msgDate.toLocaleDateString();
+            }
+
+            // 和平之树功能
+            const addLeafButton = document.getElementById('add-leaf');
+            const treeMessage = document.getElementById('tree-message');
+            const treeLeavesContainer = document.getElementById('tree-leaves');
+            const leafColorButtons = document.querySelectorAll('.leaf-color');
+            const totalLeavesElement = document.getElementById('total-leaves');
+
+            let selectedColor = 'green-500';
+
+            // 初始化和平之树
+            renderTree();
+
+            // 选择叶子颜色
+            leafColorButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    selectedColor = this.dataset.color;
+                    leafColorButtons.forEach(btn => btn.classList.remove('border-neutral-600'));
+                    this.classList.add('border-neutral-600');
+                });
+            });
+
+            // 添加叶子
+            addLeafButton.addEventListener('click', function() {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) {
+                    alert('请先登录后再添加和平之叶');
+                    window.location.href = 'denglu_xgawy.html';
+                    return;
+                }
+
+                const message = treeMessage.value.trim();
+                if (message === '') return;
+
+                // 创建叶子对象
+                const leaf = {
+                    id: 'leaf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    userId: user.id,
+                    username: user.username,
+                    message: message,
+                    color: selectedColor,
+                    left: Math.random() * 70 + 15,
+                    top: Math.random() * 40 + 30,
+                    rotation: Math.random() * 60 - 30,
+                    timestamp: new Date().toISOString()
+                };
+
+                // 保存叶子
+                const leaves = getLeaves();
+                leaves.push(leaf);
+                saveLeaves(leaves);
+
+                // 记录叶子添加行为（增强版）
+                recordBehavior(BEHAVIOR_TYPES.GENERATE_LEAF, {
+                    content: message,
+                    color: selectedColor,
+                    length: message.length
+                });
+
+                // 重新渲染和平之树
+                renderTree();
+
+                // 清空输入框
+                treeMessage.value = '';
+
+                // 更新计数器
+                const totalLeaves = leaves.length;
+                totalLeavesElement.textContent = totalLeaves.toLocaleString();
+
+                // 显示成功提示
+                alert('你的和平之叶已添加到树上！');
+            });
+
+            // 渲染和平之树
+            function renderTree() {
+                const leaves = getLeaves();
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                treeLeavesContainer.innerHTML = '';
+
+                leaves.forEach(leaf => {
+                    const isCurrentUser = user && user.id === leaf.userId;
+
+                    const leafElement = document.createElement('div');
+                    leafElement.className = `absolute w-16 h-16 bg-${leaf.color} rounded-full opacity-90 flex items-center justify-center text-white text-xs font-medium text-center p-2 cursor-pointer transform transition-all hover:scale-110 hover:z-10 hover:shadow-md`;
+                    leafElement.style.left = `${leaf.left}%`;
+                    leafElement.style.top = `${leaf.top}%`;
+                    leafElement.style.transform = `rotate(${leaf.rotation}deg)`;
+                    leafElement.innerHTML = `<span class="leaf-text">${leaf.message}</span>`;
+
+                    if (isCurrentUser) {
+                        leafElement.innerHTML += `
+                            <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 text-center">
+                                <button class="delete-leaf" data-leaf-id="${leaf.id}">撤回</button>
+                            </div>
+                        `;
+                    }
+
+                    treeLeavesContainer.appendChild(leafElement);
+                });
+
+                // 为叶子添加点击事件
+                document.querySelectorAll('.leaf-text').forEach(leaf => {
+                    leaf.addEventListener('click', function() {
+                        const leafText = this.textContent;
+                        recordBehavior(BEHAVIOR_TYPES.CLICK_LEAF, {
+                            message: leafText.substring(0, 30)
+                        });
+                    });
+                });
+
+                // 添加删除事件监听
+                document.querySelectorAll('.delete-leaf').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const leafId = this.dataset.leafId;
+                        deleteLeaf(leafId);
+                    });
+                });
+
+                // 更新计数器
+                totalLeavesElement.textContent = leaves.length.toLocaleString();
+            }
+
+            // 删除叶子
+            function deleteLeaf(leafId) {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                if (!user) return;
+
+                const leaves = getLeaves();
+                const leafIndex = leaves.findIndex(l => l.id === leafId);
+
+                if (leafIndex !== -1 && leaves[leafIndex].userId === user.id) {
+                    leaves.splice(leafIndex, 1);
+                    saveLeaves(leaves);
+                    renderTree();
+                    alert('和平之叶已撤回');
+                }
+            }
+        });
+
+        // 完整的行动数据 (旧页面数据)
+        const actionData = {
+            online: {
+                title: "线上行动",
+                activities: [{
+                    title: "全球气候变化联署",
+                    description: "呼吁国际社会关注气候变化问题，签署联名信提交给联合国环境署",
+                    progress: {
+                        target: "10万签名",
+                        current: "85%",
+                        width: "85%"
+                    },
+                    buttonText: "立即签名",
+                    buttonColor: "bg-primary"
+                }, {
+                    title: "线上和平论坛",
+                    description: "参与全球和平论坛，与来自世界各地的和平倡导者交流想法和经验",
+                    details: [{
+                        label: "论坛主题",
+                        value: "教育与和平"
+                    }, {
+                        label: "时间",
+                        value: "下周六 19:00-21:00"
+                    }],
+                    buttonText: "预约参加",
+                    buttonColor: "bg-primary"
+                }, {
+                    title: "和平故事分享会",
+                    description: "分享你的和平故事，聆听他人的经历，共同传递和平的力量",
+                    details: [{
+                        label: "组织者",
+                        value: "和平行动平台"
+                    }, {
+                        label: "时间",
+                        value: "每周三 20:00"
+                    }],
+                    buttonText: "参与讨论",
+                    buttonColor: "bg-primary"
+                }]
+            },
+            offline: {
+                title: "线下行动",
+                activities: [{
+                    title: "城市和平音乐会",
+                    description: "汇聚知名艺人的公益音乐会，门票收入将用于支持冲突地区儿童教育",
+                    details: [{
+                        label: "活动地点",
+                        value: "城市公园露天剧场"
+                    }, {
+                        label: "艺人阵容",
+                        value: "3位知名歌手"
+                    }],
+                    progress: {
+                        title: "志愿者招募",
+                        current: "12/50人",
+                        width: "24%"
+                    },
+                    buttonText: "申请志愿者",
+                    buttonColor: "bg-secondary"
+                }, {
+                    title: "社区清洁活动",
+                    description: "组织社区居民共同参与环境清洁，营造更美好的生活空间",
+                    details: [{
+                        label: "活动地点",
+                        value: "社区公园"
+                    }, {
+                        label: "时间",
+                        value: "本周日 9:00-11:00"
+                    }],
+                    buttonText: "报名参加",
+                    buttonColor: "bg-secondary"
+                }, {
+                    title: "和平游行",
+                    description: "通过和平游行表达对和平的渴望，呼吁社会关注冲突解决",
+                    details: [{
+                        label: "游行路线",
+                        value: "市政厅→中央广场"
+                    }, {
+                        label: "时间",
+                        value: "下周日 14:00"
+                    }],
+                    buttonText: "参与游行",
+                    buttonColor: "bg-secondary"
+                }]
+            },
+            education: {
+                title: "教育行动",
+                activities: [{
+                    title: "和平教育工作坊",
+                    description: "面向青少年的和平教育系列工作坊，培养冲突解决与沟通技巧",
+                    details: [{
+                        label: "举办地点",
+                        value: "社区活动中心"
+                    }, {
+                        label: "适合年龄",
+                        value: "12-18岁"
+                    }],
+                    buttonText: "了解详情",
+                    buttonColor: "bg-accent"
+                }, {
+                    title: "和平主题讲座",
+                    description: "邀请专家分享和平发展的最新趋势和实践经验",
+                    details: [{
+                        label: "举办地点",
+                        value: "学校礼堂"
+                    }, {
+                        label: "适合人群",
+                        value: "学生和教师"
+                    }],
+                    buttonText: "了解详情",
+                    buttonColor: "bg-accent"
+                }, {
+                    title: "校园和平大使计划",
+                    description: "培训学生成为校园和平大使，促进校园和谐氛围",
+                    details: [{
+                        label: "举办地点",
+                        value: "各中小学"
+                    }, {
+                        label: "主办方",
+                        value: "教育部与和平组织"
+                    }],
+                    buttonText: "申请加入",
+                    buttonColor: "bg-accent"
+                }]
+            },
+            emergency: {
+                title: "紧急响应",
+                activities: [{
+                    title: "自然灾害救援",
+                    description: "为受灾地区提供紧急救援物资和援助",
+                    buttonText: "立即参与",
+                    buttonColor: "bg-danger"
+                }, {
+                    title: "冲突地区人道援助",
+                    description: "为冲突地区的居民提供食品、医疗和安全保障",
+                    buttonText: "立即参与",
+                    buttonColor: "bg-danger"
+                }, {
+                    title: "公共卫生事件应对",
+                    description: "协助医疗机构进行疫情防控和救治工作",
+                    buttonText: "立即参与",
+                    buttonColor: "bg-danger"
+                }]
+            }
+        };
+
+        // 地图和活动功能
+        document.addEventListener('DOMContentLoaded', function() {
+                    // 时间滑块交互
+                    const timeSlider = document.getElementById('time-slider');
+                    const timeSliderValue = document.getElementById('time-slider-value');
+
+                    // 在创建地图标记后添加
+                    let allMarkers = []; // 存储所有标记的数组
+                    let visibleMarkers = []; // 存储当前可见标记
+
+                    // 在时间滑块事件监听器中添加过滤逻辑
+                    timeSlider.addEventListener('input', function() {
+                        const days = parseInt(this.value);
+                        timeSliderValue.textContent = `未来${days}天`;
+
+                        // 记录时间滑块变化行为（新增）
+                        recordBehavior(BEHAVIOR_TYPES.MAP_FILTER, {
+                            days: days
+                        });
+
+                        // 根据时间范围过滤标记
+                        filterMarkersByDays(days);
+                    });
+
+                    // 新增：过滤标记函数
+                    function filterMarkersByDays(days) {
+                        // 移除所有标记
+                        allMarkers.forEach(marker => {
+                            map.removeLayer(marker.leafletMarker);
+                        });
+
+                        // 添加符合时间范围的标记
+                        allMarkers.forEach(marker => {
+                            if (marker.daysFromNow <= days) {
+                                marker.leafletMarker.addTo(map);
+                                visibleMarkers.push(marker.leafletMarker);
+                            }
+                        });
+
+                        // 自动调整视图以显示所有可见标记
+                        if (visibleMarkers.length > 0) {
+                            const markerGroup = new L.featureGroup(visibleMarkers);
+                            map.fitBounds(markerGroup.getBounds());
+                        }
+
+                        // 清空可见标记数组
+                        visibleMarkers = [];
+                    }
+
+                    // 修改地图视图设置
+                    const map = L.map('map').setView([30, 110], 2); // 缩小初始缩放级别
+
+                    // 添加 OpenStreetMap 底图
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // 定义四种行动类型的图标
+                    const icons = {
+                        online: L.divIcon({
+                            className: 'online-marker ',
+                            html: '<div class="w-8 h-8 rounded-full bg-primary/80 flex items-center justify-center text-white shadow-lg"><i class="fa fa-globe text-sm"></i></div>',
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 16]
+                        }),
+                        offline: L.divIcon({
+                            className: 'offline-marker ',
+                            html: '<div class="w-10 h-10 rounded-full bg-secondary/80 flex items-center justify-center text-white shadow-lg"><i class="fa fa-music text-base"></i></div>',
+                            iconSize: [40, 40],
+                            iconAnchor: [20, 20]
+                        }),
+                        education: L.divIcon({
+                            className: 'education-marker ',
+                            html: '<div class="w-9 h-9 rounded-full bg-accent/80 flex items-center justify-center text-white shadow-lg"><i class="fa fa-graduation-cap text-sm"></i></div>',
+                            iconSize: [36, 36],
+                            iconAnchor: [18, 18]
+                        }),
+                        emergency: L.divIcon({
+                            className: 'emergency-marker ',
+                            html: '<div class="w-12 h-12 rounded-full bg-danger/80 flex items-center justify-center text-white shadow-lg"><i class="fa fa-exclamation-triangle text-base"></i></div>',
+                            iconSize: [48, 48],
+                            iconAnchor: [24, 24]
+                        })
+                    };
+
+                    // 添加标记点
+                    const markers = [{
+                        type: 'online',
+                        id: 'online-1',
+                        title: '全球气候变化联署',
+                        lat: 40.71, // 纽约(联合国总部)
+                        lng: -74.00,
+                        daysFromNow: 5
+                    }, {
+                        type: 'online',
+                        id: 'online-2',
+                        title: '线上和平论坛',
+                        lat: 51.51, // 伦敦
+                        lng: -0.13,
+                        daysFromNow: 15
+                    }, {
+                        type: 'online',
+                        id: 'online-3',
+                        title: '和平故事分享会',
+                        lat: -33.86, // 悉尼
+                        lng: 151.21,
+                        daysFromNow: 8
+                    }, {
+                        type: 'offline',
+                        id: 'offline-1',
+                        title: '城市和平音乐会',
+                        lat: 48.85, // 巴黎
+                        lng: 2.35,
+                        daysFromNow: 25
+                    }, {
+                        type: 'offline',
+                        id: 'offline-2',
+                        title: '社区清洁活动',
+                        lat: 39.90, // 北京
+                        lng: 116.40,
+                        daysFromNow: 10
+                    }, {
+                        type: 'offline',
+                        id: 'offline-3',
+                        title: '和平游行',
+                        lat: 52.52, // 柏林
+                        lng: 13.40,
+                        daysFromNow: 35
+                    }, {
+                        type: 'education',
+                        id: 'education-1',
+                        title: '和平教育工作坊',
+                        lat: 28.61, // 新德里
+                        lng: 77.23,
+                        daysFromNow: 12
+                    }, {
+                        type: 'education',
+                        id: 'education-2',
+                        title: '和平主题讲座',
+                        lat: 35.68, // 东京
+                        lng: 139.76,
+                        daysFromNow: 22
+                    }, {
+                        type: 'education',
+                        id: 'education-3',
+                        title: '校园和平大使计划',
+                        lat: -22.91, // 里约热内卢
+                        lng: -43.17,
+                        daysFromNow: 45
+                    }, {
+                        type: 'emergency',
+                        id: 'emergency-1',
+                        title: '自然灾害救援',
+                        lat: -6.21, // 雅加达(地震多发区)
+                        lng: 106.85,
+                        daysFromNow: 3
+                    }, {
+                        type: 'emergency',
+                        id: 'emergency-2',
+                        title: '冲突地区人道援助',
+                        lat: 50.45, // 基辅
+                        lng: 30.52,
+                        daysFromNow: 1
+                    }, {
+                        type: 'emergency',
+                        id: 'emergency-3',
+                        title: '公共卫生事件应对',
+                        lat: 46.20, // 日内瓦(WHO总部)
+                        lng: 6.15,
+                        daysFromNow: 2
+                    }];
+
+                    // 修改标记创建部分
+                    markers.forEach(markerData => {
+                        const marker = L.marker([markerData.lat, markerData.lng], {
+                            icon: icons[markerData.type],
+                            title: markerData.title
+                        }).addTo(map);
+
+                        marker.on('click', () => {
+                            // 记录地图标记点击行为
+                            recordBehavior(BEHAVIOR_TYPES.MAP_TAG_CLICK, {
+                                markerName: markerData.title,
+                                markerType: markerData.type,
+                                lat: markerData.lat,
+                                lng: markerData.lng
+                            });
+
+                            loadActivityContent(markerData.type, markerData.id);
+                        });
+
+                        // 存储标记对象和元数据
+                        allMarkers.push({
+                            leafletMarker: marker,
+                            daysFromNow: markerData.daysFromNow,
+                            type: markerData.type,
+                            id: markerData.id
+                        });
+                    });
+
+                    // 初始加载时应用默认时间范围
+                    filterMarkersByDays(parseInt(timeSlider.value));
+
+                    // 获取 DOM 元素
+                    const emptyState = document.getElementById('empty-state');
+
+                    // 默认加载线上行动内容
+                    loadActivityContent('online');
+
+                    // 绑定标签点击事件
+                    document.querySelectorAll('.action-tag').forEach(tag => {
+                        tag.addEventListener('click', function(e) {
+                            e.preventDefault();
+
+                            const actionType = this.getAttribute('data-action');
+
+                            // 记录标签点击行为
+                            recordBehavior(BEHAVIOR_TYPES.ACTION_TAG_CLICK, {
+                                actionType
+                            });
+
+                            // 更新标签样式
+                            document.querySelectorAll('.action-tag').forEach(t => {
+                                t.classList.remove('bg-primary', 'text-white');
+                                t.classList.add('bg-white', 'text-neutral-600', 'border', 'border-neutral-200');
+                            });
+
+                            this.classList.add('bg-primary', 'text-white');
+                            this.classList.remove('bg-white', 'text-neutral-600', 'border', 'border-neutral-200');
+
+                            // 加载对应内容
+                            loadActivityContent(this.getAttribute('data-action'));
+                        });
+                    });
+
+                    // 加载活动内容函数
+                    function loadActivityContent(actionType, highlightId = null) {
+                        const container = document.getElementById('activity-container');
+
+                        if (!actionData[actionType]) {
+                            console.error("无效的行动类型:", actionType);
+                            return;
+                        }
+
+                        // 隐藏空状态
+                        emptyState.classList.add('hidden');
+
+                        // 生成活动卡片HTML
+                        const activitiesHTML = actionData[actionType].activities.map((activity, index) => {
+                                    const activityId = `${actionType}-${index + 1}`;
+                                    const isHighlighted = highlightId === activityId;
+
+                                    // 生成详情HTML
+                                    const detailsHTML = activity.details ? `
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    ${activity.details.map(detail => `
+                        <div>
+                            <div class="text-sm text-neutral-500">${detail.label}</div>
+                            <div class="text-neutral-700 font-medium">${detail.value}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+
+                    // 生成进度条HTML
+                    const progressHTML = activity.progress ? `
+                <div class="mb-4">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-neutral-600">${activity.progress.title || ''}</span>
+                        <span class="text-${activity.buttonColor === 'bg-danger' ? 'danger' : 'primary'} font-medium">${activity.progress.current}</span>
+                    </div>
+                    <div class="w-full h-2 bg-neutral-200 rounded-full overflow-hidden">
+                        <div class="h-full ${activity.buttonColor} rounded-full" style="width: ${activity.progress.width}"></div>
+                    </div>
+                </div>
+            ` : '';
+
+                    // 修改按钮为链接 - 添加a标签
+                    return `
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6 ${isHighlighted ? 'ring-2 ring-primary' : ''}" id="${activityId}">
+                <h4 class="text-xl font-semibold text-neutral-700 mb-3">${activity.title}</h4>
+                <p class="text-neutral-500 mb-4">${activity.description}</p>
+                ${detailsHTML}
+                ${progressHTML}
+                <a href="huodong_xgawy.html?type=${actionType}" class="block w-full py-2 rounded-lg ${activity.buttonColor} text-white font-medium hover:opacity-90 transition-colors text-center">
+                    ${activity.buttonText}
+                </a>
+            </div>
+        `;
+                }).join('');
+
+                // 更新容器内容
+                container.innerHTML = `
+            <div class="p-6">
+                <h3 class="text-2xl font-bold text-neutral-700 mb-6">${actionData[actionType].title}</h3>
+                <div class="space-y-4">
+                    ${activitiesHTML}
+                </div>
+            </div>
+        `;
+
+                // 滚动到高亮活动
+                if (highlightId) {
+                    setTimeout(() => {
+                        const element = document.getElementById(highlightId);
+                        if (element) {
+                            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    }, 100);
+                }
+
+                // 为活动按钮添加事件监听（新增）
+                document.querySelectorAll('.activity-btn').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const activityTitle = this.closest('.activity-card').querySelector('.activity-title').textContent;
+                        recordBehavior(BEHAVIOR_TYPES.ACTIVITY_JOIN, {
+                            activity: activityTitle
+                        });
+                        alert(`开始参与活动: ${activityTitle}`);
+                    });
+                });
+            }
+
+            // 资源下载行为记录
+            document.querySelectorAll('.download-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const resourceType = this.getAttribute('data-resource');
+                    let resourceName = '';
+
+                    switch (resourceType) {
+                        case 'protest-poster':
+                            resourceName = '抗议海报模板';
+                            break;
+                        case 'community-guide':
+                            resourceName = '社区行动指南';
+                            break;
+                        case 'promotion-example':
+                            resourceName = '宣传文案范例';
+                            break;
+                    }
+
+                    recordBehavior(BEHAVIOR_TYPES.DOWNLOAD_RESOURCE, {
+                        resource: resourceName
+                    });
+
+                    // 模拟下载
+                    alert(`开始下载: ${resourceName}`);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

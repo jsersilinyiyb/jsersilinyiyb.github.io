@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反战争求和平 - 个人中心</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        
+         :root {
+            --peace-blue: #1E88E5;
+            --peace-blue-light: #64B5F6;
+            --peace-blue-dark: #0D47A1;
+            --warm-gray: #6D757A;
+            --light-gray: #f0f0f0;
+            --dark-gray: #333;
+            --danger-red: #E53935;
+            --success-green: #4CAF50;
+            --hope-yellow: #FFD600;
+            --pure-white: #ffffff;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+            --points-gold: #FFD700;
+            --points-silver: #C0C0C0;
+            --points-bronze: #CD7F32;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--warm-gray), var(--peace-blue));
+            color: var(--pure-white);
+            min-height: 100vh;
+            position: relative;
+            transition: background 0.5s ease;
+        }
+        
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #f0f0f0;
+        }
+        /* 用户状态栏 */
+        
+        .user-bar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-btn {
+            background: var(--peace-blue);
+            color: white;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .user-btn:hover {
+            background: var(--peace-blue-dark);
+            transform: translateY(-2px);
+        }
+        
+        .points-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 15px;
+            border-radius: 20px;
+            color: var(--hope-yellow);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .points-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            padding: 0;
+            position: relative;
+        }
+        
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: var(--pure-white);
+            color: var(--dark-gray);
+            padding: 20px;
+            z-index: 20;
+            overflow-y: auto;
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        
+        body.dark-mode .page {
+            background: #1a1a2e;
+            color: #f0f0f0;
+        }
+        
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light-gray);
+        }
+        
+        body.dark-mode .page-header {
+            border-bottom: 2px solid #30475e;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+            color: var(--peace-blue-dark);
+            margin-left: 15px;
+        }
+        
+        body.dark-mode .page-title {
+            color: var(--peace-blue-light);
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--peace-blue), var(--peace-blue-dark));
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            transition: background 0.5s ease;
+        }
+        
+        body.dark-mode .profile-header {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+        }
+        
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-right: 20px;
+            color: var(--peace-blue);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        body.dark-mode .avatar {
+            background: #30475e;
+            color: var(--peace-blue-light);
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 3px 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .avatar:hover .avatar-edit {
+            opacity: 1;
+        }
+        
+        .user-info {
+            flex: 1;
+        }
+        
+        .username {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .user-bio {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .user-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            position: relative;
+            padding: 10px;
+            min-width: 80px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+        
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .points-value {
+            color: var(--hope-yellow);
+            font-size: 1.4rem;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .settings-panel {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: background 0.5s ease;
+        }
+        
+        body.dark-mode .settings-panel {
+            background: #2d4059;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .setting-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        body.dark-mode .setting-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        body.dark-mode .setting-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked+.slider {
+            background-color: var(--peace-blue);
+        }
+        
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+        
+        .badges-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .badge-item {
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .badge-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .badge-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin: 0 auto 10px;
+            color: var(--hope-yellow);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-mode .badge-icon {
+            background: #30475e;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        .badge-name {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+        }
+        
+        body.dark-mode .badge-name {
+            color: #f0f0f0;
+        }
+        
+        .badge-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            width: 180px;
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .badge-item:hover .badge-tooltip {
+            opacity: 1;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            width: 2px;
+            background: var(--light-gray);
+        }
+        
+        body.dark-mode .timeline::before {
+            background: #30475e;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+            padding-left: 40px;
+            transition: all 0.5s ease;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 15px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--peace-blue);
+            z-index: 1;
+        }
+        
+        body.dark-mode .timeline-item::before {
+            background: var(--peace-blue-light);
+        }
+        
+        .timeline-date {
+            font-size: 0.9rem;
+            color: var(--warm-gray);
+            margin-bottom: 5px;
+        }
+        
+        body.dark-mode .timeline-date {
+            color: #b1b1b1;
+        }
+        
+        .timeline-content {
+            background: var(--light-gray);
+            padding: 15px;
+            border-radius: 8px;
+            position: relative;
+            transition: background 0.5s ease;
+        }
+        
+        body.dark-mode .timeline-content {
+            background: #30475e;
+        }
+        
+        .timeline-content::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-right: 8px solid var(--light-gray);
+        }
+        
+        body.dark-mode .timeline-content::after {
+            border-right-color: #30475e;
+        }
+        
+        .action-btn-small {
+            background: var(--peace-blue);
+            color: var(--pure-white);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-btn-small:hover {
+            background: var(--peace-blue-dark);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn-small i {
+            font-size: 0.8rem;
+        }
+        
+        .record-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        h3 {
+            color: var(--dark-gray);
+            margin: 15px 0;
+        }
+        
+        body.dark-mode h3 {
+            color: #f0f0f0;
+        }
+        
+        .btn-yellow {
+            background: var(--hope-yellow);
+            color: var(--dark-gray);
+        }
+        
+        .btn-gray {
+            background: var(--light-gray);
+            color: var(--dark-gray);
+        }
+        
+        body.dark-mode .btn-gray {
+            background: #30475e;
+            color: #f0f0f0;
+        }
+        
+        .points-container {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: background 0.5s ease;
+        }
+        
+        body.dark-mode .points-container {
+            background: #2d4059;
+        }
+        
+        .points-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .points-title {
+            font-size: 1.5rem;
+            color: var(--peace-blue-dark);
+        }
+        
+        body.dark-mode .points-title {
+            color: var(--peace-blue-light);
+        }
+        
+        .points-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .points-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .points-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .points-card i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .points-card .icon-history {
+            color: var(--peace-blue);
+        }
+        
+        .points-card .icon-map {
+            color: var(--success-green);
+        }
+        
+        .points-card .icon-download {
+            color: var(--hope-yellow);
+        }
+        
+        .points-card .icon-peace {
+            color: var(--danger-red);
+        }
+        
+        .points-card-title {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .points-card-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--hope-yellow);
+        }
+        
+        .points-history-list {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .points-history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .points-history-date {
+            font-size: 0.85rem;
+            color: var(--warm-gray);
+        }
+        
+        .points-history-action {
+            flex: 1;
+            padding: 0 15px;
+            font-size: 0.9rem;
+        }
+        
+        .points-history-points {
+            font-weight: 700;
+            color: var(--hope-yellow);
+        }
+        
+        @media (max-width: 480px) {
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .avatar {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            .user-stats {
+                justify-content: center;
+            }
+            .badges-container {
+                grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+            }
+            .timeline::before {
+                left: 10px;
+            }
+            .timeline-item {
+                padding-left: 30px;
+            }
+            .timeline-item::before {
+                left: 5px;
+            }
+            .timeline-content::after {
+                left: -6px;
+                border-width: 6px;
+            }
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-red);
+            color: white;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            transition: transform 0.3s ease;
+        }
+        
+        .notification-btn:hover .notification-badge {
+            transform: scale(1.1);
+        }
+        
+        .nav-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--pure-white);
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+        
+        .nav-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .notification-btn {
+            position: relative;
+        }
+        
+        .notification-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 320px;
+            max-height: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            z-index: 99;
+            overflow: hidden;
+            transform: translateY(-20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-mode .notification-panel {
+            background: #1a1a2e;
+            border: 1px solid #30475e;
+        }
+        
+        .notification-panel.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .notification-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--light-gray);
+        }
+        
+        body.dark-mode .notification-header {
+            background: #16213e;
+            border-bottom: 1px solid #30475e;
+        }
+        
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .notification-item:hover {
+            background: #f9f9f9;
+        }
+        
+        body.dark-mode .notification-item {
+            border-bottom: 1px solid #30475e;
+        }
+        
+        body.dark-mode .notification-item:hover {
+            background: #16213e;
+        }
+        
+        .notification-item.unread {
+            background: rgba(30, 136, 229, 0.05);
+        }
+        
+        body.dark-mode .notification-item.unread {
+            background: rgba(30, 136, 229, 0.15);
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--dark-gray);
+        }
+        
+        body.dark-mode .notification-title {
+            color: #f0f0f0;
+        }
+        
+        .notification-content {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        body.dark-mode .notification-content {
+            color: #b1b1b1;
+        }
+        
+        .notification-time {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: right;
+        }
+        
+        body.dark-mode .notification-time {
+            color: #888;
+        }
+        
+        .clear-all {
+            color: var(--peace-blue);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: transform 0.4s ease;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        
+        body.dark-mode .modal-content {
+            background: #16213e;
+            border: 1px solid #30475e;
+        }
+        
+        .modal-header {
+            padding: 20px;
+            background: var(--light-gray);
+            border-bottom: 1px solid #eee;
+        }
+        
+        body.dark-mode .modal-header {
+            background: #1a1a2e;
+            border-bottom: 1px solid #30475e;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            background: var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        body.dark-mode .modal-footer {
+            background: #1a1a2e;
+            border-top: 1px solid #30475e;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+        
+        body.dark-mode .form-group label {
+            color: #f0f0f0;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--peace-blue);
+            outline: none;
+        }
+        
+        body.dark-mode .form-control {
+            background: #1a1a2e;
+            border-color: #30475e;
+            color: #f0f0f0;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary {
+            background: var(--peace-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--peace-blue-dark);
+        }
+        
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark-gray);
+        }
+        
+        body.dark-mode .btn-secondary {
+            background: #30475e;
+            color: #f0f0f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        body.dark-mode .btn-secondary:hover {
+            background: #3a5470;
+        }
+        
+        .avatar-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .avatar-upload-btn {
+            display: block;
+            text-align: center;
+            padding: 10px;
+            background: var(--light-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+        
+        .avatar-upload-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        body.dark-mode .avatar-upload-btn {
+            background: #30475e;
+        }
+        
+        body.dark-mode .avatar-upload-btn:hover {
+            background: #3a5470;
+        }
+        
+        .notification-empty {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+        
+        body.dark-mode .notification-empty {
+            color: #666;
+        }
+        
+        .record-deleting {
+            opacity: 0.5;
+            transform: translateX(-100%);
+        }
+        
+        .record-adding {
+            animation: recordPulse 1s;
+        }
+        
+        @keyframes recordPulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .btn-disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .notification-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        
+        .notification-toast.show {
+            opacity: 1;
+        }
+        
+        .peace-logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--pure-white);
+            margin-left: 20px;
+            margin-top: 20px;
+        }
+        
+        .peace-logo i {
+            margin-right: 10px;
+            color: var(--hope-yellow);
+        }
+        /* 成就系统样式 */
+        
+        .badge-item.locked .badge-icon {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        
+        .badge-item.locked .badge-name {
+            color: #999;
+        }
+        
+        .badge-item.locked .badge-tooltip {
+            background: rgba(100, 100, 100, 0.8);
+        }
+        
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--hope-yellow), #ffcc00);
+            color: #333;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            text-align: center;
+            max-width: 300px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .achievement-popup.show {
+            opacity: 1;
+            visibility: visible;
+            animation: achievementBounce 0.8s;
+        }
+        
+        @keyframes achievementBounce {
+            0% {
+                transform: translate(-50%, -100%);
+                opacity: 0;
+            }
+            70% {
+                transform: translate(-50%, -45%);
+            }
+            100% {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+        
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .achievement-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .achievement-desc {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        /* 添加返回顶部按钮样式 */
+        
+        #back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--peace-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+        
+        #back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        #back-to-top:hover {
+            background: var(--peace-blue-dark);
+            transform: translateY(-5px);
+        }
+        
+        @media (max-width: 768px) {
+            #back-to-top {
+                bottom: 20px;
+                right: 20px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+    <style>
+        /* 添加返回上一级按钮样式 */
+        
+        #back-to-previous {
+            position: fixed;
+            bottom: 30px;
+            right: 90px;
+            /* 放在返回顶部按钮左侧 */
+            width: 50px;
+            height: 50px;
+            background: var(--peace-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 999;
+        }
+        
+        #back-to-previous.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        #back-to-previous:hover {
+            background: var(--peace-blue-dark);
+            transform: translateY(-5px);
+        }
+        /* 调整返回顶部按钮位置 */
+        
+        #back-to-top {
+            right: 30px;
+            /* 原始位置 */
+        }
+        
+        @media (max-width: 768px) {
+            #back-to-previous {
+                bottom: 20px;
+                right: 70px;
+                width: 45px;
+                height: 45px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 在返回顶部按钮前添加返回上一级按钮 -->
+    <div id="back-to-previous" title="返回上一级">
+        <i class="fas fa-arrow-left"></i>
+    </div>
+    <!-- 返回顶部按钮 -->
+    <div id="back-to-top" title="返回顶部">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    <!-- 顶部用户状态栏 -->
+    <div class="user-bar">
+        <div id="user-info">
+            <span id="username-display"></span>
+            <a href="#" id="points-display" class="points-link" style="display:none">
+                <i class="fas fa-coins"></i>
+                <span id="points-value-top">0</span> 积分
+            </a>
+            <button id="login-btn" class="user-btn">登录</button>
+            <button id="logout-btn" class="user-btn" style="display:none">退出</button>
+        </div>
+    </div>
+
+    <div class="peace-logo">
+        <i class="fas fa-dove"></i>
+        <span>个人中心</span>
+    </div>
+
+    <!-- 成就解锁弹窗 -->
+    <div class="achievement-popup" id="achievement-popup">
+        <div class="achievement-icon">
+            <i class="fas fa-medal"></i>
+        </div>
+        <div class="achievement-title" id="achievement-title">成就解锁！</div>
+        <div class="achievement-desc" id="achievement-desc"></div>
+        <button class="btn btn-primary" id="close-popup">知道了</button>
+    </div>
+
+    <div class="container">
+        <!-- 通知按钮 -->
+        <div class="nav-icon notification-btn">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+        </div>
+
+        <!-- 通知面板 -->
+        <div class="notification-panel">
+            <div class="notification-header">
+                <strong>通知</strong>
+                <span class="clear-all">全部清除</span>
+            </div>
+            <div class="notification-list">
+                <div class="notification-item unread">
+                    <div class="notification-title">新成就解锁</div>
+                    <div class="notification-content">恭喜您获得了"和平倡导者"徽章！继续记录和平故事，传播和平理念。</div>
+                    <div class="notification-time">5分钟前</div>
+                </div>
+                <div class="notification-item unread">
+                    <div class="notification-title">记录获得点赞</div>
+                    <div class="notification-content">您的记录"战争摧毁的不仅是建筑..."获得了5个点赞</div>
+                    <div class="notification-time">2小时前</div>
+                </div>
+                <div class="notification-item">
+                    <div class="notification-title">系统更新通知</div>
+                    <div class="notification-content">和平备忘录已更新至v1.2版本，新增徽章系统和深色模式</div>
+                    <div class="notification-time">昨天</div>
+                </div>
+                <div class="notification-item">
+                    <div class="notification-title">社区活动邀请</div>
+                    <div class="notification-content">本周六将在中央公园举办和平主题论坛，诚邀您参加</div>
+                    <div class="notification-time">3天前</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 个人中心页面 -->
+        <div class="page active" id="profile-page">
+            <div class="page-header">
+                <h2 class="page-title">个人中心</h2>
+            </div>
+
+            <div class="profile-header">
+                <div class="avatar" id="avatar-container">
+                    <i class="fas fa-user" id="avatar-icon"></i>
+                    <div class="avatar-edit">更换头像</div>
+                </div>
+                <div class="user-info">
+                    <div class="username">和平使者</div>
+                    <div class="user-bio">记录和平，创造未来</div>
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="records-count">0</div>
+                            <div class="stat-label">记录</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value points-value" id="points-value">0</div>
+                            <div class="stat-label">积分</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="badges-count">5</div>
+                            <div class="stat-label">徽章</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 积分系统部分 -->
+            <div class="points-container">
+                <div class="points-header">
+                    <h3 class="points-title">我的积分</h3>
+                    <button class="action-btn-small" id="view-points-btn">
+                        <i class="fas fa-external-link-alt"></i> 查看详情
+                    </button>
+                </div>
+
+                <div class="points-details">
+                    <div class="points-card">
+                        <i class="fas fa-history icon-history"></i>
+                        <div class="points-card-title">历史探索</div>
+                        <div class="points-card-value" id="points-history">0</div>
+                    </div>
+                    <div class="points-card">
+                        <i class="fas fa-map-marked-alt icon-map"></i>
+                        <div class="points-card-title">地图探索</div>
+                        <div class="points-card-value" id="points-map">0</div>
+                    </div>
+                    <div class="points-card">
+                        <i class="fas fa-file-download icon-download"></i>
+                        <div class="points-card-title">资源获取</div>
+                        <div class="points-card-value" id="points-resources">0</div>
+                    </div>
+                    <div class="points-card">
+                        <i class="fas fa-peace icon-peace"></i>
+                        <div class="points-card-title">和平贡献</div>
+                        <div class="points-card-value" id="points-peace">0</div>
+                    </div>
+                </div>
+
+                <div class="points-history-list" id="points-history-list">
+                    <!-- 积分历史记录将动态生成 -->
+                </div>
+            </div>
+
+            <div class="settings-panel">
+                <h3>账号设置</h3>
+                <div class="setting-item">
+                    <span>深色模式</span>
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-toggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>通知设置</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item">
+                    <span>隐私设置</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item">
+                    <span>账号安全</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item">
+                    <span>行为记录与个人分析</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+                <div class="setting-item">
+                    <span>小游戏</span>
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+
+            <h3>我的成就</h3>
+            <div class="badges-container" id="badges-container">
+                <!-- 徽章将通过JavaScript动态生成 -->
+            </div>
+
+            <h3>我的记录</h3>
+            <div class="timeline" id="records-timeline">
+                <!-- 记录将通过JavaScript动态生成 -->
+            </div>
+
+            <div style="margin: 30px 0; text-align: center;">
+                <button class="action-btn-small" style="background: var(--success-green);" id="add-record-btn">
+                    <i class="fas fa-plus"></i> 添加新记录
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 头像上传模态框 -->
+    <div class="modal" id="avatar-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>更换头像</h3>
+            </div>
+            <div class="modal-body">
+                <div class="avatar-preview" id="avatar-preview">
+                    <i class="fas fa-user" style="font-size: 3rem; color: #aaa;"></i>
+                </div>
+                <label class="avatar-upload-btn">
+                    <i class="fas fa-upload"></i> 选择图片
+                    <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-avatar">取消</button>
+                <button class="btn btn-primary" id="save-avatar">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加记录模态框 -->
+    <div class="modal" id="add-record-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加新记录</h3>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="record-title">标题</label>
+                    <input type="text" class="form-control" id="record-title" placeholder="为您的记录添加标题">
+                </div>
+                <div class="form-group">
+                    <label for="record-content">内容</label>
+                    <textarea class="form-control" id="record-content" placeholder="写下您的和平记录..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-record">取消</button>
+                <button class="btn btn-primary" id="save-record">保存记录</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑记录模态框 -->
+    <div class="modal" id="edit-record-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑记录</h3>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-record-id">
+                <div class="form-group">
+                    <label for="edit-record-title">标题</label>
+                    <input type="text" class="form-control" id="edit-record-title">
+                </div>
+                <div class="form-group">
+                    <label for="edit-record-content">内容</label>
+                    <textarea class="form-control" id="edit-record-content"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-edit">取消</button>
+                <button class="btn btn-primary" id="save-edit">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 通知提示 -->
+    <div class="notification-toast" id="toast"></div>
+
+    <script>
+        // 积分规则定义
+        const POINTS_RULES = {
+            // 核心内容交互行为
+            '时间轴事件点击': 5,
+            '事件详情面板查看': 8,
+            '同时期战争卡片探索': 6,
+            '图表数据探索': 5,
+            '全球冲突死亡实时计数器关注': 3,
+
+            // 情感化内容参与
+            '幸存者故事分类筛选': 4,
+            '音频内容播放请求': 10,
+            '幸存者故事阅读': 8,
+
+            // 资源获取行为
+            'PDF报告下载': 15,
+            '数据包下载': 15,
+            '教学PPT下载': 15,
+            '设计模板下载': 15,
+
+            // 地图与时空探索
+            '冲突标记点击': 5,
+
+            // 和平页面行为
+            '发布和平宣言': 20,
+            '添加和平之叶': 15,
+            '点赞和平宣言': 5
+        };
+
+        // 用户状态管理函数
+        function updateUserUI() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const usernameDisplay = document.getElementById('username-display');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const profileUsername = document.querySelector('.username');
+            const pointsDisplay = document.getElementById('points-display');
+            const pointsValueTop = document.getElementById('points-value-top');
+
+            if (user) {
+                usernameDisplay.textContent = `欢迎，${user.username}`;
+                profileUsername.textContent = user.username;
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                pointsDisplay.style.display = 'flex';
+
+                // 加载用户头像
+                loadUserAvatar(user.id);
+
+                // 更新积分显示
+                const totalPoints = calculateTotalPoints(user.id);
+                document.getElementById('points-value').textContent = totalPoints;
+                pointsValueTop.textContent = totalPoints;
+
+                // 更新积分详情
+                updatePointsDetails(user.id);
+            } else {
+                usernameDisplay.textContent = '未登录';
+                profileUsername.textContent = '游客';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                pointsDisplay.style.display = 'none';
+            }
+        }
+
+        // 计算用户总积分
+        function calculateTotalPoints(userId) {
+            const key = `warTruthBehaviors_${userId}`;
+            const behaviors = JSON.parse(localStorage.getItem(key)) || [];
+            let totalPoints = 0;
+
+            behaviors.forEach(behavior => {
+                totalPoints += POINTS_RULES[behavior.type] || 0;
+            });
+
+            return totalPoints;
+        }
+
+        // 更新积分详情
+        function updatePointsDetails(userId) {
+            const key = `warTruthBehaviors_${userId}`;
+            const behaviors = JSON.parse(localStorage.getItem(key)) || [];
+
+            let historyPoints = 0;
+            let mapPoints = 0;
+            let resourcesPoints = 0;
+            let peacePoints = 0;
+
+            behaviors.forEach(behavior => {
+                const points = POINTS_RULES[behavior.type] || 0;
+
+                // 按类型分类
+                if (behavior.type.includes('时间轴') || behavior.type.includes('事件') || behavior.type.includes('图表')) {
+                    historyPoints += points;
+                } else if (behavior.type.includes('地图') || behavior.type.includes('冲突')) {
+                    mapPoints += points;
+                } else if (behavior.type.includes('下载')) {
+                    resourcesPoints += points;
+                } else if (behavior.type.includes('和平') || behavior.type.includes('宣言')) {
+                    peacePoints += points;
+                }
+            });
+
+            // 更新显示
+            document.getElementById('points-history').textContent = historyPoints;
+            document.getElementById('points-map').textContent = mapPoints;
+            document.getElementById('points-resources').textContent = resourcesPoints;
+            document.getElementById('points-peace').textContent = peacePoints;
+
+            // 更新积分历史列表
+            updatePointsHistoryList(behaviors);
+        }
+
+        // 更新积分历史列表
+        function updatePointsHistoryList(behaviors) {
+            const container = document.getElementById('points-history-list');
+            container.innerHTML = '';
+
+            if (behaviors.length === 0) {
+                container.innerHTML = '<div class="no-data">暂无积分记录</div>';
+                return;
+            }
+
+            // 按时间倒序排列
+            const sortedBehaviors = [...behaviors].sort((a, b) =>
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+
+            sortedBehaviors.forEach(behavior => {
+                const points = POINTS_RULES[behavior.type] || 0;
+                if (points === 0) return;
+
+                const time = new Date(behavior.timestamp);
+                const timeString = time.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                const dateString = time.toLocaleDateString([], {
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                const item = document.createElement('div');
+                item.className = 'points-history-item';
+
+                item.innerHTML = `
+                    <div class="points-history-date">${dateString}</div>
+                    <div class="points-history-action">${behavior.type}</div>
+                    <div class="points-history-points">+${points}</div>
+                `;
+
+                container.appendChild(item);
+            });
+        }
+
+        // 登录按钮事件
+        document.getElementById('login-btn').addEventListener('click', function() {
+            window.location.href = 'denglu_xgawy.html';
+        });
+
+        // 退出按钮事件
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem('currentUser');
+            updateUserUI();
+            showToast('您已退出登录');
+        });
+
+        // 查看积分详情按钮
+        document.getElementById('view-points-btn').addEventListener('click', function() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                window.location.href = 'jifen_xgawy.html';
+            } else {
+                showToast('请先登录再查看积分详情');
+            }
+        });
+
+        // 页面加载时初始化用户界面
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserUI();
+            initRecords();
+
+            // 获取返回顶部按钮
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            // 监听滚动事件
+            window.addEventListener('scroll', function() {
+                // 当滚动距离超过300px时显示按钮
+                if (window.scrollY > 300) {
+                    backToTopBtn.classList.add('show');
+                } else {
+                    backToTopBtn.classList.remove('show');
+                }
+            });
+
+            // 添加点击事件
+            backToTopBtn.addEventListener('click', function() {
+                // 平滑滚动到顶部
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // 加载用户头像
+        function loadUserAvatar(userId) {
+            const avatarContainer = document.getElementById('avatar-container');
+            const avatarIcon = document.getElementById('avatar-icon');
+            const avatarKey = `userAvatar_${userId}`;
+            const avatarData = localStorage.getItem(avatarKey);
+
+            if (avatarData) {
+                avatarContainer.innerHTML = `<img src="${avatarData}" alt="用户头像">`;
+                avatarIcon.style.display = 'none';
+            } else {
+                avatarIcon.style.display = 'flex';
+            }
+        }
+
+        // 保存用户头像
+        function saveUserAvatar(userId, avatarData) {
+            const avatarKey = `userAvatar_${userId}`;
+            localStorage.setItem(avatarKey, avatarData);
+            loadUserAvatar(userId);
+        }
+
+        // 成就系统实现
+        const achievements = [{
+            id: 'badge-1',
+            title: '和平使者',
+            icon: 'fas fa-dove',
+            description: '获得100积分',
+            condition: points => points >= 100
+        }, {
+            id: 'badge-2',
+            title: '故事收集者',
+            icon: 'fas fa-book',
+            description: '获得200积分',
+            condition: points => points >= 200
+        }, {
+            id: 'badge-3',
+            title: '记录达人',
+            icon: 'fas fa-pen',
+            description: '获得300积分',
+            condition: points => points >= 300
+        }, {
+            id: 'badge-4',
+            title: '全球公民',
+            icon: 'fas fa-globe',
+            description: '获得400积分',
+            condition: points => points >= 400
+        }, {
+            id: 'badge-5',
+            title: '和平倡导者',
+            icon: 'fas fa-hands',
+            description: '获得500积分',
+            condition: points => points >= 500
+        }, {
+            id: 'badge-6',
+            title: '希望播种者',
+            icon: 'fas fa-seedling',
+            description: '获得600积分',
+            condition: points => points >= 600
+        }];
+
+        // 初始化用户成就
+        function getUserAchievements(userId) {
+            const key = `userAchievements_${userId}`;
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
+        // 保存用户成就
+        function saveUserAchievements(userId, achievements) {
+            const key = `userAchievements_${userId}`;
+            localStorage.setItem(key, JSON.stringify(achievements));
+        }
+
+        // 渲染徽章
+        function renderBadges(userId) {
+            const badgesContainer = document.getElementById('badges-container');
+            badgesContainer.innerHTML = '';
+
+            const userAchievements = getUserAchievements(userId);
+            const totalPoints = calculateTotalPoints(userId);
+
+            achievements.forEach(achievement => {
+                const isUnlocked = userAchievements.includes(achievement.id) ||
+                    achievement.condition(totalPoints);
+
+                const badgeItem = document.createElement('div');
+                badgeItem.className = `badge-item ${isUnlocked ? '' : 'locked'}`;
+                badgeItem.dataset.id = achievement.id;
+
+                badgeItem.innerHTML = `
+                    <div class="badge-icon">
+                        <i class="${achievement.icon}"></i>
+                    </div>
+                    <div class="badge-name">${achievement.title}</div>
+                    <div class="badge-tooltip">${isUnlocked ? achievement.description : '未解锁'}</div>
+                `;
+
+                badgesContainer.appendChild(badgeItem);
+            });
+
+            // 更新徽章数量
+            const unlockedAchievements = achievements.filter(a =>
+                userAchievements.includes(a.id) || a.condition(totalPoints)
+            );
+            document.getElementById('badges-count').textContent = unlockedAchievements.length;
+        }
+
+        // 检查并授予成就
+        function checkAchievements(userId) {
+            const totalPoints = calculateTotalPoints(userId);
+            const userAchievements = getUserAchievements(userId);
+            let newAchievements = [];
+
+            achievements.forEach(achievement => {
+                // 如果用户尚未获得该成就且满足条件
+                if (!userAchievements.includes(achievement.id) && achievement.condition(totalPoints)) {
+                    userAchievements.push(achievement.id);
+                    newAchievements.push(achievement);
+                }
+            });
+
+            // 保存到本地存储
+            saveUserAchievements(userId, userAchievements);
+
+            // 显示新成就通知
+            if (newAchievements.length > 0) {
+                newAchievements.forEach(achievement => {
+                    showAchievementPopup(achievement);
+                    showNotification("新成就解锁", `恭喜您获得了"${achievement.title}"徽章！`);
+                });
+
+                // 重新渲染徽章
+                renderBadges(userId);
+            }
+        }
+
+        // 显示成就解锁弹窗
+        function showAchievementPopup(achievement) {
+            const popup = document.getElementById('achievement-popup');
+            const title = document.getElementById('achievement-title');
+            const desc = document.getElementById('achievement-desc');
+
+            title.textContent = achievement.title;
+            desc.textContent = achievement.description;
+
+            // 设置图标
+            const icon = popup.querySelector('.achievement-icon i');
+            icon.className = achievement.icon;
+
+            popup.classList.add('show');
+
+            // 添加关闭事件
+            document.getElementById('close-popup').addEventListener('click', () => {
+                popup.classList.remove('show');
+            });
+        }
+
+        // 记录数据结构
+        class Record {
+            constructor(id, title, content, date) {
+                this.id = id;
+                this.title = title;
+                this.content = content;
+                this.date = date;
+            }
+        }
+
+        // 获取当前用户ID
+        function getCurrentUserId() {
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            return user ? user.id : 'guest';
+        }
+
+        // 获取用户记录
+        function getUserRecords(userId) {
+            const key = `peaceRecords_${userId}`;
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
+        // 保存用户记录
+        function saveUserRecords(userId, records) {
+            const key = `peaceRecords_${userId}`;
+            localStorage.setItem(key, JSON.stringify(records));
+            updateStats(records.length);
+        }
+
+        // 深色模式切换
+        const darkModeToggle = document.getElementById('dark-mode-toggle');
+        darkModeToggle.addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode', this.checked);
+            // 保存用户偏好
+            localStorage.setItem('darkMode', this.checked);
+
+            // 更新通知
+            if (this.checked) {
+                showNotification("已启用深色模式", "保护眼睛的同时节约能源");
+                showToast("已启用深色模式");
+            } else {
+                showNotification("已切换回浅色模式");
+                showToast("已切换回浅色模式");
+            }
+        });
+
+        // 显示通知
+        function showNotification(title, message = "") {
+            const badge = document.querySelector('.notification-badge');
+            let count = parseInt(badge.textContent);
+            badge.textContent = count + 1;
+
+            // 创建新的通知项
+            const notificationList = document.querySelector('.notification-list');
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('zh-CN', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'notification-item unread';
+            notificationItem.innerHTML = `
+                <div class="notification-title">${title}</div>
+                <div class="notification-content">${message || "您有一条新通知"}</div>
+                <div class="notification-time">刚刚</div>
+            `;
+
+            notificationList.insertBefore(notificationItem, notificationList.firstChild);
+        }
+
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 检查保存的深色模式设置
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true;
+        }
+
+        // 徽章悬停效果
+        const badgeItems = document.querySelectorAll('.badge-item');
+        badgeItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                const icon = item.querySelector('.badge-icon');
+                icon.style.transform = 'scale(1.1)';
+                icon.style.transition = 'transform 0.3s ease';
+            });
+
+            item.addEventListener('mouseleave', () => {
+                const icon = item.querySelector('.badge-icon');
+                icon.style.transform = 'scale(1)';
+            });
+        });
+
+        // 更新记录统计
+        function updateStats(count) {
+            const statValue = document.getElementById('records-count');
+            statValue.textContent = count;
+        }
+
+        // 通知按钮点击
+        document.querySelector('.notification-btn').addEventListener('click', function() {
+            document.querySelector('.notification-panel').classList.toggle('active');
+            // 清除未读通知标记
+            document.querySelector('.notification-badge').textContent = '0';
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+            });
+        });
+
+        // 清除所有通知
+        document.querySelector('.clear-all').addEventListener('click', function() {
+            document.querySelector('.notification-list').innerHTML =
+                '<div class="notification-empty">没有通知</div>';
+            document.querySelector('.notification-badge').textContent = '0';
+            showToast("通知已清空");
+        });
+
+        // 头像上传功能
+        const avatarContainer = document.getElementById('avatar-container');
+        const avatarModal = document.getElementById('avatar-modal');
+        const avatarUpload = document.getElementById('avatar-upload');
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarIcon = document.getElementById('avatar-icon');
+
+        avatarContainer.addEventListener('click', () => {
+            avatarModal.classList.add('active');
+        });
+
+        document.getElementById('cancel-avatar').addEventListener('click', () => {
+            avatarModal.classList.remove('active');
+        });
+
+        document.getElementById('save-avatar').addEventListener('click', () => {
+            avatarModal.classList.remove('active');
+            showNotification("头像已更新", "您已成功更换个人头像");
+            showToast("头像已更新");
+        });
+
+        avatarUpload.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+
+                const userId = getCurrentUserId();
+                if (!userId || userId === 'guest') {
+                    showToast('请先登录再上传头像');
+                    return;
+                }
+
+                reader.onload = function(e) {
+                    avatarPreview.innerHTML = `<img src="${e.target.result}" alt="头像">`;
+                    saveUserAvatar(userId, e.target.result);
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // 记录存储与操作
+        let currentEditId = null;
+
+        // 初始化记录
+        function initRecords() {
+            const userId = getCurrentUserId();
+            let records = getUserRecords(userId);
+
+            // 检查是否是首次登录（无记录）
+            if (records.length === 0 && userId !== 'guest') {
+                // 添加一条首次登录的欢迎记录
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('zh-CN');
+                const welcomeRecord = new Record(
+                    Date.now(),
+                    "欢迎使用和平备忘录",
+                    "这是您的第一条和平记录。点击下方按钮添加新的和平感悟、故事或反思。让我们一起记录和平，创造更美好的世界。",
+                    dateStr
+                );
+
+                records.push(welcomeRecord);
+                saveUserRecords(userId, records);
+            }
+
+            renderRecords(userId);
+            // 初始化成就系统
+            renderBadges(userId);
+            checkAchievements(userId);
+        }
+
+        // 渲染所有记录
+        function renderRecords(userId) {
+            const timeline = document.getElementById('records-timeline');
+            timeline.innerHTML = '';
+
+            const records = getUserRecords(userId);
+
+            // 按日期倒序排列
+            records.sort((a, b) => b.id - a.id);
+
+            records.forEach(record => {
+                        const item = document.createElement('div');
+                        item.className = 'timeline-item';
+                        item.dataset.id = record.id;
+
+                        item.innerHTML = `
+                    <div class="timeline-date">${record.date}</div>
+                    <div class="timeline-content">
+                        <p>${record.title ? `<strong>${record.title}</strong><br>` : ''}${record.content}</p>
+                        <div class="record-actions">
+                            <button class="action-btn-small btn-yellow edit-btn"><i class="fas fa-edit"></i> 编辑</button>
+                            <button class="action-btn-small btn-gray delete-btn"><i class="fas fa-trash"></i> 删除</button>
+                        </div>
+                    </div>
+                `;
+
+                timeline.appendChild(item);
+            });
+
+            // 绑定事件
+            bindRecordEvents(userId);
+        }
+
+        // 绑定记录操作事件
+        function bindRecordEvents(userId) {
+            // 删除功能
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const item = this.closest('.timeline-item');
+                    const recordId = parseInt(item.dataset.id);
+
+                    if (confirm('确定要删除这条记录吗？此操作不可撤销。')) {
+                        // 添加删除动画
+                        item.classList.add('record-deleting');
+
+                        // 从数组中移除
+                        let records = getUserRecords(userId);
+                        records = records.filter(r => r.id !== recordId);
+                        saveUserRecords(userId, records);
+
+                        // 延迟删除DOM元素
+                        setTimeout(() => {
+                            item.remove();
+                            showNotification("记录已删除", "您已成功删除一条和平记录");
+                            showToast("记录已删除");
+                            checkAchievements(userId);
+                        }, 500);
+                    }
+                });
+            });
+
+            // 编辑功能
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', function () {
+                    const item = this.closest('.timeline-item');
+                    const recordId = parseInt(item.dataset.id);
+                    const records = getUserRecords(userId);
+                    const record = records.find(r => r.id === recordId);
+
+                    if (record) {
+                        document.getElementById('edit-record-id').value = record.id;
+                        document.getElementById('edit-record-title').value = record.title || '';
+                        document.getElementById('edit-record-content').value = record.content;
+                        document.getElementById('edit-record-modal').classList.add('active');
+                    }
+                });
+            });
+        }
+
+        // 添加记录功能
+        const addRecordBtn = document.getElementById('add-record-btn');
+        const addRecordModal = document.getElementById('add-record-modal');
+        const saveRecordBtn = document.getElementById('save-record');
+
+        addRecordBtn.addEventListener('click', () => {
+            document.getElementById('record-title').value = '';
+            document.getElementById('record-content').value = '';
+            addRecordModal.classList.add('active');
+        });
+
+        document.getElementById('cancel-record').addEventListener('click', () => {
+            addRecordModal.classList.remove('active');
+        });
+
+        saveRecordBtn.addEventListener('click', function () {
+            const title = document.getElementById('record-title').value;
+            const content = document.getElementById('record-content').value;
+            const userId = getCurrentUserId();
+
+            if (userId === 'guest') {
+                showToast('请先登录再添加记录');
+                return;
+            }
+
+            if (content.trim() === '') {
+                alert('记录内容不能为空！');
+                return;
+            }
+
+            // 显示加载状态
+            const originalText = saveRecordBtn.innerHTML;
+            saveRecordBtn.innerHTML = '<span class="loading-spinner"></span>保存中...';
+            saveRecordBtn.classList.add('btn-disabled');
+
+            // 模拟保存延迟
+            setTimeout(() => {
+                // 创建新记录
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('zh-CN');
+                const newRecord = new Record(Date.now(), title, content, dateStr);
+
+                // 添加到数组
+                let records = getUserRecords(userId);
+                records.unshift(newRecord);
+                saveUserRecords(userId, records);
+
+                // 重新渲染
+                renderRecords(userId);
+
+                addRecordModal.classList.remove('active');
+                showNotification("记录已添加", "新的和平记录已保存");
+                showToast("记录添加成功");
+
+                // 恢复按钮状态
+                saveRecordBtn.innerHTML = originalText;
+                saveRecordBtn.classList.remove('btn-disabled');
+
+                // 检查成就
+                checkAchievements(userId);
+            }, 800);
+        });
+
+        // 编辑记录保存
+        document.getElementById('save-edit').addEventListener('click', function () {
+            const recordId = parseInt(document.getElementById('edit-record-id').value);
+            const title = document.getElementById('edit-record-title').value;
+            const content = document.getElementById('edit-record-content').value;
+            const userId = getCurrentUserId();
+
+            if (userId === 'guest') {
+                showToast('请先登录再编辑记录');
+                return;
+            }
+
+            if (content.trim() === '') {
+                alert('记录内容不能为空！');
+                return;
+            }
+
+            // 找到并更新记录
+            let records = getUserRecords(userId);
+            const recordIndex = records.findIndex(r => r.id === recordId);
+            if (recordIndex !== -1) {
+                records[recordIndex].title = title;
+                records[recordIndex].content = content;
+                saveUserRecords(userId, records);
+                renderRecords(userId);
+
+                document.getElementById('edit-record-modal').classList.remove('active');
+                showNotification("记录已更新", "您的和平记录已成功修改");
+                showToast("记录更新成功");
+            }
+        });
+
+        document.getElementById('cancel-edit').addEventListener('click', () => {
+            document.getElementById('edit-record-modal').classList.remove('active');
+        });
+
+        // 关闭模态框点击外部区域
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // 设置项点击效果
+        document.querySelectorAll('.setting-item').forEach(item => {
+            item.addEventListener('click', function () {
+                this.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                setTimeout(() => {
+                    this.style.backgroundColor = '';
+                }, 200);
+
+                const settingName = this.querySelector('span').textContent;
+
+                // 历史记录点击处理
+                if (settingName === '行为记录与个人分析') {
+                    // 获取当前用户ID
+                    const userId = getCurrentUserId();
+
+                    // 如果未登录，提示用户
+                    if (userId === 'guest') {
+                        showToast('请先登录再查看行为记录与个人分析');
+                        return;
+                    }
+                    window.location.href = "gerenfenxi_xgawy.html";
+                }
+                // 点击处理
+                if (settingName === '小游戏') {
+                    // 获取当前用户ID
+                    const userId = getCurrentUserId();
+
+                    // 如果未登录，提示用户
+                    if (userId === 'guest') {
+                        showToast('请先登录再进行游玩');
+                        return;
+                    }
+                    window.location.href = "xiaoyouxi_xgawy.html";
+                }
+                // 除了深色模式切换，其他设置项显示提示
+                if (!this.querySelector('.switch')) {
+                    const settingName = this.querySelector('span').textContent;
+                    showNotification(`${settingName}`, "该功能正在开发中");
+                    showToast(`${settingName}功能开发中`);
+                }
+            });
+        });
+    </script>
+    <script>
+        // 获取返回上一级按钮
+        const backToPreviousBtn = document.getElementById('back-to-previous');
+
+        // 监听滚动事件
+        window.addEventListener('scroll', function() {
+            // 当滚动距离超过300px时显示按钮
+            if (window.scrollY > 300) {
+                backToPreviousBtn.classList.add('show');
+                backToTopBtn.classList.add('show');
+            } else {
+                backToPreviousBtn.classList.remove('show');
+                backToTopBtn.classList.remove('show');
+            }
+        });
+
+        // 添加返回上一级点击事件
+        backToPreviousBtn.addEventListener('click', function() {
+            history.back();
+        });
+    </script>
+</body>
+
+</html>

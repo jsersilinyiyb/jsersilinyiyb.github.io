@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平之声 - 用户登录</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --peace-blue: #1a73e8;
+            --peace-red: #e74c3c;
+            --peace-white: #ffffff;
+            --peace-light: #f8f9fa;
+            --peace-dark: #343a40;
+            --peace-gray: #6c757d;
+            --peace-yellow: #f1c40f;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--peace-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: var(--peace-dark);
+        }
+
+        .container {
+            display: flex;
+            width: 850px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 宣言在左侧 */
+
+        .manifesto-container {
+            flex: 1;
+            background: linear-gradient(rgba(231, 76, 60, 0.9), rgba(231, 76, 60, 0.9));
+            color: white;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* 登录表单在右侧 */
+
+        .login-container {
+            flex: 1.5;
+            background-color: var(--peace-white);
+            padding: 30px;
+        }
+
+        .peace-header {
+            background-color: var(--peace-blue);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .peace-header h2 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .peace-header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .peace-dove {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--peace-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--peace-gray);
+        }
+
+        .captcha-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .captcha-image {
+            background-color: #f1f1f1;
+            padding: 8px;
+            border-radius: 4px;
+            margin-right: 8px;
+            height: 40px;
+            width: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #333;
+            text-decoration: line-through;
+            transform: rotate(-3deg);
+        }
+
+        .refresh-captcha {
+            background: none;
+            border: none;
+            color: var(--peace-blue);
+            cursor: pointer;
+            font-size: 13px;
+            margin-left: 8px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .remember-me input {
+            margin-right: 6px;
+        }
+
+        .remember-me label {
+            font-size: 13px;
+            color: var(--peace-gray);
+        }
+
+        .peace-button {
+            width: 100%;
+            padding: 10px;
+            background-color: var(--peace-blue);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .peace-button:hover {
+            background-color: #0d5bba;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+            color: var(--peace-gray);
+        }
+
+        .form-footer a {
+            color: var(--peace-blue);
+            text-decoration: none;
+        }
+
+        .manifesto-title {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .manifesto-content {
+            line-height: 1.6;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .highlight {
+            color: var(--peace-yellow);
+            font-weight: 600;
+        }
+
+        .peace-symbol {
+            text-align: center;
+            font-size: 30px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                width: 90%;
+            }
+
+            .login-container,
+            .manifesto-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 左侧宣言 -->
+        <div class="manifesto-container">
+            <h2 class="manifesto-title">和平宣言</h2>
+            <div class="peace-symbol">✌️</div>
+            <div class="manifesto-content">
+                <p>我们坚信<span class="highlight">和平是人类唯一的出路</span></p>
+                <p>战争带来的只有痛苦与破坏</p>
+                <p>和平则孕育希望与繁荣</p>
+                <div class="peace-symbol">🕊️</div>
+                <p>加入我们，共同建设和平世界</p>
+            </div>
+        </div>
+
+        <!-- 右侧登录表单 -->
+        <div class="login-container">
+            <div class="peace-header">
+                <div class="peace-dove">🕊️</div>
+                <h2>和平之声</h2>
+                <p>用对话代替冲突，用理解化解分歧</p>
+            </div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" placeholder="请输入您的用户名" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <div class="password-container">
+                        <input type="password" id="login-password" placeholder="请输入您的密码" required>
+                        <i class="fas fa-eye toggle-password" id="toggle-password"></i>
+                    </div>
+                </div>
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember-password">
+                    <label for="remember-password">记住用户名和密码</label> <!-- 修改标签文本 -->
+                </div>
+
+                <div class="form-group">
+                    <label>验证码</label>
+                    <div class="captcha-container">
+                        <div class="captcha-image" id="captcha-image"></div>
+                        <input type="text" id="captcha-input" placeholder="输入验证码" required>
+                        <button type="button" class="refresh-captcha" id="refresh-captcha">
+                            <i class="fas fa-sync-alt"></i> 换一张
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="peace-button">登录</button>
+
+                <div class="form-footer">
+                    还没有账号? <a href="zhuce_xgawy.html">立即注册</a> |
+                    <a href="wangji_xgawy.html">忘记密码?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 检查是否已登录
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            if (user) {
+                alert('您已登录，将跳转到主页面');
+                window.location.href = 'shouye2.0_xgawy.html';
+            }
+
+            // 自动填充记住的用户名和密码
+            const rememberedUser = JSON.parse(localStorage.getItem('rememberedUser'));
+            if (rememberedUser) {
+                document.getElementById('login-username').value = rememberedUser.username;
+                // 解码Base64存储的密码
+                try {
+                    const decodedPassword = atob(rememberedUser.password);
+                    document.getElementById('login-password').value = decodedPassword;
+                } catch (e) {
+                    console.error('密码解码失败:', e);
+                }
+                document.getElementById('remember-password').checked = true;
+            }
+
+            // 密码显示/隐藏切换
+            document.getElementById('toggle-password').addEventListener('click', function () {
+                const passwordInput = document.getElementById('login-password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.classList.toggle('fa-eye-slash');
+            });
+
+            // 验证码生成函数
+            function generateCaptcha() {
+                const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                let captcha = '';
+                for (let i = 0; i < 5; i++) {
+                    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                return captcha;
+            }
+
+            // 初始化验证码
+            let currentCaptcha = generateCaptcha();
+            document.getElementById('captcha-image').textContent = currentCaptcha;
+
+            // 验证码刷新
+            document.getElementById('refresh-captcha').addEventListener('click', function () {
+                currentCaptcha = generateCaptcha();
+                document.getElementById('captcha-image').textContent = currentCaptcha;
+                document.getElementById('captcha-input').value = '';
+            });
+
+            async function hashPassword(password) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            }
+            
+            // 登录表单提交
+            document.getElementById('login-form').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const username = document.getElementById('login-username').value.trim();
+                const password = document.getElementById('login-password').value;
+                const captchaInput = document.getElementById('captcha-input').value.trim();
+                const rememberMe = document.getElementById('remember-password').checked;
+
+                // 验证码验证
+                if (captchaInput.toUpperCase() !== currentCaptcha.toUpperCase()) {
+                    alert('验证码错误');
+                    currentCaptcha = generateCaptcha();
+                    document.getElementById('captcha-image').textContent = currentCaptcha;
+                    document.getElementById('captcha-input').value = '';
+                    return;
+                }
+
+                // 模拟登录验证
+                const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+                const user = registeredUsers.find(u => u.username === username);
+
+                if (!user) {
+                    alert('用户名不存在');
+                    return;
+                }
+
+                const hashedPassword = await hashPassword(password);
+
+                if (hashedPassword !== user.password) {
+                    alert('密码错误');
+                    return;
+                }
+
+                // 存储当前用户
+                // 登录成功后存储完整的用户信息
+                localStorage.setItem('currentUser', JSON.stringify({
+                    id: user.id, // 使用注册时生成的ID
+                    username: user.username,
+                    email: user.email
+                }));
+
+                // 如果勾选"记住我"，则存储用户名和密码(使用Base64编码密码)
+                if (rememberMe) {
+                    // 使用Base64编码密码存储
+                    const encodedPassword = btoa(password);
+                    localStorage.setItem('rememberedUser', JSON.stringify({
+                        username: user.username,
+                        password: encodedPassword
+                    }));
+                } else {
+                    localStorage.removeItem('rememberedUser');
+                }
+
+                alert('登录成功！');
+                window.location.href = 'shouye2.0_xgawy.html';
+            });
+        });
+    </script>
+</body>
+
+</html>

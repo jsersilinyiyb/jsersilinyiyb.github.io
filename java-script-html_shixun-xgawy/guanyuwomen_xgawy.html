@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平之声 - 全球和平倡导组织</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+            /* 删除原有页脚样式，替换为以下新样式 */
+            #footer {
+                background: linear-gradient(135deg, #050508 0%, #0a0a0f 100%);
+                padding: 60px 0 20px;
+                border-top: 1px solid rgba(100, 100, 120, 0.3);
+                color: #a0a0b0;
+                font-size: 0.95rem;
+            }
+            
+            .footer-container {
+                max-width: 1800px;
+                margin: 0 auto;
+                padding: 0 20px;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 40px;
+            }
+            
+            .footer-section {
+                padding: 10px;
+            }
+            
+            .footer-section h3 {
+                font-size: 1.3rem;
+                color: #f8f8f8;
+                margin-bottom: 25px;
+                padding-bottom: 10px;
+                position: relative;
+                font-weight: 600;
+            }
+            
+            .footer-section h3::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 50px;
+                height: 3px;
+                background: #f1c40f;
+                border-radius: 2px;
+            }
+            
+            .footer-about {
+                grid-column: span 2;
+            }
+            
+            .footer-about p {
+                margin-bottom: 20px;
+                line-height: 1.8;
+            }
+            
+            .social-links {
+                display: flex;
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .social-links a {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: rgba(252, 163, 17, 0.1);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #f1c40f;
+                transition: all 0.3s ease;
+            }
+            
+            .social-links a:hover {
+                background: #f1c40f;
+                color: #000;
+                transform: translateY(-3px);
+            }
+            
+            .footer-links {
+                list-style: none;
+            }
+            
+            .footer-links li {
+                margin-bottom: 15px;
+            }
+            
+            .footer-links a {
+                color: #a0a0b0;
+                text-decoration: none;
+                display: block;
+                transition: all 0.3s ease;
+                padding: 5px 0;
+                position: relative;
+                padding-left: 20px;
+            }
+            
+            .footer-links a:hover {
+                color: #f1c40f;
+                transform: translateX(5px);
+            }
+            
+            .footer-links a::before {
+                content: '>';
+                position: absolute;
+                left: 0;
+                color: #f1c40f;
+                font-weight: bold;
+            }
+            
+            .contact-info {
+                list-style: none;
+            }
+            
+            .contact-info li {
+                margin-bottom: 20px;
+                display: flex;
+                align-items: flex-start;
+                gap: 15px;
+                line-height: 1.6;
+            }
+            
+            .contact-info i {
+                color: #f1c40f;
+                font-size: 1.2rem;
+                min-width: 24px;
+                margin-top: 3px;
+            }
+            
+            .friend-links {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .friend-links a {
+                color: #a0a0b0;
+                text-decoration: none;
+                display: block;
+                transition: all 0.3s ease;
+                padding: 5px 0;
+            }
+            
+            .friend-links a:hover {
+                color: #f1c40f;
+            }
+            
+            .copyright {
+                margin-top: 60px;
+                padding-top: 25px;
+                border-top: 1px solid rgba(100, 100, 120, 0.3);
+                text-align: center;
+                font-size: 0.85rem;
+                line-height: 1.8;
+                opacity: 0.7;
+            }
+            
+            .copyright strong {
+                color: #f1c40f;
+                font-weight: 600;
+            }
+            
+            /* 响应式调整 */
+            @media (max-width: 992px) {
+                .footer-about {
+                    grid-column: span 1;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .footer-container {
+                    grid-template-columns: 1fr;
+                }
+                
+                .footer-section h3 {
+                    margin-bottom: 20px;
+                }
+                
+                .copyright {
+                    text-align: left;
+                    padding: 20px;
+                }
+            }
+            @media (max-width: 992px) {
+    .footer-about {
+        grid-column: span 1;
+    }
+}
+@media (max-width: 768px) {
+    .footer-container {
+        grid-template-columns: 1fr;
+    }
+}
+        </style>
+    <style>
+        :root {
+            --war-red: #c0392b;
+            --war-orange: #e67e22;
+            --peace-blue: #3498db;
+            --peace-green: #2ecc71;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333;
+            --gold: #f1c40f;
+            --footer-bg: #0c0c14;
+            --footer-text: #a0a0b0;
+            --footer-heading: #f8f8f8;
+            --footer-border: rgba(100, 100, 120, 0.3);
+            --accent-gold: #f1c40f;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-gray);
+            color: var(--dark-gray);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        h2 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.5rem;
+            color: var(--peace-blue);
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: var(--peace-green);
+            margin: 15px auto;
+            border-radius: 2px;
+        }
+        
+        /* 和平宣言横幅 */
+        .banner {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .banner-content {
+            z-index: 2;
+            padding: 20px;
+            max-width: 800px;
+        }
+        
+        .banner h1 {
+            font-size: 4rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: white;
+            animation: fadeInDown 1.5s ease;
+        }
+        
+        .banner p {
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1.5s ease;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            animation: none;
+        }
+        
+        .dynamic-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--war-red), var(--war-orange), var(--peace-blue), var(--peace-green));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        
+        /* 组织简介区 */
+        .timeline-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+        
+        .timeline {
+            display: flex;
+            overflow-x: auto;
+            padding: 30px 0;
+            scrollbar-width: thin;
+            scrollbar-color: var(--peace-blue) var(--light-gray);
+            gap: 40px;
+        }
+        
+        .timeline::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .timeline::-webkit-scrollbar-track {
+            background: var(--light-gray);
+        }
+        
+        .timeline::-webkit-scrollbar-thumb {
+            background: var(--peace-blue);
+            border-radius: 4px;
+        }
+        
+        .timeline-item {
+            min-width: 280px;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        .timeline-item:hover {
+            transform: translateY(-10px);
+        }
+        
+        .timeline-year {
+            font-size: 1.8rem;
+            color: var(--peace-blue);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .mission-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        
+        .mission-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            position: relative;
+            height: 300px;
+        }
+        
+        .mission-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .mission-content {
+            padding: 25px;
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .mission-icon {
+            font-size: 3rem;
+            color: var(--peace-blue);
+            margin-bottom: 20px;
+        }
+        
+        .mission-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--peace-blue);
+        }
+        
+        .mission-card p {
+            color: var(--dark-gray);
+        }
+        
+        .mission-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mission-card:hover .mission-bg {
+            opacity: 0.2;
+        }
+        
+        /* 数据可视化区 */
+        .data-visualization {
+            background: white;
+            padding: 50px 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-container {
+            height: 450px;
+            margin: 30px 0;
+        }
+        
+        .milestone-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 60px;
+            perspective: 1000px;
+        }
+        
+        .milestone {
+            width: 80px;
+            height: 80px;
+            background: var(--peace-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 0 15px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.5s ease;
+        }
+        
+        .milestone.animate {
+            opacity: 1;
+            transform: translateY(0) rotate(0);
+        }
+        
+        /* 和平倡导者墙 */
+        .advocates-wall {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .advocate-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .advocate-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .advocate-img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+        
+        .advocate-info {
+            padding: 20px;
+        }
+        
+        .advocate-name {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--peace-blue);
+        }
+        
+        .advocate-location {
+            color: var(--war-orange);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .advocate-story {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+        
+        .advocate-card:hover .advocate-story {
+            max-height: 200px;
+        }
+        
+        /* 和平倡议行动区 */
+        .action-section {
+            background: linear-gradient(135deg, var(--peace-blue), var(--peace-green));
+            color: white;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        .signature-container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 30px;
+        }
+        
+        .signature-pad {
+            width: 100%;
+            height: 200px;
+            background: white;
+            border-radius: 8px;
+            margin: 20px 0;
+            cursor: crosshair;
+        }
+        
+        .signature-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--gold);
+            color: var(--dark-gray);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        #dove-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            margin-top: 50px;
+        }
+        
+        .dove-particle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M23 11c0 3-2 4-4 3l-1-1-1 2c0 2-1 3-3 3s-3-1-3-3l-1-3-3-1c-2 0-3-1-3-3s1-3 3-3l2 1 1-1c1-1 0-4-3-4S2 4 1 6l1 1-1 1c-1 1-1 3 0 4l1 1-1 1c-1 1-1 3 0 4l1 1-1 1c-1 1-1 3 0 4l5-5c1 0 2-1 2-2l1 3c0 1 1 2 2 2s2-1 2-2l1-3 3-1c1 0 2-1 2-2l5 5c1-1 0-3-1-4l-1-1 1-1c1-1 1-3 0-4l-1-1 1-1z"/></svg>') no-repeat center;
+            background-size: contain;
+            opacity: 0;
+        }
+        
+        /* 页脚优化样式 */
+        #footer {
+            background: var(--footer-bg);
+            padding: 60px 0 20px;
+            border-top: 1px solid var(--footer-border);
+            color: var(--footer-text);
+            font-size: 0.95rem;
+        }
+        
+        .footer-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+        
+        .footer-section {
+            padding: 10px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.3rem;
+            color: var(--footer-heading);
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            position: relative;
+            font-weight: 600;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+        
+        .footer-about {
+            grid-column: span 2;
+        }
+        
+        .footer-about p {
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(252, 163, 17, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-gold);
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background: var(--accent-gold);
+            color: #000;
+            transform: translateY(-3px);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 15px;
+        }
+        
+        .footer-links a {
+            color: var(--footer-text);
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--accent-gold);
+            transform: translateX(5px);
+        }
+        
+        .footer-links a::before {
+            content: '>';
+            position: absolute;
+            left: 0;
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+        
+        .contact-info {
+            list-style: none;
+        }
+        
+        .contact-info li {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            line-height: 1.6;
+        }
+        
+        .contact-info i {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+            min-width: 24px;
+            margin-top: 3px;
+        }
+        
+        .friend-links {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .friend-links a {
+            color: var(--footer-text);
+            text-decoration: none;
+            display: block;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+        }
+        
+        .friend-links a:hover {
+            color: var(--accent-gold);
+        }
+        
+        .copyright {
+            margin-top: 60px;
+            padding-top: 25px;
+            border-top: 1px solid var(--footer-border);
+            text-align: center;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            opacity: 0.7;
+        }
+        
+        .copyright strong {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 992px) {
+            .footer-about {
+                grid-column: span 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-section h3 {
+                margin-bottom: 20px;
+            }
+            
+            .copyright {
+                text-align: left;
+                padding: 20px;
+            }
+        }
+        
+        /* 动画 */
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .banner h1 {
+                font-size: 2.5rem;
+            }
+            
+            .banner p {
+                font-size: 1.2rem;
+            }
+            
+            .mission-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .milestone-container {
+                flex-wrap: wrap;
+            }
+            
+            .milestone {
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 和平宣言横幅 -->
+    <header class="banner">
+        <div class="dynamic-bg"></div>
+        <div class="banner-content">
+            <h1>战争中没有赢家，和平里皆是希望</h1>
+            <p>加入全球和平倡导组织，共同创造一个没有战争的世界</p>
+            <a href="#action" class="cta-button">签署和平宣言</a>
+        </div>
+    </header>
+    
+    <main>
+        <!-- 组织简介区 -->
+        <section>
+            <div class="container">
+                <h2>我们的使命与历程</h2>
+                
+                <div class="timeline-container">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-year">2005</div>
+                            <h3>组织成立</h3>
+                            <p>由诺贝尔和平奖得主发起，在日内瓦成立国际和平倡导组织</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year">2010</div>
+                            <h3>全球拓展</h3>
+                            <p>在32个国家设立分支机构，开展和平教育项目</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year">2015</div>
+                            <h3>和平协议</h3>
+                            <p>成功调解5个地区冲突，帮助签署和平协议</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year">2020</div>
+                            <h3>数字倡议</h3>
+                            <p>启动全球数字和平倡议，在线签名突破1000万</p>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-year">2023</div>
+                            <h3>青年计划</h3>
+                            <p>发起全球青年和平使者计划，培养下一代和平领袖</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mission-cards">
+                    <div class="mission-card">
+                        <div class="mission-bg" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                        <div class="mission-content">
+                            <div class="mission-icon"><i class="fas fa-handshake"></i></div>
+                            <h3>冲突调解</h3>
+                            <p>在冲突地区建立对话机制，促进各方和平谈判</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mission-card">
+                        <div class="mission-bg" style="background-image: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                        <div class="mission-content">
+                            <div class="mission-icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h3>和平教育</h3>
+                            <p>在全球学校推广和平教育课程，培养和平文化</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mission-card">
+                        <div class="mission-bg" style="background-image: url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');"></div>
+                        <div class="mission-content">
+                            <div class="mission-icon"><i class="fas fa-hands-helping"></i></div>
+                            <h3>人道援助</h3>
+                            <p>为战乱地区提供紧急人道援助，帮助重建社区</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 全球和平数据可视化 -->
+        <section>
+            <div class="container">
+                <h2>全球和平数据分析</h2>
+                
+                <div class="data-visualization">
+                    <div id="peaceChart" class="chart-container"></div>
+                    
+                    <div class="milestone-container">
+                        <div class="milestone">1945<br>联合国成立</div>
+                        <div class="milestone">1989<br>柏林墙倒塌</div>
+                        <div class="milestone">1993<br>南非废除种族隔离</div>
+                        <div class="milestone">2005<br>巴黎和平协定</div>
+                        <div class="milestone">2015<br>伊朗核协议</div>
+                        <div class="milestone">2020<br>全球停火倡议</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 和平倡导者墙 -->
+        <section style="background-color: #f9f9f9;">
+            <div class="container">
+                <h2>和平倡导者</h2>
+                
+                <div class="advocates-wall">
+                    <div class="advocate-card">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="倡导者" class="advocate-img">
+                        <div class="advocate-info">
+                            <h3 class="advocate-name">马丁·罗德里格斯</h3>
+                            <div class="advocate-location">哥伦比亚 · 和平活动家</div>
+                            <p class="advocate-story">前战斗人员，放下武器后成为和平使者，帮助200多名前战斗人员重返社会...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="advocate-card">
+                        <img src="https://images.unsplash.com/photo-1516726817505-f5ed825624d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="倡导者" class="advocate-img">
+                        <div class="advocate-info">
+                            <h3 class="advocate-name">艾莎·穆罕默德</h3>
+                            <div class="advocate-location">伊拉克 · 教育工作者</div>
+                            <p class="advocate-story">在战乱地区建立学校，为3000多名儿童提供教育机会，推动不同宗教背景儿童共处...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="advocate-card">
+                        <img src="https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="倡导者" class="advocate-img">
+                        <div class="advocate-info">
+                            <h3 class="advocate-name">索菲亚·陈</h3>
+                            <div class="advocate-location">中国 · 青年和平大使</div>
+                            <p class="advocate-story">发起"和平之桥"项目，连接亚洲各国青年，促进文化交流与相互理解...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="advocate-card">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="倡导者" class="advocate-img">
+                        <div class="advocate-info">
+                            <h3 class="advocate-name">伊丽莎白·约翰逊</h3>
+                            <div class="advocate-location">美国 · 法律专家</div>
+                            <p class="advocate-story">国际法教授，致力于通过法律手段解决国际争端，推动国际法庭改革...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- 和平倡议行动区 -->
+        <section id="action">
+            <div class="container">
+                <div class="action-section">
+                    <h2 style="color: white;">加入和平倡议</h2>
+                    <p style="max-width: 700px; margin: 0 auto 30px;">您的签名将支持我们推动全球和平进程。签署后，您将加入全球超过1500万和平倡导者的行列。</p>
+                    
+                    <div class="signature-container">
+                        <h3>和平宣言</h3>
+                        <p>我承诺尽我所能，在日常生活中践行和平理念，尊重差异，化解冲突，为建设和平世界贡献力量。</p>
+                        
+                        <div class="signature-pad" id="signaturePad"></div>
+                        
+                        <div class="signature-actions">
+                            <button class="btn btn-secondary" id="clearBtn">清除签名</button>
+                            <button class="btn btn-primary" id="submitBtn">提交承诺</button>
+                        </div>
+                    </div>
+                    
+                    <div id="dove-container"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- 页脚 -->
+    <div class="fixed bottom-4 right-4 z-40">
+            <div class="flex flex-col space-y-2">
+                <a href="#top" class="bg-peace-blue hover:bg-peace-darkBlue text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
+                    <i class="fa fa-arrow-up"></i>
+                </a>
+            </div>
+        </div>
+    
+        <!-- 页脚版权声明 -->
+        <footer class="footer">
+            <div class="footer-container" id="footer">
+                <div class="footer-section">
+                    <h3 id="footer-about-us">关于我们</h3>
+                    <p id="footer-about-text">
+                        和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+    
+                </div>
+    
+                <div class="footer-section">
+                    <h3 id="footer-links">快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="shouye2.0_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-home">首页</span></a></li>
+                        <li><a href="guanyuwomen_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-about">关于我们</span></a>
+                        </li>
+                        <li><a href="biaozhi_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-logo">标志</span></a></li>
+                        <li><a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate"><i class="fa fa-chevron-right"></i> <span data-key="footer-donate">捐款</span></a>
+                        </li>
+                        <li><a href="shouye2.0_xgawy.html#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                    data-key="footer-war-peace">战争与和平</span></a></li>
+                        <li><a href="huodong_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-events">活动</span></a>
+                        </li>
+                    </ul>
+                </div>
+    
+                <div class="footer-section">
+                    <h3 id="footer-contact">联系我们</h3>
+                    <ul class="contact-info">
+                        <li>
+                            
+                            <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                        </li>
+                        <li>
+                         
+                            <div data-key="footer-phone">电话:12345678910举报热线:110</div>
+                        </li>
+                        <li>
+                            
+                            <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                        </li>
+                        <li>
+                            
+                            <div data-key="footer-wechat">微信:lllllll </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3 id="footer-friend-links">友情链接</h3>
+                    <div class="friend-links">
+                        <a href="https://www.unesco.org/zh" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-unesco">联合国教科文组织</span></a>
+                        <a href="https://www.icrc.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-red-cross">国际红十字会</span></a>
+                        <a href="https://www.tufts.edu/wpf" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-peace-foundation">世界和平基金会</span></a>
+                        <a href="https://www.unocha.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-aid-network">人道主义援助网</span></a>
+                        <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                         target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+                        <a href="https://www.tc.edu/peace-ed" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-education">和平教育中心</span></a>
+                        <a href="https://www.warmuseum.nl" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-history">战争历史档案馆</span></a>
+                        <a href="https://www.unhcr.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-refugee">难民救助组织</span></a>
+                    </div>
+                </div>
+            </div>
+    
+            <div class="copyright">
+                <p id="footer-disclaimer">
+                    <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+                </p>
+                <p id="footer-compliance">
+                    本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+                </p>
+                <p id="footer-copyright">
+                    © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+                </p>
+            </div>
+        </footer>
+    <script>
+        // 和平数据图表
+        const peaceChart = echarts.init(document.getElementById('peaceChart'));
+        const option = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                data: ['战争指数', '和平指数'],
+                textStyle: {
+                    color: '#333'
+                }
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                data: ['2000', '2005', '2010', '2015', '2020', '2023'],
+                axisLine: {
+                    lineStyle: {
+                        color: '#666'
+                    }
+                }
+            },
+            yAxis: {
+                type: 'value',
+                name: '指数值',
+                nameTextStyle: {
+                    color: '#666'
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: '#666'
+                    }
+                },
+                splitLine: {
+                    lineStyle: {
+                        color: '#eee'
+                    }
+                }
+            },
+            series: [
+                {
+                    name: '战争指数',
+                    type: 'bar',
+                    data: [78, 82, 76, 70, 68, 65],
+                    itemStyle: {
+                        color: '#e74c3c'
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    }
+                },
+                {
+                    name: '和平指数',
+                    type: 'bar',
+                    data: [45, 48, 52, 58, 62, 66],
+                    itemStyle: {
+                        color: '#2ecc71'
+                    },
+                    emphasis: {
+                        focus: 'series'
+                    }
+                }
+            ]
+        };
+        peaceChart.setOption(option);
+        
+        // 响应窗口大小变化
+        window.addEventListener('resize', () => {
+            peaceChart.resize();
+        });
+        
+        // 里程碑动画
+        const milestones = document.querySelectorAll('.milestone');
+        
+        function checkMilestones() {
+            milestones.forEach((milestone, index) => {
+                const milestoneTop = milestone.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (milestoneTop < windowHeight - 100) {
+                    setTimeout(() => {
+                        milestone.classList.add('animate');
+                    }, index * 200);
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', checkMilestones);
+        checkMilestones();
+        
+        // 签名板功能
+        const canvas = document.createElement('canvas');
+        const signaturePad = document.getElementById('signaturePad');
+        signaturePad.appendChild(canvas);
+        
+        canvas.width = signaturePad.offsetWidth;
+        canvas.height = signaturePad.offsetHeight;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.strokeStyle = '#3498db';
+        ctx.lineWidth = 2;
+        
+        let drawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // 触摸事件支持
+        canvas.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousedown', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const mouseEvent = new MouseEvent('mousemove', {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        });
+        
+        canvas.addEventListener('touchend', () => {
+            const mouseEvent = new MouseEvent('mouseup');
+            canvas.dispatchEvent(mouseEvent);
+        });
+        
+        function startDrawing(e) {
+            drawing = true;
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+        
+        function draw(e) {
+            if (!drawing) return;
+            
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+            
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+        
+        function stopDrawing() {
+            drawing = false;
+        }
+        
+        // 清除按钮
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+        
+        // 提交按钮 - 和平鸽动画
+        document.getElementById('submitBtn').addEventListener('click', () => {
+            // 简单检查是否有签名
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const isEmpty = !imageData.data.some(channel => channel !== 0);
+            
+            if (isEmpty) {
+                alert('请先提供您的签名');
+                return;
+            }
+            
+            // 显示成功消息
+            alert('感谢您的承诺！您已成为全球和平倡议的一员。');
+            
+            // 触发和平鸽动画
+            createDoveAnimation();
+        });
+        
+        function createDoveAnimation() {
+            const container = document.getElementById('dove-container');
+            container.innerHTML = '';
+            
+            // 创建和平鸽粒子
+            for (let i = 0; i < 30; i++) {
+                const dove = document.createElement('div');
+                dove.classList.add('dove-particle');
+                dove.style.left = `${Math.random() * 100}%`;
+                dove.style.top = `${100}%`;
+                container.appendChild(dove);
+                
+                // 动画参数
+                const duration = 2 + Math.random() * 3;
+                const delay = Math.random() * 1.5;
+                const xMovement = (Math.random() - 0.5) * 60;
+                
+                // 应用动画
+                dove.style.animation = `
+                    flyUp ${duration}s ease-in-out ${delay}s forwards,
+                    fadeIn 0.5s ease ${delay}s forwards
+                `;
+                
+                // 关键帧动态创建
+                const styleSheet = document.styleSheets[0];
+                styleSheet.insertRule(`
+                    @keyframes flyUp {
+                        0% {
+                            transform: translate(0, 0) rotate(0deg);
+                        }
+                        100% {
+                            transform: translate(${xMovement}vw, -100vh) rotate(360deg);
+                        }
+                    }
+                `, styleSheet.cssRules.length);
+            }
+            
+            // 添加CSS规则
+            const styleSheet = document.styleSheets[0];
+            styleSheet.insertRule(`
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+            `, styleSheet.cssRules.length);
+        }
+    </script>
+</body>
+</html>
