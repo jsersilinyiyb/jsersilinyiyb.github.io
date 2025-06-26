@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平行动 - 战争没有赢家</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link rel="icon" href="zy/和平鸽ico.png" sizes="32x32">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        /* 原有CSS样式保持不变 */
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(rgba(30, 136, 229, 0.9), rgba(13, 71, 161, 0.9)), url('https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=2070') center/cover;
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            font-weight: 300;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: #1E88E5;
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .card-body ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .card-body li {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-body li:last-child {
+            border-bottom: none;
+        }
+        
+        .card-body li i {
+            color: #1E88E5;
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .footer {
+            background: linear-gradient(to right, #1a237e, #283593, #1e88e5);
+            color: rgba(255, 255, 255, 0.85);
+            padding: 3rem 2rem 1.5rem;
+            margin-top: auto;
+            font-size: 0.9rem;
+        }
+        
+        .footer-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-section h3 {
+            color: white;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 3px;
+            background: #4FC3F7;
+            border-radius: 3px;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+        
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .footer-links a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .contact-info {
+            list-style: none;
+        }
+        
+        .contact-info li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .contact-info i {
+            margin-right: 12px;
+            margin-top: 4px;
+            color: #4FC3F7;
+            font-size: 1.2rem;
+        }
+        
+        .copyright {
+            max-width: 1200px;
+            margin: 1.5rem auto 0;
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.8;
+        }
+        
+        .copyright a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .copyright a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 1rem;
+        }
+        
+        .badge {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .badge i {
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1.2rem;
+            }
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .wdf {
+            font-size: 50px;
+            position: relative;
+            letter-spacing: 15px;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 0.7em;
+            outline: none;
+            -webkit-box-reflect: below 1px linear-gradient(transparent, #0008);
+            animation: animate 5s linear infinite;
+        }
+        
+        @keyframes animate {
+            0%,
+            21%,
+            31%,
+            51%,
+            60%,
+            80%,
+            90%,
+            92% {
+                color: #000000;
+            }
+            20%,
+            30%,
+            50%,
+            6%,
+            80%,
+            90%,
+            100% {
+                color: #ffffff;
+                text-shadow: 0 0 10px #03bcf4, text-shadow: 0 0 20px #03bcf4, text-shadow: 0 0 40px #03bcf4, text-shadow: 0 0 80px #03bcf4;
+            }
+        }
+        /* 新增语言切换动画 */
+        
+        .language-switch {
+            transition: all 0.3s ease;
+        }
+        
+        .language-switch:hover {
+            transform: scale(1.05);
+        }
+        /* 语言切换按钮样式 */
+        
+        .lang-btn {
+            background: #1e88e5;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+        }
+        
+        .lang-btn:hover {
+            background: #1565c0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .lang-btn i {
+            margin-right: 8px;
+        }
+        /* 用户状态区域样式 */
+        
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-name {
+            color: #1e88e5;
+            font-weight: 500;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            color: #c62828;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(198, 40, 40, 0.1);
+        }
+        
+        .login-btn {
+            background: transparent;
+            color: #1e88e5;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .login-btn:hover {
+            background: rgba(30, 136, 229, 0.1);
+        }
+        
+        .mobile-user-status {
+            display: none;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .desktop-user-status {
+                display: none;
+            }
+            .mobile-user-status {
+                display: block;
+            }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        peace: {
+                            blue: '#1E88E5',
+                            lightBlue: '#BBDEFB',
+                            darkBlue: '#0D47A1',
+                            red: '#C62828',
+                            lightRed: '#EF5350',
+                            gray: '#555555',
+                            lightGray: '#9E9E9E',
+                            darkGray: '#212121',
+                            olive: '#8D6E63',
+                            sky: '#B3E5FC',
+                            gradient1: '#e3f2fd',
+                            gradient2: '#bbdefb',
+                            gradient3: '#90caf9',
+                            card: '#f8fafc'
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer utilities { .text-shadow-war { text-shadow: 0 4px 8px rgba(0,0,0,0); } .text-shadow-peace { text-shadow: 0 4px 8px rgba(0,0,0,0); } .btn-war { @apply bg-white text-peace-red hover:bg-peace-lightRed font-bold py-3 px-8 rounded-full transition-all
+        duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5; } .btn-peace { @apply bg-peace-blue hover:bg-peace-darkBlue text-white font-bold py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5;
+        } .content-card { @apply bg-peace-card rounded-xl shadow-lg overflow-hidden border border-peace-lightGray hover:shadow-xl transition-shadow duration-300; } .equal-size { @apply min-h-[480px] w-full; } .nav-item { @apply px-4 py-2 text-peace-darkGray
+        hover:text-peace-blue transition-colors duration-200; } .new-background { @apply bg-gradient-to-b from-peace-gradient1 to-peace-gradient3 min-h-screen; } }
+    </style>
+    <script>
+        // 语言字典 - 扩展版本
+        const languages = {
+            'zh-CN': {
+                'logo-text': '和平行动',
+                'nav-news': '新闻',
+                'nav-about': '关于我们',
+                'nav-logo': '标志',
+                'nav-education': '教育背景',
+                'nav-radical': '激进',
+                'nav-resource': '资源中心',
+                'nav-donate': '捐款',
+                'nav-shop': '商城',
+                'nav-events': '活动',
+                'btn-login': '登录',
+                'btn-logout': '退出',
+                'btn-language-toggle': '切换语言',
+                'main-title': '战争没有赢家',
+                'main-subtitle': '和平没有旁观者',
+                'participants-text': '全球和平行动参与人数',
+                'signatures-text': '今日新增反战签名',
+                'btn-learn': '了解真相',
+                'btn-action': '立即行动',
+                'war-overview-title': '战争现状速览',
+                'war-overview-subtitle': '实时冲突数据与全球影响分析',
+                'conflict-map-title': '当前冲突区地图',
+                'conflict-region-ukraine': '乌克兰',
+                'conflict-region-middle-east': '中东地区',
+                'conflict-region-africa': '非洲萨赫勒',
+                'conflict-map-detail': '查看详情',
+                'child-casualties-title': '儿童伤亡',
+                'child-casualties-story': '战争中受害儿童的故事令人心碎，每一个数字背后都是一个本该充满欢笑的童年',
+                'help-children': '帮助儿童',
+                'military-expense-title': '军费对比',
+                'global-military-expense': '全球军费开支',
+                'global-education-expense': '全球教育开支',
+                'military-expense-info': '全球每年军费开支超过2万亿美元，足以解决全球贫困问题数次',
+                'military-expense-detail': '了解更多',
+                'action-entry-title': '加入我们的行动',
+                'action-entry-subtitle': '每个人都能为和平贡献力量，选择适合你的方式',
+                'education-materials-title': '教育材料',
+                'education-materials-desc': '获取反战教育资源，了解战争历史与和平解决方案，传播和平理念',
+                'explore-resources': '探索',
+                'protest-activities-title': '抗议活动',
+                'protest-activities-desc': '参与全球反战游行和集会，发出我们反对战争、呼吁和平的声音',
+                'participate-activities': '参与',
+                'aid-refugees-title': '援助难民',
+                'aid-refugees-desc': '为战争受害者提供人道主义援助，帮助难民重建生活，重燃希望',
+                'support-projects': '支持',
+                'peace-declaration-title': '和平之声',
+                'peace-declaration-subtitle': '来自世界各地人们的和平宣言',
+                'speaker-1-name': '玛丽亚·加西亚',
+                'speaker-1-location': '叙利亚，阿勒颇',
+                'speaker-1-declaration': '"战争让我失去了家园和亲人，我希望世界上的孩子们永远不必经历我所经历的痛苦。和平不是一种选择，而是生存的必要条件。"',
+                'speaker-1-date': '2023-11-15',
+                'speaker-2-name': '亚历山大·彼得罗夫',
+                'speaker-2-location': '乌克兰，基辅',
+                'speaker-2-declaration': '"战争没有胜利者，只有失败者。我们失去的不仅是生命和财产，更是人性中最美好的部分。让我们用对话代替武器，用理解代替仇恨。"',
+                'speaker-2-date': '2023-12-03',
+                'speaker-3-name': '艾米莉·约翰逊',
+                'speaker-3-location': '美国，纽约',
+                'speaker-3-declaration': '"作为一名母亲，我无法想象孩子们在战火中成长的恐惧。我们必须为下一代创造一个没有战争的世界，这是我们的责任。"',
+                'speaker-3-date': '2024-01-10',
+                'speaker-4-name': '穆罕默德·阿里',
+                'speaker-4-location': '伊拉克，巴格达',
+                'speaker-4-declaration': '"战争夺走了我的一切，但无法夺走我的希望。我相信有一天，我们可以坐在同一张桌子前，分享面包和故事，而不是子弹和炸弹。"',
+                'speaker-4-date': '2024-02-18',
+                'speaker-5-name': '索菲亚·科瓦尔斯基',
+                'speaker-5-location': '俄罗斯，莫斯科',
+                'speaker-5-declaration': '"战争是人性的失败。我们有足够的智慧探索宇宙，却无法找到和平共处的方式？让我们用头脑创造和平，而不是毁灭。"',
+                'speaker-5-date': '2024-03-05',
+                'speaker-6-name': '卡洛斯·罗德里格斯',
+                'speaker-6-location': '哥伦比亚，波哥大',
+                'speaker-6-declaration': '"作为一名曾经的战士，我亲眼目睹了战争的残酷。和平不是没有冲突，而是用非暴力方式解决冲突的能力。让我们一起学习这种能力。"',
+                'speaker-6-date': '2024-04-22',
+                'peace-symbol-title': '和平需要我们共同守护',
+                'peace-symbol-author': '—— 国际和平组织',
+                'peace-symbol-desc': '手捧和平鸽的儿童 —— 象征战争中的希望与未来',
+                'btn-sign-peace': '签署和平宣言',
+                'footer-about-us': '关于我们',
+                'footer-links': '快速链接',
+                'footer-contact': '联系我们',
+                'footer-friend-links': '友情链接',
+                'footer-about-text': '和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。',
+                'footer-home': '首页',
+                'footer-about': '关于我们',
+                'footer-logo': '标志',
+                'footer-donate': '捐款',
+                'footer-war-peace': '战争与和平',
+                'footer-events': '活动',
+                'footer-email': '邮箱: 16666666@outlook.com',
+                'footer-phone': '电话:12345678910举报热线:110',
+                'footer-address': '地址: 浙江省杭州市滨江区',
+                'footer-wechat': '微信:lllllll',
+                'footer-unesco': '联合国教科文组织',
+                'footer-red-cross': '国际红十字会',
+                'footer-peace-foundation': '世界和平基金会',
+                'footer-aid-network': '人道主义援助网',
+                'footer-anti-war': '全球反战联盟',
+                'footer-education': '和平教育中心',
+                'footer-history': '战争历史档案馆',
+                'footer-refugee': '难民救助组织',
+                'footer-disclaimer': '免责声明: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。',
+                'footer-compliance': '本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心',
+                'footer-copyright': '© 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1',
+                'war-cost-title': '战争的代价',
+                'peace-power-title': '和平的力量',
+                'war-life-cost': '生命的消逝',
+                'war-life-desc': '每一场战争都意味着数万甚至数百万生命的逝去，无数家庭破碎',
+                'war-home-destruction': '家园的毁灭',
+                'war-home-desc': '城市沦为废墟，历史文化遗产在战火中化为灰烬',
+                'war-trauma': '心灵的创伤',
+                'war-trauma-desc': '战争留下的心理创伤需要几代人才能愈合，改变社会心理结构',
+                'war-learn-truth': '了解战争真相',
+                'peace-life-continuation': '生命的延续',
+                'peace-life-desc': '和平为每个生命提供成长的空间，让人类文明得以延续',
+                'peace-civilization': '文明的繁荣',
+                'peace-civilization-desc': '和平环境促进教育、科技和文化的发展，推动人类进步',
+                'peace-cooperation': '合作的桥梁',
+                'peace-cooperation-desc': '和平为不同文化、国家和民族提供对话与合作的机会',
+                'peace-declaration-btn': '签署和平宣言',
+                'martin-luther-quote': '"和平不是战争的缺席，而是正义的存在；不是恐惧的沉默，而是自由的歌唱；不是压迫的延续，而是尊严的保障。真正的和平需要勇气去维护，需要智慧去构建，需要同理心去理解他人。"',
+                'martin-luther': '—— 马丁·路德·金',
+                'war-tears': '战争撕裂世界',
+                'peace-mends': '和平缝补人心',
+                'crossroads': '在战争与和平的十字路口，每一次选择都塑造着人类共同的未来',
+                'peace-symbol-text': '和平绝非仅仅是战火停歇的间隙，它更像一株需要精心呵护、持续浇灌的幼苗，是一种我们必须日日践行的生活方式。每一个对非暴力的坚守、每一次对理解的寻求、每一份对尊严的尊重，都是在用最坚实的力量瓦解战争的根基，构筑和平的长城。'
+            },
+            'en': {
+                'logo-text': 'Peace Action',
+                'nav-news': 'News',
+                'nav-about': 'About Us',
+                'nav-logo': 'Logo',
+                'nav-education': 'Education',
+                'nav-radical': 'Radical',
+                'nav-resource': 'Resources',
+                'nav-donate': 'Donate',
+                'nav-shop': 'Shop',
+                'nav-events': 'Events',
+                'btn-login': 'Login',
+                'btn-logout': 'Logout',
+                'btn-language-toggle': 'Switch Language',
+                'main-title': 'War Has No Winners',
+                'main-subtitle': 'Peace Has No Bystanders',
+                'participants-text': 'Global Peace Action Participants',
+                'signatures-text': 'New Anti-War Signatures Today',
+                'btn-learn': 'Learn the Truth',
+                'btn-action': 'Take Action Now',
+                'war-overview-title': 'War Overview',
+                'war-overview-subtitle': 'Real-time Conflict Data & Global Impact Analysis',
+                'conflict-map-title': 'Current Conflict Zones',
+                'conflict-region-ukraine': 'Ukraine',
+                'conflict-region-middle-east': 'Middle East',
+                'conflict-region-africa': 'Africa Sahel',
+                'conflict-map-detail': 'View Details',
+                'child-casualties-title': 'Child Casualties',
+                'child-casualties-story': 'The stories of children affected by war are heartbreaking. Every number represents a childhood that should have been filled with laughter.',
+                'help-children': 'Help Children',
+                'military-expense-title': 'Military Spending Comparison',
+                'global-military-expense': 'Global Military Spending',
+                'global-education-expense': 'Global Education Spending',
+                'military-expense-info': 'Global military spending exceeds $2 trillion annually, enough to solve global poverty multiple times over',
+                'military-expense-detail': 'Learn More',
+                'action-entry-title': 'Join Our Actions',
+                'action-entry-subtitle': 'Everyone can contribute to peace. Choose your way to make a difference.',
+                'education-materials-title': 'Educational Materials',
+                'education-materials-desc': 'Access anti-war educational resources, learn about war history and peace solutions, spread the idea of peace',
+                'explore-resources': 'Explore',
+                'protest-activities-title': 'Protest Activities',
+                'protest-activities-desc': 'Participate in global anti-war marches and rallies to voice our opposition to war and call for peace',
+                'participate-activities': 'Participate',
+                'aid-refugees-title': 'Aid Refugees',
+                'aid-refugees-desc': 'Provide humanitarian aid to war victims, help refugees rebuild their lives and reignite hope',
+                'support-projects': 'Support',
+                'peace-declaration-title': 'Voices for Peace',
+                'peace-declaration-subtitle': 'Peace declarations from people around the world',
+                'speaker-1-name': 'Maria Garcia',
+                'speaker-1-location': 'Aleppo, Syria',
+                'speaker-1-declaration': '"War made me lose my home and loved ones. I hope children in the world never have to experience the pain I went through. Peace is not an option but a necessity for survival."',
+                'speaker-1-date': '2023-11-15',
+                'speaker-2-name': 'Alexander Petrov',
+                'speaker-2-location': 'Kyiv, Ukraine',
+                'speaker-2-declaration': '"War has no victors, only losers. What we lose is not only lives and property, but the best part of humanity. Let\'s replace weapons with dialogue, hatred with understanding."',
+                'speaker-2-date': '2023-12-03',
+                'speaker-3-name': 'Emily Johnson',
+                'speaker-3-location': 'New York, USA',
+                'speaker-3-declaration': '"As a mother, I can\'t imagine the fear of children growing up in the midst of war. We must create a world without war for the next generation. This is our responsibility."',
+                'speaker-3-date': '2024-01-10',
+                'speaker-4-name': 'Mohammed Ali',
+                'speaker-4-location': 'Baghdad, Iraq',
+                'speaker-4-declaration': '"War took everything from me but couldn\'t take my hope. I believe one day we can sit at the same table, sharing bread and stories instead of bullets and bombs."',
+                'speaker-4-date': '2024-02-18',
+                'speaker-5-name': 'Sofia Kowalski',
+                'speaker-5-location': 'Moscow, Russia',
+                'speaker-5-declaration': '"War is a failure of humanity. We have enough wisdom to explore the universe, yet can\'t find a way to coexist peacefully? Let\'s use our minds to create peace, not destruction."',
+                'speaker-5-date': '2024-03-05',
+                'speaker-6-name': 'Carlos Rodriguez',
+                'speaker-6-location': 'Bogota, Colombia',
+                'speaker-6-declaration': '"As a former soldier, I witnessed the cruelty of war firsthand. Peace isn\'t the absence of conflict, but the ability to resolve conflicts non-violently. Let\'s learn this ability together."',
+                'speaker-6-date': '2024-04-22',
+                'peace-symbol-title': 'Peace Needs Our Joint Protection',
+                'peace-symbol-author': '— International Peace Organization',
+                'peace-symbol-desc': 'Child holding a dove - symbol of hope and future in war',
+                'btn-sign-peace': 'Sign Peace Declaration',
+                'footer-about-us': 'About Us',
+                'footer-links': 'Quick Links',
+                'footer-contact': 'Contact Us',
+                'footer-friend-links': 'Friendship Links',
+                'footer-about-text': 'Peace Action is an international non-profit organization dedicated to eliminating war and promoting global peace through education, advocacy and humanitarian action. Our mission is to create a world without war where everyone can live in peace and security.',
+                'footer-home': 'Home',
+                'footer-about': 'About Us',
+                'footer-logo': 'Logo',
+                'footer-donate': 'Donate',
+                'footer-war-peace': 'War and Peace',
+                'footer-events': 'Events',
+                'footer-email': 'Email: 16666666@outlook.com',
+                'footer-phone': 'Phone:12345678910 <br>Report Hotline:110',
+                'footer-address': 'Address: Binjiang District, Hangzhou, Zhejiang',
+                'footer-wechat': 'WeChat:lllllll',
+                'footer-unesco': 'UNESCO',
+                'footer-red-cross': 'International Red Cross',
+                'footer-peace-foundation': 'World Peace Foundation',
+                'footer-aid-network': 'Humanitarian Aid Network',
+                'footer-anti-war': 'Global Anti-War Alliance',
+                'footer-education': 'Peace Education Center',
+                'footer-history': 'War History Archives',
+                'footer-refugee': 'Refugee Relief Organization',
+                'footer-disclaimer': 'Disclaimer: Some content on this website comes from the Internet and the copyright belongs to the original author. If your original copyright is infringed, please inform us and we will delete the relevant content as soon as possible.',
+                'footer-compliance': 'This website strictly complies with the "Internet Information Service Management Measures" and the "Network Information Content Ecological Governance Regulations" | Connected to the Changsha Internet Illegal and Bad Information Reporting Center',
+                'footer-copyright': '© 2025 Peace Action International Organization All Rights Reserved | XX Security No. 114514666888 | ICP: Zhe ICP No. 1008666-1',
+                'war-cost-title': 'The Cost of War',
+                'peace-power-title': 'The Power of Peace',
+                'war-life-cost': 'Loss of Life',
+                'war-life-desc': 'Every war means the death of tens of thousands or even millions of lives, and countless families are broken',
+                'war-home-destruction': 'Destruction of Homes',
+                'war-home-desc': 'Cities turn into ruins, historical and cultural heritage is reduced to ashes in the war',
+                'war-trauma': 'Psychological Trauma',
+                'war-trauma-desc': 'The psychological trauma left by war takes generations to heal and changes the social psychological structure',
+                'war-learn-truth': 'Learn the Truth',
+                'peace-life-continuation': 'Continuation of Life',
+                'peace-life-desc': 'Peace provides space for every life to grow and allows human civilization to continue',
+                'peace-civilization': 'Prosperity of Civilization',
+                'peace-civilization-desc': 'A peaceful environment promotes the development of education, science and technology, and culture, and promotes human progress',
+                'peace-cooperation': 'Bridge of Cooperation',
+                'peace-cooperation-desc': 'Peace provides opportunities for dialogue and cooperation among different cultures, countries and peoples',
+                'peace-declaration-btn': 'Sign Peace Declaration',
+                'martin-luther-quote': '"Peace is not the absence of war, but the presence of justice; not the silence of fear, but the song of freedom; not the continuation of oppression, but the guarantee of dignity. True peace requires courage to maintain, wisdom to build, and empathy to understand others."',
+                'martin-luther': '— Martin Luther King',
+                'war-tears': 'War Tears the World Apart',
+                'peace-mends': 'Peace Mends Hearts',
+                'crossroads': 'At the crossroads of war and peace, every choice shapes our common future',
+                'peace-symbol-text': 'Peace is not merely the absence of war; it is a tender seedling that requires constant nurturing. It is a way of life we must practice daily. Every commitment to non-violence, every effort to understand, every respect for dignity is a powerful force that dismantles the foundations of war and builds the walls of peace.'
+            }
+        };
+
+        // 设置语言函数
+        function setLanguage(lang) {
+            // 更新所有带有data-key属性的元素
+            const elements = document.querySelectorAll('[data-key]');
+            elements.forEach(element => {
+                const key = element.getAttribute('data-key');
+                if (languages[lang] && languages[lang][key]) {
+                    if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+                        element.placeholder = languages[lang][key];
+                    } else {
+                        element.textContent = languages[lang][key];
+                    }
+                }
+            });
+
+            // 更新HTML的lang属性
+            document.documentElement.lang = lang;
+
+            // 更新按钮文本
+            const toggleBtn = document.getElementById('language-toggle');
+            const mobileToggleBtn = document.getElementById('mobile-language-toggle');
+            if (toggleBtn) {
+                toggleBtn.innerHTML = `<i class="fa fa-language mr-1"></i> ${languages[lang]['btn-language-toggle']}`;
+            }
+            if (mobileToggleBtn) {
+                mobileToggleBtn.innerHTML = `<i class="fa fa-language mr-1"></i> ${languages[lang]['btn-language-toggle']}`;
+            }
+
+            // 更新页脚等特殊区域
+            const footerAbout = document.getElementById('footer-about-us');
+            if (footerAbout) footerAbout.textContent = languages[lang]['footer-about-us'];
+
+            const footerLinks = document.getElementById('footer-links');
+            if (footerLinks) footerLinks.textContent = languages[lang]['footer-links'];
+
+            const footerContact = document.getElementById('footer-contact');
+            if (footerContact) footerContact.textContent = languages[lang]['footer-contact'];
+
+            const footerFriendLinks = document.getElementById('footer-friend-links');
+            if (footerFriendLinks) footerFriendLinks.textContent = languages[lang]['footer-friend-links'];
+
+            const footerAboutText = document.getElementById('footer-about-text');
+            if (footerAboutText) footerAboutText.textContent = languages[lang]['footer-about-text'];
+
+            const footerDisclaimer = document.getElementById('footer-disclaimer');
+            if (footerDisclaimer) footerDisclaimer.textContent = languages[lang]['footer-disclaimer'];
+
+            const footerCompliance = document.getElementById('footer-compliance');
+            if (footerCompliance) footerCompliance.textContent = languages[lang]['footer-compliance'];
+
+            const footerCopyright = document.getElementById('footer-copyright');
+            if (footerCopyright) footerCopyright.textContent = languages[lang]['footer-copyright'];
+
+            // 添加动画效果
+            document.body.classList.add('language-switch');
+            setTimeout(() => {
+                document.body.classList.remove('language-switch');
+            }, 300);
+        }
+
+        // 页面加载时初始化语言
+        document.addEventListener('DOMContentLoaded', () => {
+            // 根据浏览器语言设置初始语言
+            const browserLang = navigator.language.includes('zh') ? 'zh-CN' : 'en';
+            setLanguage(browserLang);
+
+            // 绑定语言切换按钮事件
+            const languageToggle = document.getElementById('language-toggle');
+            const mobileLanguageToggle = document.getElementById('mobile-language-toggle');
+
+            languageToggle.addEventListener('click', () => {
+                const currentLang = document.documentElement.lang;
+                const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+                setLanguage(newLang);
+            });
+
+            mobileLanguageToggle.addEventListener('click', () => {
+                const currentLang = document.documentElement.lang;
+                const newLang = currentLang === 'zh-CN' ? 'en' : 'zh-CN';
+                setLanguage(newLang);
+            });       // 新增代码：渲染军费对比图表
+
+            const militaryChartCtx = document.getElementById('militaryChart').getContext('2d');
+            const option = {
+                xAxis: {
+                    type: 'category',
+                    data: ['2018', '2019', '2020', '2021', '2022']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: [18200, 19100, 19800, 21600, 22400],
+                    type: 'line'
+                }]
+            };
+            const educationData = {
+                data: [5500, 5700, 5900, 6200, 6500],
+                type: 'line'
+            };
+            new Chart(militaryChartCtx, {
+                type: 'line',
+                data: {
+                    labels: option.xAxis.data,
+                    datasets: [{
+                        label: '    ',
+                        data: option.series[0].data,
+                        borderColor: 'red',
+                        backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                        fill: true
+                    }, {
+                        label: '     ',
+                        data: educationData.data,
+                        borderColor: 'blue',
+                        backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '亿';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            // 初始化地图等其他功能
+            const conflictMap = L.map('conflictMap').setView([0, 0], 2);
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012'
+            }).addTo(conflictMap);
+
+            const conflictZones = [{
+                name: '乌克兰',
+                coordinates: [49.0025, 31.4111],
+                hotspots: 12
+            }, {
+                name: '中东地区',
+                coordinates: [26.0000, 55.0000],
+                hotspots: 8
+            }, {
+                name: '非洲萨赫勒',
+                coordinates: [15.0000, 15.0000],
+                hotspots: 6
+            }];
+
+            conflictZones.forEach(zone => {
+                const marker = L.marker(zone.coordinates).addTo(conflictMap);
+                marker.bindPopup(`${zone.name}: ${zone.hotspots}个热点`).openPopup();
+            });
+
+            // 用户状态管理
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const mobileLoginBtn = document.getElementById('mobile-login-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+            const usernameDisplay = document.getElementById('username-display');
+            const mobileUsernameDisplay = document.getElementById('mobile-username-display');
+
+            // 更新用户界面函数
+            function updateUserUI() {
+                const user = JSON.parse(localStorage.getItem('currentUser'));
+                const userInfo = document.getElementById('user-info');
+                const mobileUserInfo = document.getElementById('mobile-user-info');
+
+                if (user) {
+                    // 桌面端更新
+                    usernameDisplay.innerHTML = `欢迎，<span class="hover:underline">${user.username}</span>`;
+                    userInfo.classList.remove('hidden');
+                    loginBtn.classList.add('hidden');
+
+                    // 移动端更新
+                    mobileUsernameDisplay.innerHTML = `欢迎，<span class="hover:underline">${user.username}</span>`;
+                    mobileUserInfo.classList.remove('hidden');
+                    mobileLoginBtn.classList.add('hidden');
+                } else {
+                    // 桌面端更新
+                    userInfo.classList.add('hidden');
+                    loginBtn.classList.remove('hidden');
+
+                    // 移动端更新
+                    mobileUserInfo.classList.add('hidden');
+                    mobileLoginBtn.classList.remove('hidden');
+                }
+            }
+
+            // 登录按钮事件
+            loginBtn.addEventListener('click', function() {
+                window.location.href = 'denglu_xgawy.html';
+            });
+
+            mobileLoginBtn.addEventListener('click', function() {
+                window.location.href = 'denglu_xgawy.html';
+            });
+
+            // 退出按钮事件
+            logoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                updateUserUI();
+                alert('您已退出登录');
+            });
+
+            mobileLogoutBtn.addEventListener('click', function() {
+                localStorage.removeItem('currentUser');
+                updateUserUI();
+                alert('您已退出登录');
+            });
+
+            // 初始化用户界面
+            updateUserUI();
+        });
+    </script>
+</head>
+
+<body class="font-inter new-background text-peace-darkGray">
+    <!-- 导航栏 -->
+    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/90 backdrop-blur-sm shadow-sm">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo区域 -->
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold text-peace-blue flex items-center">
+                        <i class="fa fa-dove mr-2 peace-animation"></i>
+                        <span data-key="logo-text">和平行动</span>
+                    </div>
+                </div>
+
+                <!-- 桌面端导航菜单 -->
+                <nav class="hidden md:flex space-x-1">
+                    <a href="xinwen_xgawy.html" class="nav-item" data-key="nav-news">新闻</a>
+                    <a href="guanyuwomen_xgawy.html" class="nav-item" data-key="nav-about">关于我们</a>
+                    <a href="biaozhi_xgawy.html" class="nav-item" data-key="nav-logo">标志</a>
+                    <a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate" class="nav-item" data-key="nav-donate">捐款</a>
+                    <a href="#war-peace-theme" class="nav-item" data-key="footer-war-peace">战争与和平</a>
+                    <a href="huodong_xgawy.html" class="nav-item" data-key="nav-events">活动</a>
+                </nav>
+
+                <!-- 操作按钮区 -->
+                <div class="flex items-center space-x-4">
+                    <!-- 用户状态区域（登录时显示） -->
+                    <div id="user-info" class="hidden items-center">
+                        <a href="gerenzhongxin_xgawy.html" id="username-display" class="text-peace-blue font-medium mr-2 hover:underline"></a>
+                        <button id="logout-btn" class="text-peace-red hover:text-peace-lightRed font-medium" data-key="btn-logout">退出</button>
+                    </div>
+                    <!-- 登录按钮（未登录时显示） -->
+                    <button id="login-btn" class="text-peace-blue hover:text-peace-darkBlue font-medium" data-key="btn-login">登录</button>
+
+                    <!-- 语言切换按钮 -->
+                    <button class="hidden md:block bg-peace-gray hover:bg-peace-lightGray text-white font-medium py-2 px-5 rounded-full transition-all duration-300 shadow-md language-switch" id="language-toggle">
+                        <i class="fa fa-language mr-1"></i> 切换语言
+                    </button>
+                </div>
+
+                <!-- 移动端菜单按钮 -->
+                <button class="md:hidden text-peace-blue text-xl" id="menu-toggle">
+                    <i class="fa fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 移动端菜单 -->
+        <div class="md:hidden bg-white shadow-lg absolute w-full left-0 transform -translate-y-full transition-transform duration-300" id="mobile-menu">
+            <div class="container mx-auto px-4 py-3 flex flex-col space-y-3">
+                <!-- 移动端用户信息 -->
+                <div id="mobile-user-info" class="hidden items-center border-b border-gray-100 py-2">
+                    <a href="gerenzhongxin_xgawy.html" id="mobile-username-display" class="text-peace-blue font-medium mr-2 hover:underline"></a>
+                    <button id="mobile-logout-btn" class="text-peace-red hover:text-peace-lightRed font-medium" data-key="btn-logout">退出</button>
+                </div>
+                <button id="mobile-login-btn" class="text-peace-blue hover:text-peace-darkBlue font-medium border-b border-gray-100 py-2 hidden" data-key="btn-login">登录</button>
+
+                <a href="xinwen_xgawy.html" class="nav-item border-b border-gray-100" data-key="nav-news">新闻</a>
+                <a href="#footer" class="nav-item border-b border-gray-100" data-key="nav-about">关于我们</a>
+                <a href="#about" class="nav-item border-b border-gray-100" data-key="nav-logo">标志</a>
+                <a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate" class="nav-item border-b border-gray-100" data-key="nav-donate">捐款</a>
+                <a href="huodong_xgawy.html" class="nav-item" data-key="nav-events">活动</a>
+                <button class="bg-peace-gray hover:bg-peace-lightGray text-white font-medium py-2 px-4 rounded-full transition-all duration-300 shadow-md mt-2 language-switch" id="mobile-language-toggle">
+                    <i class="fa fa-language mr-1"></i> 切换语言
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主标语区域 -->
+    <section class="relative h-screen flex items-center justify-center overflow-hidden pt-16" style="background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('zy/5.png'); background-size: cover; background-position: center;">
+        <div class="container mx-auto px-4 z-20 text-center">
+            <h1 class="text-[clamp(2.5rem,6vw,4.5rem)] font-bold text-white text-shadow-lg mb-4 leading-tight" data-key="main-title">
+                战争没有赢家
+            </h1>
+            <p class="text-[clamp(1.2rem,3vw,1.8rem)] text-white text-shadow mb-8 max-w-3xl mx-auto" data-key="main-subtitle">
+                和平没有旁观者
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto mb-10">
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30 shadow-lg hover-scale">
+                    <div class="flex items-center justify-center mb-3">
+                        <i class="fa fa-users text-peace-lightBlue text-3xl mr-3"></i>
+                        <span class="text-3xl font-bold text-white" id="participants-counter">1,234,567</span>
+                    </div>
+                    <p class="text-white/90" data-key="participants-text">全球和平行动参与人数</p>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30 shadow-lg hover-scale">
+                    <div class="flex items-center justify-center mb-3">
+                        <i class="fa fa-pencil-square-o text-peace-lightRed text-3xl mr-3"></i>
+                        <span class="text-3xl font-bold text-white" id="signatures-counter">42,891</span>
+                    </div>
+                    <p class="text-white/90" data-key="signatures-text">今日新增反战签名</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="zhanzheng_xgawy.html" class="bg-peace-blue hover:bg-peace-darkBlue text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" data-key="btn-learn">
+                    <i class="fa fa-book mr-2"></i> 了解真相
+                </a>
+                <a href="heping_xgawy.html" class="bg-peace-red hover:bg-peace-lightRed text-white font-medium py-3 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" data-key="btn-action">
+                    <i class="fa fa-hand-paper-o mr-2"></i> 立即行动
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <a href="#about" class="text-white/80 hover:text-white">
+                <i class="fa fa-angle-down text-3xl"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- 战争速览区域 -->
+    <section id="about" class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-peace-darkGray mb-4" data-key="war-overview-title">战争现状速览</h2>
+                <p class="text-peace-gray max-w-2xl mx-auto" data-key="war-overview-subtitle">实时冲突数据与全球影响分析</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- 当前冲突区地图 -->
+                <div class="content-card equal-size">
+                    <div class="bg-peace-blue text-white p-5">
+                        <h3 class="font-bold text-lg flex items-center">
+                            <i class="fa fa-map-marker mr-2"></i>
+                            <span data-key="conflict-map-title">当前冲突区地图</span>
+                        </h3>
+                    </div>
+                    <div class="p-5">
+                        <div id="conflictMap" class="relative h-64 rounded-lg overflow-hidden mb-4 z-0"></div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                                <span class="text-peace-gray" data-key="conflict-region-ukraine">乌克兰</span>
+                                <span class="text-peace-red font-medium">12个热点</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                                <span class="text-peace-gray" data-key="conflict-region-middle-east">中东地区</span>
+                                <span class="text-peace-red font-medium">8个热点</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                                <span class="text-peace-gray" data-key="conflict-region-africa">非洲萨赫勒</span>
+                                <span class="text-peace-red font-medium">6个热点</span>
+                            </div>
+                        </div>
+                        <a href="zhanzheng_xgawy.html" class="block text-center text-peace-blue hover:text-peace-darkBlue mt-4 font-medium" data-key="conflict-map-detail">
+                            查看详情 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 儿童伤亡 -->
+                <div class="content-card equal-size">
+                    <div class="bg-peace-red text-white p-5">
+                        <h3 class="font-bold text-lg flex items-center">
+                            <i class="fa fa-child mr-2"></i>
+                            <span data-key="child-casualties-title">儿童伤亡</span>
+                        </h3>
+                    </div>
+                    <div class="p-5">
+                        <div class="relative h-64 rounded-lg overflow-hidden mb-4">
+                            <div class="absolute inset-0 bg-peace-red/10 flex items-center justify-center">
+                                <div class="text-5xl font-bold text-peace-red" id="child-counter">28,537</div>
+                            </div>
+                            <canvas id="childChart" class="absolute inset-0"></canvas>
+                        </div>
+                        <p class="text-peace-gray text-sm mb-4" data-key="child-casualties-story">
+                            战争中受害儿童的故事令人心碎，每一个数字背后都是一个本该充满欢笑的童年</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <img src="zy/t.jpg" alt="战争中的儿童" class="w-full h-24 object-cover rounded-lg">
+                            <img src="zy/e.jpg" alt="和平中的儿童" class="w-full h-24 object-cover rounded-lg">
+                        </div>
+                        <a href="zhanzheng_xgawy.html" class="block text-center text-peace-red hover:text-peace-lightRed mt-4 font-medium" data-key="help-children">
+                            帮助儿童 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 军费对比 -->
+                <div class="content-card equal-size">
+                    <div class="bg-peace-blue text-white p-5">
+                        <h3 class="font-bold text-lg flex items-center">
+                            <i class="fa fa-line-chart mr-2"></i>
+                            <span data-key="military-expense-title">军费对比</span>
+                        </h3>
+                    </div>
+                    <div class="p-5">
+                        <div class="relative h-64 rounded-lg overflow-hidden mb-4">
+                            <canvas id="militaryChart"></canvas>
+                        </div>
+                        <div class="flex items-center justify-between mt-4">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-peace-red mr-2"></div>
+                                <span class="text-sm text-peace-gray" data-key="global-military-expense">全球军费开支</span>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full bg-peace-blue mr-2"></div>
+                                <span class="text-sm text-peace-gray" data-key="global-education-expense">全球教育开支</span>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray text-sm mt-4" data-key="military-expense-info">
+                            全球每年军费开支超过2万亿美元，足以解决全球贫困问题数次</p>
+                        <a href="zhanzheng_xgawy.html" class="block text-center text-peace-blue hover:text-peace-darkBlue mt-4 font-medium" data-key="military-expense-detail">
+                            了解更多 <i class="fa fa-angle-right ml-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 行动入口区域 -->
+    <section id="actions" class="py-20 bg-peace-sky/20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-peace-darkGray mb-4" data-key="action-entry-title">加入我们的行动</h2>
+                <p class="text-peace-gray max-w-2xl mx-auto" data-key="action-entry-subtitle">每个人都能为和平贡献力量，选择适合你的方式</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale border border-peace-lightGray group">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="zy/3.png" alt="和平教育" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <i class="fa fa-book text-3xl mb-2"></i>
+                            <h3 class="font-bold text-xl" data-key="education-materials-title">教育材料</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-peace-gray mb-4" data-key="education-materials-desc">
+                            获取反战教育资源，了解战争历史与和平解决方案，传播和平理念</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-peace-blue font-medium">124份资源</span>
+                            <a href="heping_xgawy.html" class="text-peace-blue hover:text-peace-darkBlue" data-key="explore-resources">
+                                探索 <i class="fa fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale border border-peace-lightGray group">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="zy/12.png" alt="和平抗议" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <i class="fa fa-users text-3xl mb-2"></i>
+                            <h3 class="font-bold text-xl" data-key="protest-activities-title">抗议活动</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-peace-gray mb-4" data-key="protest-activities-desc">参与全球反战游行和集会，发出我们反对战争、呼吁和平的声音
+                        </p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-peace-blue font-medium">32场活动</span>
+                            <a href="heping_xgawy.html" class="text-peace-blue hover:text-peace-darkBlue" data-key="participate-activities">
+                                参与 <i class="fa fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover-scale border border-peace-lightGray group">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="zy/4.png" alt="援助难民" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                            <i class="fa fa-heart text-3xl mb-2"></i>
+                            <h3 class="font-bold text-xl" data-key="aid-refugees-title">援助难民</h3>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <p class="text-peace-gray mb-4" data-key="aid-refugees-desc">为战争受害者提供人道主义援助，帮助难民重建生活，重燃希望</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-peace-blue font-medium">15个项目</span>
+                            <a href="heping_xgawy.html" class="text-peace-blue hover:text-peace-darkBlue" data-key="support-projects">
+                                支持 <i class="fa fa-arrow-right ml-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 和平宣言精选 -->
+    <section id="voices" class="py-20 bg-white/80 backdrop-blur-sm">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-[clamp(1.8rem,4vw,2.5rem)] font-bold text-peace-darkGray mb-4" data-key="peace-declaration-title">和平之声</h2>
+                <p class="text-peace-gray max-w-2xl mx-auto" data-key="peace-declaration-subtitle">来自世界各地人们的和平宣言</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 和平宣言卡片（6个） -->
+                <a href="heping_xgawy.html">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-peace-lightGray hover-scale">
+                        <div class="flex items-start mb-4">
+                            <img src="https://picsum.photos/id/1012/100/100" alt="发言人头像" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="speaker-1-name">玛丽亚·加西亚</h4>
+                                <p class="text-peace-gray text-sm" data-key="speaker-1-location">叙利亚，阿勒颇</p>
+                            </div>
+                            <div class="ml-auto text-peace-blue">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray mb-4" data-key="speaker-1-declaration">
+                            "战争让我失去了家园和亲人，我希望世界上的孩子们永远不必经历我所经历的痛苦。和平不是一种选择，而是生存的必要条件。"</p>
+                        <div class="flex items-center text-sm text-peace-gray">
+                            <span class="flex items-center mr-4">
+                            <i class="fa fa-calendar-o mr-1"></i>
+                            <span data-key="speaker-1-date">2023-11-15</span>
+                            </span>
+                            <span class="flex items-center">
+                            <i class="fa fa-thumbs-o-up mr-1"></i> 1,234
+                        </span>
+                        </div>
+                    </div>
+                </a>
+                <a href="heping_xgawy.html">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-peace-lightGray hover-scale">
+                        <div class="flex items-start mb-4">
+                            <img src="https://picsum.photos/id/64/100/100" alt="发言人头像" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="speaker-2-name">亚历山大·彼得罗夫</h4>
+                                <p class="text-peace-gray text-sm" data-key="speaker-2-location">乌克兰，基辅</p>
+                            </div>
+                            <div class="ml-auto text-peace-blue">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray mb-4" data-key="speaker-2-declaration">
+                            "战争没有胜利者，只有失败者。我们失去的不仅是生命和财产，更是人性中最美好的部分。让我们用对话代替武器，用理解代替仇恨。"</p>
+                        <div class="flex items-center text-sm text-peace-gray">
+                            <span class="flex items-center mr-4">
+                            <i class="fa fa-calendar-o mr-1"></i>
+                            <span data-key="speaker-2-date">2023-12-03</span>
+                            </span>
+                            <span class="flex items-center">
+                            <i class="fa fa-thumbs-o-up mr-1"></i> 1,234
+                        </span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="heping_xgawy.html">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-peace-lightGray hover-scale">
+                        <div class="flex items-start mb-4">
+                            <img src="https://picsum.photos/id/177/100/100" alt="发言人头像" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="speaker-3-name">艾米莉·约翰逊</h4>
+                                <p class="text-peace-gray text-sm" data-key="speaker-3-location">美国，纽约</p>
+                            </div>
+                            <div class="ml-auto text-peace-blue">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray mb-4" data-key="speaker-3-declaration">
+                            "作为一名母亲，我无法想象孩子们在战火中成长的恐惧。我们必须为下一代创造一个没有战争的世界，这是我们的责任。"</p>
+                        <div class="flex items-center text-sm text-peace-gray">
+                            <span class="flex items-center mr-4">
+                            <i class="fa fa-calendar-o mr-1"></i>
+                            <span data-key="speaker-3-date">2024-01-10</span>
+                            </span>
+                            <span class="flex items-center">
+                            <i class="fa fa-thumbs-o-up mr-1"></i> 1,234
+                        </span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="heping_xgawy.html">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-peace-lightGray hover-scale">
+                        <div class="flex items-start mb-4">
+                            <img src="https://picsum.photos/id/338/100/100" alt="发言人头像" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="speaker-4-name">穆罕默德·阿里</h4>
+                                <p class="text-peace-gray text-sm" data-key="speaker-4-location">伊拉克，巴格达</p>
+                            </div>
+                            <div class="ml-auto text-peace-blue">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray mb-4" data-key="speaker-4-declaration">
+                            "战争夺走了我的一切，但无法夺走我的希望。我相信有一天，我们可以坐在同一张桌子前，分享面包和故事，而不是子弹和炸弹。"</p>
+                        <div class="flex items-center text-sm text-peace-gray">
+                            <span class="flex items-center mr-4">
+                            <i class="fa fa-calendar-o mr-1"></i>
+                            <span data-key="speaker-4-date">2024-02-18</span>
+                            </span>
+                            <span class="flex items-center">
+                            <i class="fa fa-thumbs-o-up mr-1"></i> 1,234
+                        </span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="heping_xgawy.html">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-peace-lightGray hover-scale">
+                        <div class="flex items-start mb-4">
+                            <img src="https://picsum.photos/id/433/100/100" alt="发言人头像" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="speaker-5-name">索菲亚·科瓦尔斯基</h4>
+                                <p class="text-peace-gray text-sm" data-key="speaker-5-location">俄罗斯，莫斯科</p>
+                            </div>
+                            <div class="ml-auto text-peace-blue">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray mb-4" data-key="speaker-5-declaration">
+                            "战争是人性的失败。我们有足够的智慧探索宇宙，却无法找到和平共处的方式？让我们用头脑创造和平，而不是毁灭。"</p>
+                        <div class="flex items-center text-sm text-peace-gray">
+                            <span class="flex items-center mr-4">
+                            <i class="fa fa-calendar-o mr-1"></i>
+                            <span data-key="speaker-5-date">2024-03-05</span>
+                            </span>
+                            <span class="flex items-center">
+                            <i class="fa fa-thumbs-o-up mr-1"></i> 1,234
+                        </span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="heping_xgawy.html">
+                    <div class="bg-white rounded-xl shadow-md p-6 border border-peace-lightGray hover-scale">
+                        <div class="flex items-start mb-4">
+                            <img src="https://picsum.photos/id/529/100/100" alt="发言人头像" class="w-16 h-16 rounded-full object-cover mr-4">
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="speaker-6-name">卡洛斯·罗德里格斯</h4>
+                                <p class="text-peace-gray text-sm" data-key="speaker-6-location">哥伦比亚，波哥大</p>
+                            </div>
+                            <div class="ml-auto text-peace-blue">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                        </div>
+                        <p class="text-peace-gray mb-4" data-key="speaker-6-declaration">
+                            "作为一名曾经的战士，我亲眼目睹了战争的残酷。和平不是没有冲突，而是用非暴力方式解决冲突的能力。让我们一起学习这种能力。"</p>
+                        <div class="flex items-center text-sm text-peace-gray">
+                            <span class="flex items-center mr-4">
+                            <i class="fa fa-calendar-o mr-1"></i>
+                            <span data-key="speaker-6-date">2024-04-22</span>
+                            </span>
+                            <span class="flex items-center">
+                            <i class="fa fa-thumbs-o-up mr-1"></i> 1,234
+                        </span>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 和平象征图片区域 -->
+    <section class="py-16 bg-peace-gradient text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8" data-key="peace-symbol-title">和平需要我们共同守护</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+                    <br> <br> <br><img src="zy/OIP-C.jpg" alt="和平象征图片" class="w-full h-auto">
+                    <p class="text-lg md:text-xl mb-6" data-key="peace-symbol-text">
+                        和平绝非仅仅是战火停歇的间隙，它更像一株需要精心呵护、持续浇灌的幼苗， 是一种我们必须日日践行的生活方式。每一个对非暴力的坚守、每一次对理解的寻求、每一份对尊严的尊重，都是在用最坚实的力量瓦解战争的根基，构筑和平的长城。
+                    </p>
+                    <p class="text-sm md:text-base opacity-90" data-key="peace-symbol-author">
+                        —— 国际和平组织
+                    </p>
+                </div>
+                <div class="rounded-xl overflow-hidden shadow-xl hover-scale">
+                    <img src="zy/6.jpg" alt="和平象征图片" class="w-full h-auto">
+                    <div class="p-4 bg-black/30 text-center">
+                        <p class="font-medium" data-key="peace-symbol-desc">手捧和平鸽的儿童 —— 象征战争中的希望与未来</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 战争与和平主题区域 -->
+    <section id="war-peace-theme" class="py-24 relative overflow-hidden">
+        <!-- 背景层：战争与和平的对比 -->
+        <div class="absolute inset-0 z-0">
+            <!-- 战争背景（左侧） -->
+            <div class="absolute left-0 top-0 bottom-0 w-1/2 bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('zy/12.png');">
+            </div>
+
+            <!-- 和平背景（右侧） -->
+            <div class="absolute right-0 top-0 bottom-0 w-1/2 bg-cover bg-center" style="background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url('zy/6.jpg');">
+            </div>
+
+            <!-- 中央分隔线 -->
+            <div class="absolute left-1/2 top-0 bottom-0 w-1 transform -translate-x-1/2 bg-gradient-to-b from-peace-red via-peace-blue to-white">
+            </div>
+        </div>
+
+        <div class="container mx-auto px-4 relative z-10">
+            <!-- 中央主题标题 -->
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-6xl font-bold text-peace-darkGray mb-6 leading-tight">
+                    <span class="text-peace-red" data-key="war-tears">战争撕裂世界</span>
+                    <span class="mx-4">|</span>
+                    <span class="text-peace-blue" data-key="peace-mends">和平缝补人心</span>
+                </h2>
+                <div class="w-32 h-1 bg-gradient-to-r from-peace-red to-peace-blue mx-auto mb-8"></div>
+                <p class="text-xl text-peace-gray max-w-3xl mx-auto" data-key="crossroads">
+                    在战争与和平的十字路口，每一次选择都塑造着人类共同的未来
+                </p>
+            </div>
+
+            <!-- 战争与和平对比内容 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- 战争部分 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border-2 border-peace-red/30 transform transition-all duration-500 hover:-translate-y-2">
+                    <div class="flex items-center mb-6">
+                        <div class="bg-peace-red text-white w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                            <i class="fa fa-fire text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-peace-red" data-key="war-cost-title">战争的代价</h3>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="bg-peace-red/10 text-peace-red w-8 h-8 rounded-full flex items-center justify-center mt-1 mr-3">
+                                <i class="fa fa-times"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="war-life-cost">生命的消逝</h4>
+                                <p class="text-peace-gray" data-key="war-life-desc">每一场战争都意味着数万甚至数百万生命的逝去，无数家庭破碎</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-peace-red/10 text-peace-red w-8 h-8 rounded-full flex items-center justify-center mt-1 mr-3">
+                                <i class="fa fa-home"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="war-home-destruction">家园的毁灭</h4>
+                                <p class="text-peace-gray" data-key="war-home-desc">城市沦为废墟，历史文化遗产在战火中化为灰烬</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-peace-red/10 text-peace-red w-8 h-8 rounded-full flex items-center justify-center mt-1 mr-3">
+                                <i class="fa fa-heartbeat"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="war-trauma">心灵的创伤</h4>
+                                <p class="text-peace-gray" data-key="war-trauma-desc">战争留下的心理创伤需要几代人才能愈合，改变社会心理结构</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <div class="h-1 bg-gradient-to-r from-peace-red to-peace-lightRed mb-4"></div>
+                            <p class="text-peace-darkGray text-center mb-4 font-medium">
+
+                            </p>
+                            <a href="zhanzheng_xgawy.html" class="btn-war w-full py-4 text-lg" data-key="war-learn-truth">
+                                了解战争真相 <i class="fa fa-arrow-right ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 和平部分 -->
+                <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border-2 border-peace-blue/30 transform transition-all duration-500 hover:-translate-y-2">
+                    <div class="flex items-center mb-6">
+                        <div class="bg-peace-blue text-white w-12 h-12 rounded-full flex items-center justify-center mr-4">
+                            <i class="fa fa-dove text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-peace-blue" data-key="peace-power-title">和平的力量</h3>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex items-start">
+                            <div class="bg-peace-blue/10 text-peace-blue w-8 h-8 rounded-full flex items-center justify-center mt-1 mr-3">
+                                <i class="fa fa-heart"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="peace-life-continuation">生命的延续</h4>
+                                <p class="text-peace-gray" data-key="peace-life-desc">和平为每个生命提供成长的空间，让人类文明得以延续</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-peace-blue/10 text-peace-blue w-8 h-8 rounded-full flex items-center justify-center mt-1 mr-3">
+                                <i class="fa fa-graduation-cap"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="peace-civilization">文明的繁荣</h4>
+                                <p class="text-peace-gray" data-key="peace-civilization-desc">和平环境促进教育、科技和文化的发展，推动人类进步
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-peace-blue/10 text-peace-blue w-8 h-8 rounded-full flex items-center justify-center mt-1 mr-3">
+                                <i class="fa fa-handshake-o"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-peace-darkGray" data-key="peace-cooperation">合作的桥梁</h4>
+                                <p class="text-peace-gray" data-key="peace-cooperation-desc">和平为不同文化、国家和民族提供对话与合作的机会</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <div class="h-1 bg-gradient-to-r from-peace-blue to-peace-lightBlue mb-4"></div>
+                            <p class="text-peace-darkGray text-center mb-4 font-medium">
+
+                            </p>
+                            <a href="heping_xgawy.html" class="btn-peace w-full py-4 text-lg" data-key="peace-declaration-btn">
+                                签署和平宣言 <i class="fa fa-pencil-square-o ml-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 中央和平宣言 -->
+            <div class="max-w-4xl mx-auto mt-20 bg-gradient-to-r from-peace-red/10 via-white to-peace-blue/10 rounded-2xl p-8 border border-peace-gray/20 shadow-lg">
+                <div class="flex justify-center mb-6">
+                    <div class="bg-peace-blue text-white w-16 h-16 rounded-full flex items-center justify-center">
+                        <i class="fa fa-quote-left text-2xl"></i>
+                    </div>
+                </div>
+                <p class="text-xl md:text-2xl text-center italic text-peace-darkGray leading-relaxed" data-key="martin-luther-quote">
+                    "和平不是战争的缺席，而是正义的存在；不是恐惧的沉默，而是自由的歌唱；不是压迫的延续，而是尊严的保障。真正的和平需要勇气去维护，需要智慧去构建，需要同理心去理解他人。"
+                </p>
+                <p class="text-peace-blue text-center mt-6 font-bold" data-key="martin-luther">—— 马丁·路德·金</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 底部固定标签 -->
+    <div class="fixed bottom-4 right-4 z-40">
+        <div class="flex flex-col space-y-2">
+            <a href="#top" class="bg-peace-blue hover:bg-peace-darkBlue text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
+                <i class="fa fa-arrow-up"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- 页脚版权声明 -->
+    <footer class="footer">
+        <div class="footer-container" id="footer">
+            <div class="footer-section">
+                <h3 id="footer-about-us">关于我们</h3>
+                <p id="footer-about-text">
+                    和平行动是一个国际性非营利组织，致力于通过教育、倡导和人道主义行动消除战争，促进全球和平。我们的使命是创造一个没有战争的世界，让每个人都能在和平与安全中生活。</p>
+
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-links">快速链接</h3>
+                <ul class="footer-links">
+                    <li><a href="#top"><i class="fa fa-chevron-right"></i> <span data-key="footer-home">首页</span></a></li>
+                    <li><a href="guanyuwomen_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-about">关于我们</span></a>
+                    </li>
+                    <li><a href="biaozhi_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-logo">标志</span></a></li>
+                    <li><a href="https://www.crcf.org.cn/web/woyaojuanzeng/woyaojuanzeng.thtml?classFlag=donate"><i class="fa fa-chevron-right"></i> <span data-key="footer-donate">捐款</span></a>
+                    </li>
+                    <li><a href="#war-peace-theme"><i class="fa fa-chevron-right"></i> <span
+                                data-key="footer-war-peace">战争与和平</span></a></li>
+                    <li><a href="huodong_xgawy.html"><i class="fa fa-chevron-right"></i> <span data-key="footer-events">活动</span></a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3 id="footer-contact">联系我们</h3>
+                <ul class="contact-info">
+                    <li>
+                      
+                        <div data-key="footer-email">邮箱: 16666666@outlook.com<br></div>
+                    </li>
+                    <li>
+                        
+                        <div data-key="footer-phone">电话:12345678910举报热线:110</div>
+                    </li>
+                    <li>
+                      
+                        <div data-key="footer-address">地址: 浙江省杭州市滨江区<br></div>
+                    </li>
+                    <li>
+                      
+                        <div data-key="footer-wechat">微信:lllllll </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3 id="footer-friend-links">友情链接</h3>
+                <div class="friend-links">
+                    <a href="https://www.unesco.org/zh" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-unesco">联合国教科文组织</span></a>
+                    <a href="https://www.icrc.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-red-cross">国际红十字会</span></a>
+                    <a href="https://www.tufts.edu/wpf" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-peace-foundation">世界和平基金会</span></a>
+                    <a href="https://www.unocha.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-aid-network">人道主义援助网</span></a>
+                    <a href="https://baike.baidu.com/item/%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F/7459883#:~:text=%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E4%B8%AD%E7%9A%84%E5%86%9B%E4%BA%8B%E5%90%8C%E7%9B%9F%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E5%90%8C%E7%9B%9F(Anti%20fascist%20Alliance)%EF%BC%8C1942%E5%B9%B41%E6%9C%881%E6%97%A5%EF%BC%8C%E8%8B%B1%E7%BE%8E%E8%8B%8F%E4%B8%AD%E7%AD%8926%E4%B8%AA%E5%9B%BD%E5%AE%B6%E5%9C%A8%E5%8D%8E%E7%9B%9B%E9%A1%BF%E4%B8%BE%E8%A1%8C%E4%BC%9A%E8%AE%AE%EF%BC%8C%E7%AD%BE%E7%BD%B2%E4%BA%86%E3%80%8A%E8%81%94%E5%90%88%E5%9B%BD%E5%AE%B6%E5%AE%A3%E8%A8%80%E3%80%8B%EF%BC%8C%E6%A0%87%E5%BF%97%E7%9D%80%E5%9B%BD%E9%99%85%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E7%BB%9F%E4%B8%80%E6%88%98%E7%BA%BF%E6%9C%80%E7%BB%88%E5%BD%A2%E6%88%90%E3%80%82%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E8%81%94%E7%9B%9F%E7%9A%84%E5%BB%BA%E7%AB%8B%E4%BD%BF%E7%AC%AC%E4%BA%8C%E6%AC%A1%E4%B8%96%E7%95%8C%E5%A4%A7%E6%88%98%E7%9A%84%E5%BD%A2%E5%8A%BF%E5%8F%91%E7%94%9F%E5%8F%98%E5%8C%96%EF%BC%8C%E6%98%AF%E5%8F%8D%E6%B3%95%E8%A5%BF%E6%96%AF%E6%88%98%E4%BA%89%E5%8F%96%E5%BE%97%E6%9C%80%E5%90%8E%E8%83%9C%E5%88%A9%E7%9A%84%E5%86%B3%E5%AE%9A%E6%80%A7%E5%9B%A0%E7%B4%A0%E4%B9%8B%E4%B8%80%EF%BC%8C%E5%B9%B6%E4%B8%BA%E8%81%94%E5%90%88%E5%9B%BD%E7%9A%84%E6%88%90%E7%AB%8B%E5%A5%A0%E5%AE%9A%E4%BA%86%E5%9F%BA%E7%A1%80%E3%80%82"
+                     target="_blank"><i class="fa fa-link"></i> <span data-key="footer-anti-war">全球反战联盟</span></a>
+                    <a href="https://www.tc.edu/peace-ed" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-education">和平教育中心</span></a>
+                    <a href="https://www.warmuseum.nl" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-history">战争历史档案馆</span></a>
+                    <a href="https://www.unhcr.org" target="_blank"><i class="fa fa-link"></i> <span data-key="footer-refugee">难民救助组织</span></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="copyright">
+            <p id="footer-disclaimer">
+                <strong>免责声明</strong>: 本网站部分内容源自网络，版权归原作者所有。如有侵犯您的原创版权，请告知，我们将尽快删除相关内容。
+            </p>
+            <p id="footer-compliance">
+                本网站严格遵守《互联网信息服务管理办法》及《网络信息内容生态治理规定》 | 已接入长沙市互联网违法和不良信息举报中心
+            </p>
+            <p id="footer-copyright">
+                © 2025 和平行动国际组织 版权所有 | XX网安备 114514666888号 | ICP备案号: 浙ICP备1008666号-1
+            </p>
+        </div>
+    </footer>
+
+    <!-- 添加Leaflet地图库 -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script>
+        // 移动端菜单控制
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('-translate-y-full');
+        });
+
+        // 导航栏滚动效果
+        const header = document.querySelector('header');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('shadow-md');
+                header.classList.remove('shadow-sm');
+            } else {
+                header.classList.add('shadow-sm');
+                header.classList.remove('shadow-md');
+            }
+        });
+
+        // 初始化地图
+        document.addEventListener('DOMContentLoaded', function() {
+            const map = L.map('conflictMap').setView([30, 0], 2);
+
+            // 添加地图图层
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        });
+    </script>
+</body>
+
+</html>

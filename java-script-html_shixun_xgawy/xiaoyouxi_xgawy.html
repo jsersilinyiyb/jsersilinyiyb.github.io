@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>和平守护者</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        peace: '#4CAF50',
+                        conflict: '#F44336',
+                        neutral: '#2196F3',
+                        earth: '#8D6E63',
+                        sky: '#BBDEFB'
+                    },
+                    fontFamily: {
+                        game: ['"Press Start 2P"', 'cursive', 'system-ui']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            }
+            .pixel-borders {
+                box-shadow: 0 0 0 2px #000;
+            }
+            .game-button {
+                @apply bg-peace hover:bg-peace/80 text-white font-bold py-2 px-4 rounded transition-all duration-200 transform hover:scale-105 active:scale-95 pixel-borders;
+            }
+            .conflict-button {
+                @apply bg-conflict hover:bg-conflict/80 text-white font-bold py-2 px-4 rounded transition-all duration-200 transform hover:scale-105 active:scale-95 pixel-borders;
+            }
+            .peace-gradient {
+                background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%);
+            }
+            .conflict-gradient {
+                background: linear-gradient(135deg, #F44336 0%, #EF5350 100%);
+            }
+            .floating {
+                animation: floating 3s ease-in-out infinite;
+            }
+            @keyframes floating {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+                100% { transform: translateY(0px); }
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body class="bg-sky min-h-screen font-game overflow-hidden">
+    <!-- 游戏容器 -->
+    <div id="game-container" class="w-full h-screen flex flex-col items-center justify-center relative">
+        <!-- 开始界面 -->
+        <div id="start-screen" class="absolute inset-0 flex flex-col items-center justify-center peace-gradient z-50 transition-opacity duration-1000">
+            <h1 class="text-[clamp(2rem,5vw,4rem)] text-white text-shadow mb-8 text-center">和平守护者</h1>
+            <p class="text-white text-center max-w-md mb-10 px-4">阻止冲突，维护和平，共建美好世界</p>
+            <button id="start-button" class="game-button text-xl">开始游戏</button>
+            <button id="how-to-play" class="mt-4 text-white hover:text-yellow-300 transition-colors">如何游戏?</button>
+        </div>
+
+        <!-- 游戏说明 -->
+        <div id="instructions" class="hidden absolute inset-0 bg-black/80 z-60 flex items-center justify-center">
+            <div class="bg-white p-6 rounded-lg max-w-md mx-4">
+                <h2 class="text-xl font-bold mb-4">游戏说明</h2>
+                <p class="mb-3">1. 点击冲突地区（红色标记）阻止战争爆发</p>
+                <p class="mb-3">2. 收集资源（绿色圆点）提升你的和平指数</p>
+                <p class="mb-3">3. 使用和平指数解锁调解工具</p>
+                <p class="mb-3">4. 维护全球和平，避免冲突蔓延</p>
+                <p class="mb-6">5. 游戏难度会随时间增加，小心应对！</p>
+                <button id="close-instructions" class="game-button w-full">开始游戏</button>
+            </div>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="game-screen" class="hidden w-full h-full relative">
+            <!-- 游戏地图背景 -->
+            <div class="absolute inset-0 bg-earth">
+                <img src="https://picsum.photos/id/29/1920/1080" alt="世界地图背景" class="w-full h-full object-cover opacity-40">
+            </div>
+            
+            <!-- 游戏UI -->
+            <div class="absolute top-4 left-4 right-4 flex justify-between items-center z-10">
+                <div class="bg-white/80 p-3 rounded-lg pixel-borders">
+                    <div class="flex items-center mb-2">
+                        <i class="fa fa-heart text-conflict mr-2"></i>
+                        <span>冲突指数: <span id="conflict-level" class="text-conflict">0</span></span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa fa-leaf text-peace mr-2"></i>
+                        <span>和平指数: <span id="peace-level" class="text-peace">100</span></span>
+                    </div>
+                </div>
+                <div class="bg-white/80 p-3 rounded-lg pixel-borders">
+                    <div class="flex items-center mb-2">
+                        <i class="fa fa-clock-o text-neutral mr-2"></i>
+                        <span>时间: <span id="timer" class="text-neutral">60</span>s</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa fa-star text-yellow-500 mr-2"></i>
+                        <span>得分: <span id="score" class="text-yellow-500">0</span></span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fa fa-signal text-orange-500 mr-2"></i>
+                        <span>难度: <span id="difficulty-level" class="text-orange-500">1</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 游戏区域 -->
+            <div id="game-area" class="absolute inset-0"></div>
+            
+            <!-- 暂停按钮 -->
+            <button id="pause-button" class="absolute top-4 right-4 bg-white/80 hover:bg-white text-neutral font-bold py-2 px-4 rounded transition-all duration-200 transform hover:scale-105 active:scale-95 pixel-borders z-20">
+                <i class="fa fa-pause"></i>
+            </button>
+        </div>
+
+        <!-- 暂停界面 -->
+        <div id="pause-screen" class="hidden absolute inset-0 bg-black/70 z-40 flex flex-col items-center justify-center">
+            <div class="bg-white p-8 rounded-lg text-center pixel-borders">
+                <h2 class="text-2xl font-bold mb-6">游戏暂停</h2>
+                <button id="resume-button" class="game-button w-full mb-4">继续游戏</button>
+                <button id="restart-button" class="game-button w-full mb-4">重新开始</button>
+                <button id="quit-button" class="conflict-button w-full">退出游戏</button>
+            </div>
+        </div>
+
+        <!-- 游戏结束界面 -->
+        <div id="game-over-screen" class="hidden absolute inset-0 bg-black/70 z-40 flex flex-col items-center justify-center">
+            <div id="victory-screen" class="hidden bg-white p-8 rounded-lg text-center max-w-md mx-4 pixel-borders">
+                <h2 class="text-2xl font-bold mb-4 text-peace">胜利!</h2>
+                <p class="mb-2">你成功维护了世界和平</p>
+                <p class="mb-6">最终得分: <span id="final-score" class="text-yellow-500 font-bold">0</span></p>
+                <button id="play-again-button" class="game-button w-full mb-4">再玩一次</button>
+                <button id="back-to-menu-button" class="conflict-button w-full">返回菜单</button>
+            </div>
+            
+            <div id="defeat-screen" class="hidden bg-white p-8 rounded-lg text-center max-w-md mx-4 pixel-borders">
+                <h2 class="text-2xl font-bold mb-4 text-conflict">失败!</h2>
+                <p class="mb-2">冲突已无法控制</p>
+                <p class="mb-6">最终得分: <span id="defeat-score" class="text-yellow-500 font-bold">0</span></p>
+                <button id="try-again-button" class="game-button w-full mb-4">再试一次</button>
+                <button id="quit-to-menu-button" class="conflict-button w-full">返回菜单</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 游戏状态
+            const gameState = {
+                conflictLevel: 0,
+                peaceLevel: 100,
+                score: 0,
+                timeRemaining: 60,
+                isPaused: false,
+                isGameOver: false,
+                conflictZones: [],
+                peaceItems: [],
+                gameTimer: null,
+                spawnTimer: null,
+                peaceTimer: null,
+                conflictTimer: null,
+                difficulty: 1,
+                initialSpawnRate: 3000, // 初始冲突生成间隔(ms)
+                initialPeaceRate: 5000, // 初始和平物品生成间隔(ms)
+                initialConflictRate: 10000, // 初始冲突增加间隔(ms)
+                minSpawnRate: 1000, // 最小冲突生成间隔(ms)
+                minPeaceRate: 2000, // 最小和平物品生成间隔(ms)
+                minConflictRate: 5000, // 最小冲突增加间隔(ms)
+            };
+
+            // DOM 元素
+            const startScreen = document.getElementById('start-screen');
+            const gameScreen = document.getElementById('game-screen');
+            const pauseScreen = document.getElementById('pause-screen');
+            const gameOverScreen = document.getElementById('game-over-screen');
+            const victoryScreen = document.getElementById('victory-screen');
+            const defeatScreen = document.getElementById('defeat-screen');
+            const instructions = document.getElementById('instructions');
+            
+            // 按钮
+            const startButton = document.getElementById('start-button');
+            const howToPlayButton = document.getElementById('how-to-play');
+            const closeInstructionsButton = document.getElementById('close-instructions');
+            const pauseButton = document.getElementById('pause-button');
+            const resumeButton = document.getElementById('resume-button');
+            const restartButton = document.getElementById('restart-button');
+            const quitButton = document.getElementById('quit-button');
+            const playAgainButton = document.getElementById('play-again-button');
+            const backToMenuButton = document.getElementById('back-to-menu-button');
+            const tryAgainButton = document.getElementById('try-again-button');
+            const quitToMenuButton = document.getElementById('quit-to-menu-button');
+            
+            // 游戏数据显示
+            const conflictLevelDisplay = document.getElementById('conflict-level');
+            const peaceLevelDisplay = document.getElementById('peace-level');
+            const timerDisplay = document.getElementById('timer');
+            const scoreDisplay = document.getElementById('score');
+            const finalScoreDisplay = document.getElementById('final-score');
+            const defeatScoreDisplay = document.getElementById('defeat-score');
+            const difficultyLevelDisplay = document.getElementById('difficulty-level');
+            
+            // 游戏区域
+            const gameArea = document.getElementById('game-area');
+
+            // 游戏初始化
+            function initGame() {
+                // 重置游戏状态
+                gameState.conflictLevel = 0;
+                gameState.peaceLevel = 100;
+                gameState.score = 0;
+                gameState.timeRemaining = 60;
+                gameState.isPaused = false;
+                gameState.isGameOver = false;
+                gameState.conflictZones = [];
+                gameState.peaceItems = [];
+                gameState.difficulty = 1;
+                
+                // 清空游戏区域
+                gameArea.innerHTML = '';
+                
+                // 更新显示
+                updateDisplays();
+                
+                // 设置游戏计时器
+                if (gameState.gameTimer) clearInterval(gameState.gameTimer);
+                gameState.gameTimer = setInterval(updateTimer, 1000);
+                
+                // 设置冲突区域生成计时器
+                if (gameState.spawnTimer) clearInterval(gameState.spawnTimer);
+                gameState.spawnTimer = setInterval(spawnConflictZone, gameState.initialSpawnRate);
+                
+                // 设置和平物品生成计时器
+                if (gameState.peaceTimer) clearInterval(gameState.peaceTimer);
+                gameState.peaceTimer = setInterval(spawnPeaceItem, gameState.initialPeaceRate);
+                
+                // 设置冲突增加计时器
+                if (gameState.conflictTimer) clearInterval(gameState.conflictTimer);
+                gameState.conflictTimer = setInterval(increaseConflict, gameState.initialConflictRate);
+                
+                // 设置难度增加计时器
+                if (gameState.difficultyTimer) clearInterval(gameState.difficultyTimer);
+                gameState.difficultyTimer = setInterval(increaseDifficulty, 10000); // 每10秒增加一次难度
+            }
+
+            // 更新游戏数据显示
+            function updateDisplays() {
+                conflictLevelDisplay.textContent = gameState.conflictLevel;
+                peaceLevelDisplay.textContent = gameState.peaceLevel;
+                timerDisplay.textContent = gameState.timeRemaining;
+                scoreDisplay.textContent = gameState.score;
+                difficultyLevelDisplay.textContent = gameState.difficulty;
+            }
+
+            // 更新计时器
+            function updateTimer() {
+                if (gameState.isPaused || gameState.isGameOver) return;
+                
+                gameState.timeRemaining--;
+                timerDisplay.textContent = gameState.timeRemaining;
+                
+                if (gameState.timeRemaining <= 0) {
+                    endGame(true);
+                }
+            }
+
+            // 生成冲突区域
+            function spawnConflictZone() {
+                if (gameState.isPaused || gameState.isGameOver) return;
+                
+                // 冲突区域数量限制
+                if (gameState.conflictZones.length >= 10 + Math.floor(gameState.difficulty/2)) return;
+                
+                // 随机位置
+                const x = Math.floor(Math.random() * (gameArea.offsetWidth - 60));
+                const y = Math.floor(Math.random() * (gameArea.offsetHeight - 60));
+                
+                // 创建冲突区域元素
+                const conflictZone = document.createElement('div');
+                conflictZone.className = 'absolute w-16 h-16 bg-conflict rounded-full flex items-center justify-center cursor-pointer conflict-gradient floating pixel-borders z-20';
+                conflictZone.style.left = `${x}px`;
+                conflictZone.style.top = `${y}px`;
+                conflictZone.innerHTML = '<i class="fa fa-bomb text-white text-2xl"></i>';
+                
+                // 添加点击事件
+                conflictZone.addEventListener('click', () => {
+                    resolveConflict(conflictZone);
+                });
+                
+                // 添加到游戏区域
+                gameArea.appendChild(conflictZone);
+                
+                // 计算冲突强度（随难度增加）
+                const baseIntensity = Math.floor(Math.random() * 5) + 1;
+                const intensity = Math.floor(baseIntensity * (1 + gameState.difficulty * 0.1));
+                
+                // 添加到冲突区域数组
+                gameState.conflictZones.push({
+                    element: conflictZone,
+                    intensity: intensity,
+                    position: { x, y }
+                });
+                
+                // 增加冲突指数（随难度增加）
+                gameState.conflictLevel += 5 + Math.floor(gameState.difficulty * 0.5);
+                updateDisplays();
+                
+                // 检查游戏是否结束
+                checkGameStatus();
+            }
+
+            // 生成和平物品
+            function spawnPeaceItem() {
+                if (gameState.isPaused || gameState.isGameOver) return;
+                
+                // 和平物品数量限制
+                if (gameState.peaceItems.length >= 5) return;
+                
+                // 随机位置
+                const x = Math.floor(Math.random() * (gameArea.offsetWidth - 40));
+                const y = Math.floor(Math.random() * (gameArea.offsetHeight - 40));
+                
+                // 创建和平物品元素
+                const peaceItem = document.createElement('div');
+                peaceItem.className = 'absolute w-10 h-10 bg-peace rounded-full flex items-center justify-center cursor-pointer peace-gradient floating pixel-borders z-10';
+                peaceItem.style.left = `${x}px`;
+                peaceItem.style.top = `${y}px`;
+                peaceItem.innerHTML = '<i class="fa fa-leaf text-white text-xl"></i>';
+                
+                // 添加点击事件
+                peaceItem.addEventListener('click', () => {
+                    collectPeaceItem(peaceItem);
+                });
+                
+                // 添加到游戏区域
+                gameArea.appendChild(peaceItem);
+                
+                // 添加到和平物品数组
+                gameState.peaceItems.push({
+                    element: peaceItem,
+                    value: Math.floor(Math.random() * 3) + 1,
+                    position: { x, y }
+                });
+            }
+
+            // 解决冲突
+            function resolveConflict(conflictZone) {
+                // 找到冲突区域在数组中的索引
+                const index = gameState.conflictZones.findIndex(zone => zone.element === conflictZone);
+                
+                if (index !== -1) {
+                    // 获取冲突强度
+                    const intensity = gameState.conflictZones[index].intensity;
+                    
+                    // 减少冲突指数
+                    gameState.conflictLevel -= intensity * 2;
+                    if (gameState.conflictLevel < 0) gameState.conflictLevel = 0;
+                    
+                    // 增加和平指数
+                    gameState.peaceLevel += intensity;
+                    if (gameState.peaceLevel > 100) gameState.peaceLevel = 100;
+                    
+                    // 增加分数（随难度增加）
+                    gameState.score += intensity * 10 * (1 + gameState.difficulty * 0.1);
+                    
+                    // 创建爆炸效果
+                    createExplosionEffect(gameState.conflictZones[index].position.x, gameState.conflictZones[index].position.y);
+                    
+                    // 从DOM中移除
+                    conflictZone.remove();
+                    
+                    // 从数组中移除
+                    gameState.conflictZones.splice(index, 1);
+                    
+                    // 更新显示
+                    updateDisplays();
+                    
+                    // 播放音效（模拟）
+                    console.log('播放解决冲突音效');
+                }
+            }
+
+            // 收集和平物品
+            function collectPeaceItem(peaceItem) {
+                // 找到和平物品在数组中的索引
+                const index = gameState.peaceItems.findIndex(item => item.element === peaceItem);
+                
+                if (index !== -1) {
+                    // 获取物品价值
+                    const value = gameState.peaceItems[index].value;
+                    
+                    // 增加和平指数
+                    gameState.peaceLevel += value * 5;
+                    if (gameState.peaceLevel > 100) gameState.peaceLevel = 100;
+                    
+                    // 增加分数
+                    gameState.score += value * 5;
+                    
+                    // 创建收集效果
+                    createCollectEffect(gameState.peaceItems[index].position.x, gameState.peaceItems[index].position.y);
+                    
+                    // 从DOM中移除
+                    peaceItem.remove();
+                    
+                    // 从数组中移除
+                    gameState.peaceItems.splice(index, 1);
+                    
+                    // 更新显示
+                    updateDisplays();
+                    
+                    // 播放音效（模拟）
+                    console.log('播放收集物品音效');
+                }
+            }
+
+            // 创建爆炸效果
+            function createExplosionEffect(x, y) {
+                const explosion = document.createElement('div');
+                explosion.className = 'absolute rounded-full pixel-borders';
+                explosion.style.width = '0px';
+                explosion.style.height = '0px';
+                explosion.style.left = `${x + 30}px`;
+                explosion.style.top = `${y + 30}px`;
+                explosion.style.backgroundColor = 'rgba(255, 215, 0, 0.8)';
+                explosion.style.position = 'absolute';
+                explosion.style.borderRadius = '50%';
+                explosion.style.zIndex = '30';
+                
+                gameArea.appendChild(explosion);
+                
+                // 动画效果
+                let size = 0;
+                const growInterval = setInterval(() => {
+                    size += 2;
+                    explosion.style.width = `${size}px`;
+                    explosion.style.height = `${size}px`;
+                    explosion.style.left = `${x + 30 - size/2}px`;
+                    explosion.style.top = `${y + 30 - size/2}px`;
+                    
+                    if (size > 80) {
+                        clearInterval(growInterval);
+                        
+                        // 淡出效果
+                        let opacity = 0.8;
+                        const fadeInterval = setInterval(() => {
+                            opacity -= 0.05;
+                            explosion.style.opacity = opacity;
+                            
+                            if (opacity <= 0) {
+                                clearInterval(fadeInterval);
+                                explosion.remove();
+                            }
+                        }, 20);
+                    }
+                }, 10);
+            }
+
+            // 创建收集效果
+            function createCollectEffect(x, y) {
+                const collect = document.createElement('div');
+                collect.className = 'absolute rounded-full pixel-borders';
+                collect.style.width = '0px';
+                collect.style.height = '0px';
+                collect.style.left = `${x + 20}px`;
+                collect.style.top = `${y + 20}px`;
+                collect.style.backgroundColor = 'rgba(76, 175, 80, 0.8)';
+                collect.style.position = 'absolute';
+                collect.style.borderRadius = '50%';
+                collect.style.zIndex = '30';
+                
+                gameArea.appendChild(collect);
+                
+                // 动画效果
+                let size = 0;
+                const growInterval = setInterval(() => {
+                    size += 2;
+                    collect.style.width = `${size}px`;
+                    collect.style.height = `${size}px`;
+                    collect.style.left = `${x + 20 - size/2}px`;
+                    collect.style.top = `${y + 20 - size/2}px`;
+                    
+                    if (size > 40) {
+                        clearInterval(growInterval);
+                        collect.remove();
+                    }
+                }, 10);
+            }
+
+            // 增加冲突指数
+            function increaseConflict() {
+                if (gameState.isPaused || gameState.isGameOver) return;
+                
+                // 随难度增加冲突
+                gameState.conflictLevel += 10 + gameState.difficulty * 2;
+                updateDisplays();
+                checkGameStatus();
+            }
+
+            // 增加难度
+            function increaseDifficulty() {
+                if (gameState.isPaused || gameState.isGameOver) return;
+                
+                gameState.difficulty++;
+                updateDisplays();
+                showMessage(`难度提升至 ${gameState.difficulty}!`);
+                
+                // 调整冲突生成速度
+                const spawnRate = Math.max(gameState.initialSpawnRate / (1 + gameState.difficulty * 0.1), gameState.minSpawnRate);
+                clearInterval(gameState.spawnTimer);
+                gameState.spawnTimer = setInterval(spawnConflictZone, spawnRate);
+                
+                // 调整和平物品生成速度
+                const peaceRate = Math.max(gameState.initialPeaceRate / (1 + gameState.difficulty * 0.05), gameState.minPeaceRate);
+                clearInterval(gameState.peaceTimer);
+                gameState.peaceTimer = setInterval(spawnPeaceItem, peaceRate);
+                
+                // 调整冲突增加速度
+                const conflictRate = Math.max(gameState.initialConflictRate / (1 + gameState.difficulty * 0.05), gameState.minConflictRate);
+                clearInterval(gameState.conflictTimer);
+                gameState.conflictTimer = setInterval(increaseConflict, conflictRate);
+            }
+
+            // 检查游戏状态
+            function checkGameStatus() {
+                // 冲突指数过高，游戏失败
+                if (gameState.conflictLevel >= 100) {
+                    endGame(false);
+                }
+                
+                // 和平指数满，奖励时间
+                if (gameState.peaceLevel >= 100) {
+                    const timeBonus = 5 + Math.floor(gameState.difficulty * 0.5); // 随难度增加奖励时间
+                    gameState.timeRemaining += timeBonus;
+                    gameState.peaceLevel = 95; // 防止无限加时间
+                    updateDisplays();
+                    
+                    // 显示奖励提示
+                    showMessage(`和平指数满！奖励${timeBonus}秒时间！`);
+                }
+            }
+
+            // 显示消息提示
+            function showMessage(text) {
+                const message = document.createElement('div');
+                message.className = 'absolute bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg pixel-borders z-50';
+                message.style.left = '50%';
+                message.style.top = '30%';
+                message.style.transform = 'translateX(-50%)';
+                message.style.opacity = '0';
+                message.style.transition = 'opacity 0.5s, transform 0.5s';
+                message.textContent = text;
+                
+                gameArea.appendChild(message);
+                
+                // 显示动画
+                setTimeout(() => {
+                    message.style.opacity = '1';
+                    message.style.transform = 'translateX(-50%) translateY(-20px)';
+                }, 10);
+                
+                // 隐藏动画
+                setTimeout(() => {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateX(-50%) translateY(-40px)';
+                    
+                    setTimeout(() => {
+                        message.remove();
+                    }, 500);
+                }, 2000);
+            }
+
+            // 结束游戏
+            function endGame(victory) {
+                gameState.isGameOver = true;
+                
+                // 清除计时器
+                clearInterval(gameState.gameTimer);
+                clearInterval(gameState.spawnTimer);
+                clearInterval(gameState.peaceTimer);
+                clearInterval(gameState.conflictTimer);
+                clearInterval(gameState.difficultyTimer);
+                
+                // 显示游戏结束界面
+                gameOverScreen.classList.remove('hidden');
+                
+                if (victory) {
+                    victoryScreen.classList.remove('hidden');
+                    finalScoreDisplay.textContent = gameState.score;
+                } else {
+                    defeatScreen.classList.remove('hidden');
+                    defeatScoreDisplay.textContent = gameState.score;
+                }
+            }
+
+            // 开始游戏
+            function startGame() {
+                startScreen.classList.add('hidden');
+                gameScreen.classList.remove('hidden');
+                initGame();
+            }
+
+            // 暂停游戏
+            function pauseGame() {
+                gameState.isPaused = true;
+                pauseScreen.classList.remove('hidden');
+            }
+
+            // 继续游戏
+            function resumeGame() {
+                gameState.isPaused = false;
+                pauseScreen.classList.add('hidden');
+            }
+
+            // 返回主菜单
+            function returnToMainMenu() {
+                gameScreen.classList.add('hidden');
+                pauseScreen.classList.add('hidden');
+                gameOverScreen.classList.add('hidden');
+                victoryScreen.classList.add('hidden');
+                defeatScreen.classList.add('hidden');
+                startScreen.classList.remove('hidden');
+                
+                // 清除计时器
+                clearInterval(gameState.gameTimer);
+                clearInterval(gameState.spawnTimer);
+                clearInterval(gameState.peaceTimer);
+                clearInterval(gameState.conflictTimer);
+                clearInterval(gameState.difficultyTimer);
+            }
+
+            // 事件监听器
+            startButton.addEventListener('click', startGame);
+            howToPlayButton.addEventListener('click', () => {
+                startScreen.classList.add('hidden');
+                instructions.classList.remove('hidden');
+            });
+            closeInstructionsButton.addEventListener('click', () => {
+                instructions.classList.add('hidden');
+                startGame();
+            });
+            pauseButton.addEventListener('click', pauseGame);
+            resumeButton.addEventListener('click', resumeGame);
+            restartButton.addEventListener('click', () => {
+                pauseScreen.classList.add('hidden');
+                initGame();
+            });
+            quitButton.addEventListener('click', returnToMainMenu);
+            playAgainButton.addEventListener('click', () => {
+                gameOverScreen.classList.add('hidden');
+                victoryScreen.classList.add('hidden');
+                initGame();
+            });
+            backToMenuButton.addEventListener('click', returnToMainMenu);
+            tryAgainButton.addEventListener('click', () => {
+                gameOverScreen.classList.add('hidden');
+                defeatScreen.classList.add('hidden');
+                initGame();
+            });
+            quitToMenuButton.addEventListener('click', returnToMainMenu);
+
+            // 键盘事件 - ESC键暂停/继续游戏
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (gameState.isGameOver) return;
+                    
+                    if (gameState.isPaused) {
+                        resumeGame();
+                    } else if (!startScreen.classList.contains('hidden')) {
+                        // 主菜单状态不响应ESC
+                        return;
+                    } else {
+                        pauseGame();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+    
