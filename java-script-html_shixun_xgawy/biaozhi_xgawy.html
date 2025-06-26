@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反战争主张和平 - 整合版和平标志</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1.5s ease;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            letter-spacing: 1.5px;
+        }
+        
+        .subtitle {
+            font-size: 1.5rem;
+            opacity: 0.9;
+            max-width: 700px;
+            line-height: 1.6;
+        }
+        
+        /* 和平标志样式（来自封面页） */
+        .peace-symbol {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            margin: 30px auto;
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        .peace-circle {
+            width: 100%;
+            height: 100%;
+            border: 8px solid rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .peace-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+        
+        .vertical {
+            width: 8px;
+            height: 100%;
+            left: calc(50% - 4px);
+            top: 0;
+        }
+        
+        .diagonal-right {
+            width: 8px;
+            height: 80%;
+            left: calc(50% - 4px);
+            top: 10%;
+            transform: rotate(-45deg);
+            transform-origin: center;
+        }
+        
+        .diagonal-left {
+            width: 8px;
+            height: 80%;
+            left: calc(50% - 4px);
+            top: 10%;
+            transform: rotate(45deg);
+            transform-origin: center;
+        }
+        
+        .doves-container {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            margin: 30px 0;
+        }
+        
+        .dove {
+            position: absolute;
+            font-size: 3rem;
+            animation: fly linear infinite;
+            opacity: 0.8;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        
+        .peace-message {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            text-align: center;
+            margin: 40px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeInUp 1.5s ease;
+        }
+        
+        .message-title {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ffdf6b;
+        }
+        
+        .message-content {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        
+        .quote {
+            font-style: italic;
+            border-left: 3px solid #ffdf6b;
+            padding-left: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+        
+        .action-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .action-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            width: 280px;
+            text-align: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .action-card i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ffdf6b;
+        }
+        
+        .action-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .pledge-btn {
+            background: linear-gradient(45deg, #ffdf6b, #ff9a44);
+            color: #1a2980;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 30px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .pledge-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pledge-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .counter {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            font-size: 1.3rem;
+        }
+        
+        .counter-number {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            min-width: 120px;
+        }
+        
+        .olive-branch {
+            position: absolute;
+            font-size: 5rem;
+            opacity: 0.3;
+            z-index: 0;
+        }
+        
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            padding: 20px;
+            font-size: 1rem;
+            opacity: 0.8;
+            width: 100%;
+        }
+        
+        /* 和平标志动画效果 */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes fly {
+            0% { 
+                transform: translateX(-100px) translateY(0);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { 
+                transform: translateX(calc(100vw + 100px)) translateY(-50px);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* 和平标志悬停效果 */
+        .peace-symbol:hover .peace-circle {
+            border-color: #ffdf6b;
+            box-shadow: 0 0 40px rgba(255, 223, 107, 0.6);
+            transition: all 0.5s ease;
+        }
+        
+        .peace-symbol:hover .peace-line {
+            background: #ffdf6b;
+            box-shadow: 0 0 15px rgba(255, 223, 107, 0.8);
+            transition: all 0.5s ease;
+        }
+        
+        /* 添加和平鸽飞入效果（来自封面页） */
+        .dove-fly {
+            position: absolute;
+            top: 50%;
+            left: -100px;
+            font-size: 4rem;
+            color: white;
+            z-index: 20;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            opacity: 0;
+            animation: flyIn 8s forwards 2s;
+        }
+        
+        @keyframes flyIn {
+            0% {
+                left: -100px;
+                opacity: 0;
+            }
+            30% {
+                opacity: 1;
+            }
+            70% {
+                left: calc(50% - 30px);
+                top: 50%;
+            }
+            100% {
+                left: calc(100% + 100px);
+                top: 30%;
+                opacity: 1;
+            }
+        }
+        
+        /* 和平符号发光动画（来自封面页） */
+        @keyframes symbolAppear {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .subtitle { font-size: 1.2rem; }
+            .peace-symbol { width: 220px; height: 220px; }
+            .action-section { flex-direction: column; align-items: center; }
+            .dove-fly { font-size: 3rem; }
+        }
+        
+        @media (max-width: 480px) {
+            h1 { font-size: 2rem; }
+            .peace-symbol { width: 180px; height: 180px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 橄榄枝背景元素 -->
+    <div class="olive-branch" style="top: 5%; left: 5%; transform: rotate(-30deg);">🌿</div>
+    <div class="olive-branch" style="top: 10%; right: 7%; transform: rotate(20deg);">🌿</div>
+    <div class="olive-branch" style="bottom: 15%; left: 8%; transform: rotate(15deg);">🌿</div>
+    <div class="olive-branch" style="bottom: 5%; right: 10%; transform: rotate(-25deg);">🌿</div>
+    
+    <!-- 和平鸽飞入动画 -->
+    <div class="dove-fly">
+        <i class="fas fa-dove"></i>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>反战争 主张和平</h1>
+            <p class="subtitle">在战争与和平之间，我们选择和平。因为和平不仅是战争的缺席，更是正义、尊严与人类共同繁荣的体现</p>
+        </header>
+        
+        <!-- 使用封面页设计的和平符号 -->
+        <div class="peace-symbol pulse">
+            <div class="peace-circle"></div>
+            <div class="peace-line vertical"></div>
+            <div class="peace-line diagonal-right"></div>
+            <div class="peace-line diagonal-left"></div>
+        </div>
+        
+        <!-- 和平鸽容器 -->
+        <div class="doves-container" id="dovesContainer"></div>
+        
+        <!-- 和平信息 -->
+        <div class="peace-message">
+            <h2 class="message-title">和平之声</h2>
+            <p class="message-content">战争撕裂人类的灵魂，摧毁文明的根基。和平是希望的灯塔，是繁荣的土壤。每一场战争都是人类共同体的创伤，每一次和平都是全人类的胜利。</p>
+            
+            <div class="quote">
+                "和平不能靠武力维持，只能通过理解实现。"<br>
+                <span style="display: inline-block; margin-top: 10px;">— 阿尔伯特·爱因斯坦</span>
+            </div>
+            
+            <div class="quote">
+                "如果我们想要真正的和平，就必须从儿童开始。"<br>
+                <span style="display: inline-block; margin-top: 10px;">— 玛利亚·蒙特梭利</span>
+            </div>
+            
+            <div class="quote">
+                "战争不能决定谁是对的，只能决定谁活下来。"<br>
+                <span style="display: inline-block; margin-top: 10px;">— 伯特兰·罗素</span>
+            </div>
+        </div>
+        
+        <!-- 行动号召区 -->
+        <div class="action-section">
+            <div class="action-card">
+                <i class="fas fa-hands-helping"></i>
+                <h3>传播和平</h3>
+                <p>分享和平理念，教育下一代和平的价值</p>
+            </div>
+            
+            <div class="action-card">
+                <i class="fas fa-hand-holding-heart"></i>
+                <h3>支持人道</h3>
+                <p>援助战争受害者，为难民提供支持</p>
+            </div>
+            
+            <div class="action-card">
+                <i class="fas fa-globe-americas"></i>
+                <h3>全球行动</h3>
+                <p>参与国际和平倡议，推动和平政策</p>
+            </div>
+        </div>
+        
+        <!-- 和平计数器 -->
+        <div class="counter">
+            <span>和平承诺人数:</span>
+            <div class="counter-number" id="peaceCounter">12,587</div>
+        </div>
+        
+        <button class="pledge-btn" id="pledgeBtn">
+            <i class="fas fa-dove"></i> 加入和平承诺
+        </button>
+    </div>
+    
+    <footer>
+        <p>每一小步都推动世界走向和平 | 反战争主张和平倡议 © 2023</p>
+    </footer>
+    
+    <script>
+        // 创建和平鸽
+        function createDoves() {
+            const container = document.getElementById('dovesContainer');
+            const doveCount = 7;
+            
+            for (let i = 0; i < doveCount; i++) {
+                const dove = document.createElement('div');
+                dove.classList.add('dove');
+                dove.innerHTML = '🕊️';
+                
+                // 为每只鸽子设置随机属性
+                const size = 2 + Math.random() * 2;
+                const duration = 15 + Math.random() * 20;
+                const delay = Math.random() * 15;
+                const startY = 30 + Math.random() * 140;
+                
+                dove.style.fontSize = `${size}rem`;
+                dove.style.animationDuration = `${duration}s`;
+                dove.style.animationDelay = `${delay}s`;
+                dove.style.top = `${startY}px`;
+                
+                container.appendChild(dove);
+            }
+        }
+        
+        // 和平计数器功能
+        const counter = document.getElementById('peaceCounter');
+        const pledgeBtn = document.getElementById('pledgeBtn');
+        let count = 12587;
+        let added = false;
+        
+        // 动画计数器
+        function animateCounter() {
+            const target = count + 1;
+            const increment = Math.ceil((target - count) / 20);
+            
+            const timer = setInterval(() => {
+                count += increment;
+                if (count >= target) {
+                    count = target;
+                    clearInterval(timer);
+                }
+                counter.textContent = count.toLocaleString();
+            }, 50);
+        }
+        
+        // 处理承诺按钮点击
+        pledgeBtn.addEventListener('click', () => {
+            if (!added) {
+                animateCounter();
+                added = true;
+                
+                // 从按钮创建飞出的鸽子
+                for (let i = 0; i < 5; i++) {
+                    const dove = document.createElement('div');
+                    dove.classList.add('dove');
+                    dove.innerHTML = '🕊️';
+                    dove.style.position = 'fixed';
+                    dove.style.fontSize = '2rem';
+                    dove.style.zIndex = '100';
+                    
+                    const btnRect = pledgeBtn.getBoundingClientRect();
+                    const startX = btnRect.left + btnRect.width/2;
+                    const startY = btnRect.top + btnRect.height/2;
+                    
+                    dove.style.left = `${startX}px`;
+                    dove.style.top = `${startY}px`;
+                    
+                    // 随机终点位置
+                    const endX = Math.random() * window.innerWidth;
+                    const endY = Math.random() * window.innerHeight;
+                    
+                    document.body.appendChild(dove);
+                    
+                    // 鸽子动画
+                    dove.animate([
+                        { 
+                            transform: `translate(0, 0) scale(1)`,
+                            opacity: 1
+                        },
+                        { 
+                            transform: `translate(${endX - startX}px, ${endY - startY - 200}px) scale(0.5)`,
+                            opacity: 0
+                        }
+                    ], {
+                        duration: 2000,
+                        easing: 'ease-out'
+                    });
+                    
+                    // 动画结束后移除鸽子
+                    setTimeout(() => {
+                        dove.remove();
+                    }, 2000);
+                }
+                
+                // 更改按钮文本
+                pledgeBtn.innerHTML = '<i class="fas fa-check"></i> 感谢您的承诺!';
+                
+                // 3秒后重置
+                setTimeout(() => {
+                    pledgeBtn.innerHTML = '<i class="fas fa-dove"></i> 加入和平承诺';
+                    added = false;
+                }, 3000);
+            }
+        });
+        
+        // 创建背景鸽子
+        createDoves();
+        
+        // 为和平符号添加脉冲效果
+        const peaceSymbol = document.querySelector('.peace-symbol');
+        peaceSymbol.addEventListener('mouseenter', () => {
+            peaceSymbol.classList.add('pulse');
+        });
+        
+        peaceSymbol.addEventListener('animationend', () => {
+            peaceSymbol.classList.remove('pulse');
+        });
+        
+        // 添加和平符号悬停效果
+        peaceSymbol.addEventListener('mouseenter', () => {
+            const circle = peaceSymbol.querySelector('.peace-circle');
+            const lines = peaceSymbol.querySelectorAll('.peace-line');
+            
+            circle.style.borderColor = '#ffdf6b';
+            circle.style.boxShadow = '0 0 40px rgba(255, 223, 107, 0.6)';
+            
+            lines.forEach(line => {
+                line.style.background = '#ffdf6b';
+                line.style.boxShadow = '0 0 15px rgba(255, 223, 107, 0.8)';
+            });
+        });
+        
+        peaceSymbol.addEventListener('mouseleave', () => {
+            const circle = peaceSymbol.querySelector('.peace-circle');
+            const lines = peaceSymbol.querySelectorAll('.peace-line');
+            
+            setTimeout(() => {
+                circle.style.borderColor = 'rgba(255, 255, 255, 0.7)';
+                circle.style.boxShadow = '0 0 30px rgba(255, 255, 255, 0.3)';
+                
+                lines.forEach(line => {
+                    line.style.background = 'rgba(255, 255, 255, 0.7)';
+                    line.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.7)';
+                });
+            }, 300);
+        });
+    </script>
+</body>
+</html>
